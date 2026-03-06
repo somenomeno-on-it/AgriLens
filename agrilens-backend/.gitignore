@@ -1,0 +1,57 @@
+# Node modules
+node_modules/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Build / dist
+dist/
+build/
+
+# Dependency directories
+jspm_packages/
+
+# Optional npm cache
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Mac system files
+.DS_Store
+
+# Windows system files
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+
+# Coverage reports
+coverage/
+
+# Temporary files
+tmp/
+temp/
+
+# PM2
+.pm2/
