@@ -114,9 +114,6 @@ AgriLens is a **web-based application** built on the **MERN stack**:
   - Cloud hosting platform (for deployment)
   - HTTPS for secure communication
 
-## Getting Started
-
-> The exact commands may differ based on the final folder structure and scripts of this project. Adjust paths and script names as needed.
 
 ### Prerequisites
 
@@ -132,14 +129,14 @@ AgriLens is a **web-based application** built on the **MERN stack**:
 ### Clone the Repository
 
 ```bash
-git clone <your-repo-url>.git
+git clone https://github.com/somenomeno-on-it/AgriLens.git.git
 cd Agrilens
 ```
 
 ### Backend Setup
 
 ```bash
-cd backend   # or your backend folder name
+cd agrilens-backend   
 npm install
 npm run dev  # or npm start
 ```
@@ -147,7 +144,7 @@ npm run dev  # or npm start
 ### Frontend Setup
 
 ```bash
-cd frontend  # or your frontend folder name
+cd agrilens-frontend  
 npm install
 npm run dev  # or npm start / npm run build
 ```
