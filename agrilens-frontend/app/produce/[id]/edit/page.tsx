@@ -34,6 +34,10 @@ export default function EditProducePage() {
     pricePerUnit: "",
   });
 
+  const [photoFiles, setPhotoFiles] = useState<FileList | null>(null);
+  const [photoUploading, setPhotoUploading] = useState(false);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+
   const userId =
     typeof window !== "undefined"
       ? window.localStorage.getItem("farmerUserId") || "demo-farmer"
@@ -99,6 +103,35 @@ export default function EditProducePage() {
     }
   }, [id, userId, router]);
 
+  const uploadPhotos = async (listingId: string) => {
+    if (!photoFiles || photoFiles.length === 0) return;
+
+    setPhotoUploading(true);
+    setPhotoError(null);
+
+    const formData = new FormData();
+    Array.from(photoFiles).forEach((file) => {
+      formData.append("photos", file);
+    });
+
+    const res = await fetch(`${API_BASE}/api/produce/${listingId}/photos`, {
+      method: "POST",
+      headers: {
+        "x-user-id": userId,
+      },
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      setPhotoError(
+        errText || "Failed to upload photos. Check file type and size."
+      );
+    }
+
+    setPhotoUploading(false);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -127,6 +160,10 @@ export default function EditProducePage() {
       return;
     }
 
+    if (id) {
+      await uploadPhotos(id);
+    }
+
     router.push("/produce");
   };
 
@@ -134,7 +171,10 @@ export default function EditProducePage() {
     return <div className="p-6">Loading listing...</div>;
   }
 
-  const handleNumericChange = (field: "quantity" | "pricePerUnit", value: string) => {
+  const handleNumericChange = (
+    field: "quantity" | "pricePerUnit",
+    value: string
+  ) => {
     if (value === "") {
       setForm((prev) => ({ ...prev, [field]: "" }));
       return;
@@ -199,7 +239,9 @@ export default function EditProducePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-sm font-medium">Expected Harvest Date</label>
+              <label className="text-sm font-medium">
+                Expected Harvest Date
+              </label>
               <Input
                 type="date"
                 value={form.expectedHarvestDate}
@@ -276,15 +318,33 @@ export default function EditProducePage() {
             </div>
           </div>
 
+          <div className="space-y-1">
+            <label className="text-sm font-medium">
+              Add / replace photos (up to 5)
+            </label>
+            <Input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={(e) => setPhotoFiles(e.target.files)}
+            />
+            {photoError && (
+              <p className="text-sm text-red-600">{photoError}</p>
+            )}
+          </div>
+
           <div className="flex justify-end gap-2 pt-4">
             <Button
               type="button"
               variant="outline"
               onClick={() => router.push("/produce")}
+              disabled={photoUploading}
             >
               Cancel
             </Button>
-            <Button type="submit">Update Listing</Button>
+            <Button type="submit" disabled={photoUploading}>
+              {photoUploading ? "Updating & uploading photos..." : "Update Listing"}
+            </Button>
           </div>
         </form>
       </Card>

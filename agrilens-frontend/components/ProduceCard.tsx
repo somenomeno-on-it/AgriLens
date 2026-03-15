@@ -2,6 +2,7 @@
 
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { PhotoGallery } from "@/components/PhotoGallery";
 
 export type ProduceStatus = "pending" | "approved" | "rejected";
 
@@ -12,6 +13,7 @@ export type ProduceListing = {
   unit: string;
   expectedHarvestDate?: string;
   status: ProduceStatus;
+  photos?: string[];
 };
 
 type Props = {
@@ -38,8 +40,8 @@ export function ProduceCard({ listing, onEdit, onDelete }: Props) {
     : "N/A";
 
   return (
-    <Card className="p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-      <div>
+    <Card className="p-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      <div className="flex-1">
         <div className="flex items-center gap-2">
           <h3 className="text-lg font-semibold">{listing.cropType}</h3>
           <span
@@ -56,8 +58,11 @@ export function ProduceCard({ listing, onEdit, onDelete }: Props) {
         <div className="text-sm text-zinc-600">
           Expected harvest: {harvestLabel}
         </div>
+        {listing.photos && listing.photos.length > 0 && (
+          <PhotoGallery photos={listing.photos} />
+        )}
       </div>
-      <div className="flex gap-2">
+      <div className="flex gap-2 self-start md:self-auto">
         {onEdit && (
           <Button variant="outline" size="sm" onClick={onEdit}>
             Edit
