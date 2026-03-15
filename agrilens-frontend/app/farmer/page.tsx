@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -177,7 +178,12 @@ export default function FarmerPage() {
 
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-8">
-      <h1 className="text-3xl font-semibold mb-4">Farmer & Farm Management</h1>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-3xl font-semibold">Farmer & Farm Management</h1>
+        <Button asChild variant="outline">
+          <Link href="/produce">My Listings</Link>
+        </Button>
+      </div>
 
       <Card className="p-4 space-y-4">
         <h2 className="text-xl font-semibold">Farmer Profile</h2>
