@@ -6,6 +6,7 @@ require("dotenv").config();
 
 const farmerRoutes = require("./routes/farmer");
 const produceRouter = require("./routes/produceRoutes");
+const listingRoutes = require("./routes/listings");
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/farmer", farmerRoutes);
 app.use("/api/produce", produceRouter);
+app.use("/api/listings", listingRoutes);
 
 const PORT = process.env.PORT || 3001;
 const MONGODB_URI =

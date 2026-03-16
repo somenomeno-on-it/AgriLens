@@ -56,6 +56,7 @@ async function createListing(req, res) {
       availabilityStart,
       availabilityEnd,
       quantity,
+      initialQuantity: Number(quantity),
       unit,
       pricePerUnit,
       status: "pending",
@@ -173,12 +174,84 @@ async function deleteListing(req, res) {
   }
 }
 
+// Update inventory for a listing (sold or reserved)
+async function updateInventory(req, res) {
+  try {
+    const { listingId } = req.params;
+    const { amount, type } = req.body;
+
+    const numericAmount = Number(amount);
+
+    if (!amount || Number.isNaN(numericAmount) || numericAmount <= 0) {
+      return res
+        .status(400)
+        .json({ message: "amount must be a number greater than 0" });
+    }
+
+    if (type !== "sold" && type !== "reserved") {
+      return res
+        .status(400)
+        .json({ message: 'type must be either "sold" or "reserved"' });
+    }
+
+    const listing = await Produce.findOne({
+      _id: listingId,
+      farmerId: req.user.id,
+      isRemoved: { $ne: true },
+    });
+
+    if (!listing) {
+      return res.status(404).json({ message: "Listing not found" });
+    }
+
+    // Ensure initialQuantity is set for older documents
+    if (listing.initialQuantity == null) {
+      listing.initialQuantity = listing.quantity;
+    }
+
+    const available = listing.quantity;
+
+    if (numericAmount > available) {
+      return res
+        .status(400)
+        .json({ message: "amount exceeds available quantity" });
+    }
+
+    if (type === "sold") {
+      listing.soldQuantity = (listing.soldQuantity || 0) + numericAmount;
+    } else if (type === "reserved") {
+      listing.reservedQuantity = (listing.reservedQuantity || 0) + numericAmount;
+    }
+
+    listing.quantity = available - numericAmount;
+
+    if (listing.quantity < 0) {
+      return res
+        .status(400)
+        .json({ message: "amount exceeds available quantity" });
+    }
+
+    await listing.save();
+
+    return res.json({
+      _id: listing._id,
+      quantity: listing.quantity,
+      initialQuantity: listing.initialQuantity,
+      soldQuantity: listing.soldQuantity,
+      reservedQuantity: listing.reservedQuantity,
+    });
+  } catch (err) {
+    return res.status(500).json({ message: "Failed to update inventory" });
+  }
+}
+
 module.exports = {
   createListing,
   getListingsByFarmer,
   getListingById,
   updateListing,
   deleteListing,
+  updateInventory,
 };
 
 
