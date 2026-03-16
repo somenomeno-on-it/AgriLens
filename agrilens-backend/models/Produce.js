@@ -36,6 +36,20 @@ const produceSchema = new Schema(
       required: true,
       min: 0,
     },
+    initialQuantity: {
+      type: Number,
+      min: 0,
+    },
+    soldQuantity: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    reservedQuantity: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
     unit: {
       type: String,
       enum: ["kg", "ton", "quintal"],

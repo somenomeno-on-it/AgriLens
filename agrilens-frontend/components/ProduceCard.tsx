@@ -9,11 +9,14 @@ export type ProduceStatus = "pending" | "approved" | "rejected";
 export type ProduceListing = {
   _id: string;
   cropType: string;
-  quantity: number;
+  quantity: number; // available quantity
   unit: string;
   expectedHarvestDate?: string;
   status: ProduceStatus;
   photos?: string[];
+  initialQuantity?: number;
+  soldQuantity?: number;
+  reservedQuantity?: number;
 };
 
 type Props = {
@@ -39,6 +42,14 @@ export function ProduceCard({ listing, onEdit, onDelete }: Props) {
     ? new Date(listing.expectedHarvestDate).toLocaleDateString()
     : "N/A";
 
+  const initial =
+    typeof listing.initialQuantity === "number"
+      ? listing.initialQuantity
+      : listing.quantity;
+
+  const sold = listing.soldQuantity ?? 0;
+  const reserved = listing.reservedQuantity ?? 0;
+
   return (
     <Card className="p-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
       <div className="flex-1">
@@ -53,10 +64,14 @@ export function ProduceCard({ listing, onEdit, onDelete }: Props) {
           </span>
         </div>
         <div className="text-sm text-zinc-600 mt-1">
-          Quantity: {listing.quantity} {listing.unit}
+          Available: {listing.quantity} {listing.unit}
         </div>
         <div className="text-sm text-zinc-600">
           Expected harvest: {harvestLabel}
+        </div>
+        <div className="text-xs text-zinc-500 mt-1">
+          Inventory — Initial: {initial} {listing.unit}, Sold: {sold}{" "}
+          {listing.unit}, Reserved: {reserved} {listing.unit}
         </div>
         {listing.photos && listing.photos.length > 0 && (
           <PhotoGallery photos={listing.photos} />
