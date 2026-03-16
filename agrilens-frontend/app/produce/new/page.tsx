@@ -31,6 +31,10 @@ export default function AddProducePage() {
     pricePerUnit: "",
   });
 
+  const [photoFiles, setPhotoFiles] = useState<FileList | null>(null);
+  const [photoUploading, setPhotoUploading] = useState(false);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+
   const userId =
     typeof window !== "undefined"
       ? window.localStorage.getItem("farmerUserId") || "demo-farmer"
@@ -61,6 +65,35 @@ export default function AddProducePage() {
     fetchFarms();
   }, [userId]);
 
+  const uploadPhotos = async (listingId: string) => {
+    if (!photoFiles || photoFiles.length === 0) return;
+
+    setPhotoUploading(true);
+    setPhotoError(null);
+
+    const formData = new FormData();
+    Array.from(photoFiles).forEach((file) => {
+      formData.append("photos", file);
+    });
+
+    const res = await fetch(`${API_BASE}/api/produce/${listingId}/photos`, {
+      method: "POST",
+      headers: {
+        "x-user-id": userId,
+      },
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      setPhotoError(
+        errText || "Failed to upload photos. Check file type and size."
+      );
+    }
+
+    setPhotoUploading(false);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -89,6 +122,12 @@ export default function AddProducePage() {
       return;
     }
 
+    const created = await res.json();
+
+    if (created && created._id) {
+      await uploadPhotos(created._id);
+    }
+
     router.push("/produce");
   };
 
@@ -96,20 +135,20 @@ export default function AddProducePage() {
     return <div className="p-6">Loading farms...</div>;
   }
 
-  const handleNumericChange = (field: "quantity" | "pricePerUnit", value: string) => {
-    // Allow empty string so user can clear the field
+  const handleNumericChange = (
+    field: "quantity" | "pricePerUnit",
+    value: string
+  ) => {
     if (value === "") {
       setForm((prev) => ({ ...prev, [field]: "" }));
       return;
     }
 
-    // Only allow digits and a single decimal point
     const cleaned = value.replace(/[^0-9.]/g, "");
     const parts = cleaned.split(".");
     const normalized =
       parts.length > 2 ? `${parts[0]}.${parts.slice(1).join("")}` : cleaned;
 
-    // Prevent negative numbers
     const num = Number(normalized);
     if (Number.isNaN(num) || num < 0) {
       return;
@@ -164,7 +203,9 @@ export default function AddProducePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-sm font-medium">Expected Harvest Date</label>
+              <label className="text-sm font-medium">
+                Expected Harvest Date
+              </label>
               <Input
                 type="date"
                 value={form.expectedHarvestDate}
@@ -241,15 +282,33 @@ export default function AddProducePage() {
             </div>
           </div>
 
+          <div className="space-y-1">
+            <label className="text-sm font-medium">
+              Photos (optional, up to 5)
+            </label>
+            <Input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={(e) => setPhotoFiles(e.target.files)}
+            />
+            {photoError && (
+              <p className="text-sm text-red-600">{photoError}</p>
+            )}
+          </div>
+
           <div className="flex justify-end gap-2 pt-4">
             <Button
               type="button"
               variant="outline"
               onClick={() => router.push("/produce")}
+              disabled={photoUploading}
             >
               Cancel
             </Button>
-            <Button type="submit">Save Listing</Button>
+            <Button type="submit" disabled={photoUploading}>
+              {photoUploading ? "Saving & uploading photos..." : "Save Listing"}
+            </Button>
           </div>
         </form>
       </Card>

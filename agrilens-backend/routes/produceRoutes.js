@@ -6,6 +6,8 @@ const {
   updateListing,
   deleteListing,
 } = require("../controllers/produceController");
+const { uploadProducePhotos } = require("../controllers/uploadController");
+const { upload } = require("../middleware/upload");
 const { requireAuth, requireFarmer } = require("../middleware/auth");
 
 const router = express.Router();
@@ -16,6 +18,15 @@ router
   .route("/")
   .post(requireAuth, requireFarmer, createListing)
   .get(requireAuth, requireFarmer, getListingsByFarmer);
+
+// POST /api/produce/:id/photos - upload photos for a listing
+router.post(
+  "/:id/photos",
+  requireAuth,
+  requireFarmer,
+  upload.array("photos", 5),
+  uploadProducePhotos
+);
 
 // GET /api/produce/:id - get a specific listing
 // PUT /api/produce/:id - update a listing
