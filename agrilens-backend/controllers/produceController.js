@@ -1,4 +1,5 @@
 const Produce = require("../models/Produce");
+const { createNotification } = require("../services/notificationService");
 
 // Create a new produce listing
 // - status must start as 'pending'
@@ -111,6 +112,16 @@ async function updateListing(req, res) {
     const { id } = req.params;
     const updates = { ...req.body };
 
+    let previousStatus = null;
+    if (updates.status) {
+      const existing = await Produce.findOne({
+        _id: id,
+        farmerId: req.user.id,
+        isRemoved: { $ne: true },
+      }).select("status cropType");
+      previousStatus = existing ? existing.status : null;
+    }
+
     // Validation if these fields are being updated
     if (updates.cropType === "" || updates.cropType == null) {
       return res.status(400).json({ message: "cropType is required" });
@@ -146,6 +157,19 @@ async function updateListing(req, res) {
 
     if (!listing) {
       return res.status(404).json({ message: "Listing not found" });
+    }
+
+    if (updates.status && previousStatus && previousStatus !== listing.status) {
+      try {
+        await createNotification({
+          userId: req.user.id,
+          type: "LISTING_STATUS_UPDATE",
+          message: `Your listing "${listing.cropType}" status changed to "${listing.status}".`,
+          listingId: listing._id,
+        });
+      } catch (notifyErr) {
+        // Intentionally do not fail the request if notification creation fails
+      }
     }
 
     return res.json(listing);
