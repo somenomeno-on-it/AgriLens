@@ -129,7 +129,7 @@ AgriLens is a **web-based application** built on the **MERN stack**:
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/somenomeno-on-it/AgriLens.git.git
+git clone https://github.com/somenomeno-on-it/AgriLens.git
 cd Agrilens
 ```
 
