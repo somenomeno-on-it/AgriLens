@@ -1,7 +1,9 @@
 "use client";
 
+import { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { PhotoGallery } from "@/components/PhotoGallery";
 import { updateInventory } from "@/services/inventoryService";
 
@@ -39,6 +41,27 @@ function statusStyles(status: ProduceStatus) {
 }
 
 export function ProduceCard({ listing, onEdit, onDelete }: Props) {
+  const [showPopup, setShowPopup] = useState(false);
+  const popupRef = useRef<HTMLDivElement>(null);
+
+  const [amount, setAmount] = useState("");
+  const [type, setType] = useState<"sold" | "reserved">("sold");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const onClickOutside = (e: MouseEvent) => {
+      if (showPopup && popupRef.current && !popupRef.current.contains(e.target as Node)) {
+        const target = e.target as HTMLElement;
+        if (!target.closest(`.inventory-update-btn-${listing._id}`)) {
+          setShowPopup(false);
+        }
+      }
+    };
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, [showPopup, listing._id]);
+
   const harvestLabel = listing.expectedHarvestDate
     ? new Date(listing.expectedHarvestDate).toLocaleDateString()
     : "N/A";
@@ -53,39 +76,27 @@ export function ProduceCard({ listing, onEdit, onDelete }: Props) {
 
   const canUpdateInventory = listing.status === "approved";
 
-  const handleSoldReserved = async () => {
-    if (!canUpdateInventory) return;
-
-    const amountInput = window.prompt("Enter amount");
-    if (amountInput == null) return;
-
-    const amount = Number(amountInput);
-    if (!amountInput || Number.isNaN(amount) || amount <= 0) {
+  const handleUpdate = async () => {
+    const numAmount = Number(amount);
+    if (!amount || Number.isNaN(numAmount) || numAmount <= 0) {
+      setError("Amount must be greater than 0");
       return;
     }
 
-    const typeInput = window.prompt(
-      'Type "sold" for sold inventory or "reserved" for reserved inventory'
-    );
-
-    if (typeInput == null) return;
-
-    const normalized = typeInput.trim().toLowerCase();
-    if (normalized !== "sold" && normalized !== "reserved") {
-      alert('Invalid type. Please enter "sold" or "reserved".');
-      return;
-    }
+    setLoading(true);
+    setError("");
 
     try {
-      await updateInventory(listing._id, amount, normalized);
+      await updateInventory(listing._id, numAmount, type);
       window.location.reload();
     } catch (err) {
-      alert("Failed to update inventory");
+      setError("Failed to update inventory");
+      setLoading(false);
     }
   };
 
   return (
-    <Card className="p-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+    <Card className="p-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between overflow-visible">
       <div className="flex-1">
         <div className="flex items-center gap-2">
           <h3 className="text-lg font-semibold">{listing.cropType}</h3>
@@ -111,8 +122,8 @@ export function ProduceCard({ listing, onEdit, onDelete }: Props) {
           <PhotoGallery photos={listing.photos} />
         )}
       </div>
-      <div className="flex flex-col gap-2 self-start md:self-auto">
-        <div className="flex gap-2">
+      <div className="flex flex-col gap-2 self-start md:self-auto items-end md:items-start relative">
+        <div className="flex gap-2 w-full justify-end md:justify-start">
           {onEdit && (
             <Button variant="outline" size="sm" onClick={onEdit}>
               Edit
@@ -125,16 +136,97 @@ export function ProduceCard({ listing, onEdit, onDelete }: Props) {
           )}
         </div>
 
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1 w-full relative">
           <Button
+            className={`inventory-update-btn-${listing._id} w-full md:w-auto`}
             variant="outline"
             size="sm"
-            onClick={handleSoldReserved}
+            onClick={() => {
+              if (canUpdateInventory) {
+                setShowPopup((v) => !v);
+                setError("");
+                setAmount("");
+                setType("sold");
+              }
+            }}
             disabled={!canUpdateInventory}
           >
             Sold / Reserved
           </Button>
 
+          {!canUpdateInventory && (
+            <span className="text-[10px] sm:text-xs text-muted-foreground text-center md:text-left md:max-w-[140px] leading-tight">
+              Inventory can only be updated after approval.
+            </span>
+          )}
+
+          {showPopup && (
+            <div
+              ref={popupRef}
+              className="absolute right-0 top-full mt-2 w-[280px] z-[50] rounded-xl border bg-background p-4 shadow-md md:right-0"
+            >
+              <div className="text-sm font-semibold mb-3">Update Inventory</div>
+              <div className="space-y-3">
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">
+                    Amount
+                  </label>
+                  <Input
+                    type="number"
+                    placeholder="Enter amount"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    className="h-8 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">
+                    Type
+                  </label>
+                  <div className="flex gap-4 mt-1">
+                    <label className="flex items-center gap-1.5 text-sm cursor-pointer">
+                      <input
+                        type="radio"
+                        name={`inventoryType-${listing._id}`}
+                        value="sold"
+                        checked={type === "sold"}
+                        onChange={() => setType("sold")}
+                        className="accent-primary"
+                      />
+                      Sold
+                    </label>
+                    <label className="flex items-center gap-1.5 text-sm cursor-pointer">
+                      <input
+                        type="radio"
+                        name={`inventoryType-${listing._id}`}
+                        value="reserved"
+                        checked={type === "reserved"}
+                        onChange={() => setType("reserved")}
+                        className="accent-primary"
+                      />
+                      Reserved
+                    </label>
+                  </div>
+                </div>
+
+                {error && <div className="text-xs text-red-600">{error}</div>}
+
+                <div className="flex items-center justify-end gap-2 mt-4">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowPopup(false)}
+                    disabled={loading}
+                  >
+                    Cancel
+                  </Button>
+                  <Button size="sm" onClick={handleUpdate} disabled={loading}>
+                    {loading ? "Updating..." : "Update"}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </Card>
