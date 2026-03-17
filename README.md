@@ -1,4 +1,3 @@
-
 ## AgriLens
 
 AgriLens is a **MERN-stack web platform** for agricultural monitoring and transparency. It connects **farmers**, **local verification agents**, **administrators**, and **public guests** to register farms, list produce, verify quality, and visualize agricultural data on an interactive map.
@@ -162,4 +161,3 @@ Then open the frontend URL in your browser (e.g. `http://localhost:3000`).
 
 The high-level class diagram for AgriLens is available here:  
 [AgriLens Class Diagram](https://drive.google.com/file/d/1LSipEyFBFjIaCZE3v3WHis5P9lrvULNu/view?usp=sharing)
-
