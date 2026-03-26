@@ -1,4 +1,5 @@
 const Produce = require("../models/Produce");
+const ProduceHistory = require("../models/ProduceHistory");
 const { createNotification } = require("../services/notificationService");
 
 // Create a new produce listing
@@ -64,6 +65,30 @@ async function createListing(req, res) {
       photos,
       grade,
     });
+
+    // Create an initial snapshot so history/analytics include the starting "pending" state.
+    try {
+      await ProduceHistory.create({
+        farmerId: req.user.id,
+        produceId: listing._id,
+        farmId: listing.farmId,
+        cropType: listing.cropType,
+        statusFrom: "pending",
+        statusTo: listing.status,
+        pricePerUnit: listing.pricePerUnit,
+        quantity: listing.quantity,
+        initialQuantity: listing.initialQuantity ?? listing.quantity,
+        soldQuantity: listing.soldQuantity ?? 0,
+        reservedQuantity: listing.reservedQuantity ?? 0,
+        unit: listing.unit,
+        expectedHarvestDate: listing.expectedHarvestDate,
+        availabilityStart: listing.availabilityStart,
+        availabilityEnd: listing.availabilityEnd,
+        description: listing.description,
+      });
+    } catch (historyErr) {
+      // Intentionally do not fail listing creation if history snapshot fails
+    }
 
     return res.status(201).json(listing);
   } catch (err) {
@@ -169,6 +194,30 @@ async function updateListing(req, res) {
         });
       } catch (notifyErr) {
         // Intentionally do not fail the request if notification creation fails
+      }
+
+      // Snapshot listing state on each status transition for later history/analytics.
+      try {
+        await ProduceHistory.create({
+          farmerId: req.user.id,
+          produceId: listing._id,
+          farmId: listing.farmId,
+          cropType: listing.cropType,
+          statusFrom: previousStatus,
+          statusTo: listing.status,
+          pricePerUnit: listing.pricePerUnit,
+          quantity: listing.quantity,
+          initialQuantity: listing.initialQuantity ?? listing.quantity,
+          soldQuantity: listing.soldQuantity ?? 0,
+          reservedQuantity: listing.reservedQuantity ?? 0,
+          unit: listing.unit,
+          expectedHarvestDate: listing.expectedHarvestDate,
+          availabilityStart: listing.availabilityStart,
+          availabilityEnd: listing.availabilityEnd,
+          description: listing.description,
+        });
+      } catch (historyErr) {
+        // Intentionally do not fail the request if history snapshot creation fails
       }
     }
 
