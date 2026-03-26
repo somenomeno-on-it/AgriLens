@@ -2,6 +2,10 @@ const express = require("express");
 const FarmerProfile = require("../models/FarmerProfile");
 const Farm = require("../models/Farm");
 const { requireAuth, requireFarmer } = require("../middleware/auth");
+const {
+  getProduceHistory,
+  getFarmerAnalytics,
+} = require("../controllers/produceHistoryController");
 
 const router = express.Router();
 
@@ -132,6 +136,12 @@ router.delete("/farms/:id", requireAuth, requireFarmer, async (req, res) => {
     res.status(500).json({ message: "Failed to delete farm" });
   }
 });
+
+// GET /api/farmer/:id/history - paginated produce status history snapshots
+router.get("/:id/history", requireAuth, requireFarmer, getProduceHistory);
+
+// GET /api/farmer/:id/analytics - aggregation-based price trends + quantity summaries
+router.get("/:id/analytics", requireAuth, requireFarmer, getFarmerAnalytics);
 
 module.exports = router;
 

@@ -43,6 +43,12 @@ export default function RootLayout({
               </Link>
               <Link
                 className="text-muted-foreground hover:text-foreground"
+                href="/farmer/analytics"
+              >
+                Analytics
+              </Link>
+              <Link
+                className="text-muted-foreground hover:text-foreground"
                 href="/notifications"
               >
                 Notifications
