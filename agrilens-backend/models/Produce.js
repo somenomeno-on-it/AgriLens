@@ -71,8 +71,25 @@ const produceSchema = new Schema(
       },
     ],
     grade: {
+      type: Number,
+      min: 0,
+      max: 100,
+    },
+    agentFeedback: {
       type: String,
       trim: true,
+    },
+    verificationStatus: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "pending",
+    },
+    verifiedBy: {
+      type: Schema.Types.ObjectId,
+      ref: "Agent",
+    },
+    verifiedAt: {
+      type: Date,
     },
     isFlagged: {
       type: Boolean,
