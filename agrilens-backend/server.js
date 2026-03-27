@@ -8,6 +8,7 @@ const farmerRoutes = require("./routes/farmer");
 const produceRouter = require("./routes/produceRoutes");
 const listingRoutes = require("./routes/listings");
 const agentVerifyRoutes = require("./routes/agentVerify");
+const agentDashboardRoutes = require("./routes/agentDashboard");
 const notificationRoutes = require("./routes/notifications");
 
 const app = express();
@@ -21,10 +22,24 @@ app.get("/", (req, res) => {
   res.send("API is running");
 });
 
+// TEMPORARY DEBUG ENDPOINT - remove later
+app.get("/api/debug", async (req, res) => {
+  const Farm = require("./models/Farm");
+  const Produce = require("./models/Produce");
+  const Agent = require("./models/Agent");
+  const FarmerProfile = require("./models/FarmerProfile");
+  const farms = await Farm.find().lean();
+  const listings = await Produce.find().select("cropType farmId farmerId verificationStatus status").lean();
+  const agents = await Agent.find().lean();
+  const profiles = await FarmerProfile.find().select("userId fullName").lean();
+  res.json({ farms, listings, agents, profiles });
+});
+
 app.use("/api/farmer", farmerRoutes);
 app.use("/api/produce", produceRouter);
 app.use("/api/listings", listingRoutes);
 app.use("/api", agentVerifyRoutes);
+app.use("/api", agentDashboardRoutes);
 app.use("/api/notifications", notificationRoutes);
 
 const PORT = process.env.PORT || 3001;

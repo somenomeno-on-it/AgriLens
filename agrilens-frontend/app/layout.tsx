@@ -56,6 +56,12 @@ export default function RootLayout({
               <Link className="text-muted-foreground hover:text-foreground" href="/agent/queue">
                 Agent Queue
               </Link>
+              <Link
+                className="text-muted-foreground hover:text-foreground"
+                href="/agent/dashboard"
+              >
+                Agent Dashboard
+              </Link>
             </nav>
             <NotificationBell />
           </div>
