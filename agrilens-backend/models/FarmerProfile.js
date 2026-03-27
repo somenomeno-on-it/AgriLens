@@ -26,6 +26,10 @@ const farmerProfileSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    lastSeen: {
+      type: Date,
+      default: Date.now,
+    },
   },
   { timestamps: true }
 );
