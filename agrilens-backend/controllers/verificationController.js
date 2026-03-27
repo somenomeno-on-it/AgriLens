@@ -88,8 +88,9 @@ async function getAgentQueue(req, res) {
       });
     }
 
+    const regexRegions = assignedRegions.map(r => new RegExp(`^${r}$`, 'i'));
     const farms = await Farm.find({
-      "location.upazila": { $in: assignedRegions },
+      "location.upazila": { $in: regexRegions },
     }).select("_id");
 
     const farmIds = farms.map((farm) => farm._id);
