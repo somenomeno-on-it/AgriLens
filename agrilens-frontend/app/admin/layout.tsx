@@ -15,7 +15,7 @@ import {
 const navItems = [
   { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
   { label: "Users", href: "/admin/users", icon: Users },
-  { label: "Agents", href: "/admin/agents", icon: UserCheck },
+  { label: "Agents", href: "/admin/users?tab=agent", icon: UserCheck },
   { label: "Listings", href: "/admin/listings", icon: Package },
   { label: "Complaints", href: "/admin/complaints", icon: MessageSquareWarning },
   { label: "Announcements", href: "/admin/announcements", icon: Megaphone },

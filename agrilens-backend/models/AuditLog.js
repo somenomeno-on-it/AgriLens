@@ -4,17 +4,33 @@ const auditLogSchema = new mongoose.Schema(
   {
     agentId: {
       type: String,
-      required: true,
       trim: true,
     },
     listingId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Listing",
-      required: true,
+    },
+    adminId: {
+      type: String,
+      trim: true,
+    },
+    targetUserId: {
+      type: String,
+      trim: true,
+    },
+    targetRole: {
+      type: String,
+      enum: ["farmer", "agent"],
     },
     action: {
       type: String,
-      enum: ["approved", "rejected"],
+      enum: [
+        "approved",
+        "rejected",
+        "admin_suspend",
+        "admin_activate",
+        "admin_delete_user",
+      ],
       required: true,
     },
     grade: {

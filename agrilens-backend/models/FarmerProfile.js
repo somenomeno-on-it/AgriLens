@@ -30,6 +30,15 @@ const farmerProfileSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    email: {
+      type: String,
+      trim: true,
+      lowercase: true,
+    },
+    isSuspended: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
