@@ -10,6 +10,7 @@ const listingRoutes = require("./routes/listings");
 const agentVerifyRoutes = require("./routes/agentVerify");
 const agentDashboardRoutes = require("./routes/agentDashboard");
 const notificationRoutes = require("./routes/notifications");
+const adminRoutes = require("./routes/adminRoutes");
 
 const app = express();
 
@@ -41,6 +42,7 @@ app.use("/api/listings", listingRoutes);
 app.use("/api", agentVerifyRoutes);
 app.use("/api", agentDashboardRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/admin", adminRoutes);
 
 const PORT = process.env.PORT || 3001;
 const MONGODB_URI =

@@ -30,6 +30,19 @@ const agentSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    email: {
+      type: String,
+      trim: true,
+      lowercase: true,
+    },
+    bioUrl: {
+      type: String,
+      trim: true,
+    },
+    lastSeen: {
+      type: Date,
+      default: Date.now,
+    },
     assignedRegions: {
       type: [assignedRegionSchema],
       default: [],
