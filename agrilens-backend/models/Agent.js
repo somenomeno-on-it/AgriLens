@@ -47,6 +47,10 @@ const agentSchema = new mongoose.Schema(
       type: [assignedRegionSchema],
       default: [],
     },
+    isSuspended: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
