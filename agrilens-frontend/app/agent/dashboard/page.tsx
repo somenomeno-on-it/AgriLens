@@ -6,6 +6,8 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useInterval } from "@/hooks/useInterval";
+import { getAssignedRegions, getAuthHeaders, getCurrentUserId } from "@/lib/auth";
+import LogoutButton from "@/components/LogoutButton";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
 
@@ -30,23 +32,9 @@ type StatsResponse = {
   approvalRate: number;
 };
 
-function parseAssignedRegions(rawRegions: string | null) {
-  if (!rawRegions) return ["demo-upazila"];
-  return rawRegions
-    .split(",")
-    .map((item) => item.trim().toLowerCase())
-    .filter(Boolean);
-}
-
 function getAgentContext() {
-  if (typeof window === "undefined") {
-    return { id: "demo-agent", assignedRegions: ["demo-upazila"] };
-  }
-
-  const id = window.localStorage.getItem("agentUserId") || "demo-agent";
-  const assignedRegions = parseAssignedRegions(
-    window.localStorage.getItem("agentAssignedRegions")
-  );
+  const id = getCurrentUserId();
+  const assignedRegions = getAssignedRegions();
   return { id, assignedRegions };
 }
 
@@ -76,21 +64,19 @@ export default function AgentDashboardPage() {
     try {
       const [dashboardRes, statsRes] = await Promise.all([
         fetch(`${API_BASE}/api/agent/${agent.id}/dashboard`, {
-          headers: {
-            "Content-Type": "application/json",
-            "x-user-id": agent.id,
-            "x-user-role": "agent",
-            "x-assigned-regions": JSON.stringify(agent.assignedRegions),
-          },
+          headers: getAuthHeaders(
+            agent.assignedRegions.length
+              ? { "x-assigned-regions": JSON.stringify(agent.assignedRegions) }
+              : {}
+          ),
           cache: "no-store",
         }),
         fetch(`${API_BASE}/api/agent/${agent.id}/stats`, {
-          headers: {
-            "Content-Type": "application/json",
-            "x-user-id": agent.id,
-            "x-user-role": "agent",
-            "x-assigned-regions": JSON.stringify(agent.assignedRegions),
-          },
+          headers: getAuthHeaders(
+            agent.assignedRegions.length
+              ? { "x-assigned-regions": JSON.stringify(agent.assignedRegions) }
+              : {}
+          ),
           cache: "no-store",
         }),
       ]);
@@ -142,9 +128,12 @@ export default function AgentDashboardPage() {
             Listings and verification KPIs for your assigned upazilas.
           </p>
         </div>
-        <Button variant="outline" asChild>
-          <Link href="/agent/queue">Open Queue</Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" asChild>
+            <Link href="/agent/queue">Open Queue</Link>
+          </Button>
+          <LogoutButton />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

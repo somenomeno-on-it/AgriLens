@@ -5,6 +5,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { getAssignedRegions, getAuthHeaders, getCurrentUserId } from "@/lib/auth";
+import LogoutButton from "@/components/LogoutButton";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
 
@@ -20,14 +22,8 @@ type Listing = {
 };
 
 function getAgentContext() {
-  if (typeof window === "undefined") {
-    return { id: "demo-agent", assignedRegions: ["demo-upazila"] };
-  }
-  const id = window.localStorage.getItem("agentUserId") || "demo-agent";
-  const rawRegions = window.localStorage.getItem("agentAssignedRegions");
-  const assignedRegions = rawRegions
-    ? rawRegions.split(",").map((r) => r.trim().toLowerCase()).filter(Boolean)
-    : ["demo-upazila"];
+  const id = getCurrentUserId();
+  const assignedRegions = getAssignedRegions();
   return { id, assignedRegions };
 }
 
@@ -77,12 +73,11 @@ export default function AgentVerifyPage() {
       try {
         const agent = getAgentContext();
         const res = await fetch(`${API_BASE}/api/agent/${agent.id}/queue?page=1&limit=100`, {
-          headers: {
-            "Content-Type": "application/json",
-            "x-user-id": agent.id,
-            "x-user-role": "agent",
-            "x-assigned-regions": JSON.stringify(agent.assignedRegions),
-          },
+          headers: getAuthHeaders(
+            agent.assignedRegions.length
+              ? { "x-assigned-regions": JSON.stringify(agent.assignedRegions) }
+              : {}
+          ),
         });
 
         if (!res.ok) throw new Error("Failed to load listing");
@@ -120,12 +115,11 @@ export default function AgentVerifyPage() {
       const agent = getAgentContext();
       const res = await fetch(`${API_BASE}/api/listings/${listingId}/verify`, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          "x-user-id": agent.id,
-          "x-user-role": "agent",
-          "x-assigned-regions": JSON.stringify(agent.assignedRegions),
-        },
+        headers: getAuthHeaders(
+          agent.assignedRegions.length
+            ? { "x-assigned-regions": JSON.stringify(agent.assignedRegions) }
+            : {}
+        ),
         body: JSON.stringify({
           action: pendingAction,
           grade,
@@ -154,9 +148,12 @@ export default function AgentVerifyPage() {
 
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Agent Verify Listing</h1>
-        <Button variant="outline" asChild>
-          <Link href="/agent/queue">Back to Queue</Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" asChild>
+            <Link href="/agent/queue">Back to Queue</Link>
+          </Button>
+          <LogoutButton />
+        </div>
       </div>
 
       {loading && <div>Loading listing...</div>}

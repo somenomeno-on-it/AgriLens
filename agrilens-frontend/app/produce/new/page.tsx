@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { getAuthHeaders } from "@/lib/auth";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
@@ -35,19 +36,11 @@ export default function AddProducePage() {
   const [photoUploading, setPhotoUploading] = useState(false);
   const [photoError, setPhotoError] = useState<string | null>(null);
 
-  const userId =
-    typeof window !== "undefined"
-      ? window.localStorage.getItem("farmerUserId") || "demo-farmer"
-      : "demo-farmer";
-
   useEffect(() => {
     const fetchFarms = async () => {
       try {
         const res = await fetch(`${API_BASE}/api/farmer/farms`, {
-          headers: {
-            "Content-Type": "application/json",
-            "x-user-id": userId,
-          },
+          headers: getAuthHeaders(),
         });
 
         if (res.ok) {
@@ -63,7 +56,7 @@ export default function AddProducePage() {
     };
 
     fetchFarms();
-  }, [userId]);
+  }, []);
 
   const uploadPhotos = async (listingId: string) => {
     if (!photoFiles || photoFiles.length === 0) return;
@@ -78,9 +71,11 @@ export default function AddProducePage() {
 
     const res = await fetch(`${API_BASE}/api/produce/${listingId}/photos`, {
       method: "POST",
-      headers: {
-        "x-user-id": userId,
-      },
+      headers: (() => {
+        const headers = getAuthHeaders();
+        delete headers["Content-Type"];
+        return headers;
+      })(),
       body: formData,
     });
 
@@ -99,10 +94,7 @@ export default function AddProducePage() {
 
     const res = await fetch(`${API_BASE}/api/produce`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-user-id": userId,
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify({
         farmId: form.farmId || undefined,
         cropType: form.cropType,

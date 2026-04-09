@@ -1,45 +1,53 @@
-// Temporary auth middleware for development.
-// In a real app, replace this with proper JWT/session auth.
+const jwt = require("jsonwebtoken");
+const Agent = require("../models/Agent");
 
-function requireAuth(req, res, next) {
-  const userId = req.header("x-user-id");
-  const roleHeader = req.header("x-user-role");
-  const assignedRegionsHeader = req.header("x-assigned-regions");
+function getJwtSecret() {
+  return process.env.JWT_SECRET || "change-this-jwt-secret";
+}
 
-  if (!userId) {
-    return res
-      .status(401)
-      .json({ message: "Missing x-user-id header (temporary auth placeholder)" });
+function extractToken(req) {
+  const authHeader = req.header("authorization") || req.header("Authorization");
+  if (!authHeader) return null;
+  const [scheme, token] = authHeader.split(" ");
+  if (!scheme || !token || scheme.toLowerCase() !== "bearer") return null;
+  return token.trim();
+}
+
+async function requireAuth(req, res, next) {
+  const token = extractToken(req);
+  if (!token) {
+    return res.status(401).json({ message: "Missing bearer token" });
+  }
+
+  let payload;
+  try {
+    payload = jwt.verify(token, getJwtSecret());
+  } catch (err) {
+    return res.status(401).json({ message: "Invalid or expired token" });
+  }
+
+  const userId = payload?.sub ? String(payload.sub) : "";
+  const role = payload?.role ? String(payload.role).toLowerCase() : "";
+  if (!userId || !["farmer", "agent", "admin"].includes(role)) {
+    return res.status(401).json({ message: "Invalid token payload" });
   }
 
   let assignedRegions = [];
-  if (assignedRegionsHeader) {
-    try {
-      const parsed = JSON.parse(assignedRegionsHeader);
-      if (Array.isArray(parsed)) {
-        assignedRegions = parsed
-          .map((region) => String(region).trim().toLowerCase())
-          .filter(Boolean);
-      } else {
-        assignedRegions = String(assignedRegionsHeader)
-          .split(",")
-          .map((region) => region.trim().toLowerCase())
-          .filter(Boolean);
-      }
-    } catch (err) {
-      assignedRegions = String(assignedRegionsHeader)
-        .split(",")
-        .map((region) => region.trim().toLowerCase())
-        .filter(Boolean);
-    }
+  if (role === "agent") {
+    const agent = await Agent.findOne({ userId }).select("assignedRegions").lean();
+    assignedRegions = Array.isArray(agent?.assignedRegions)
+      ? agent.assignedRegions
+          .map((region) => String(region?.upazila || "").trim().toLowerCase())
+          .filter(Boolean)
+      : [];
   }
 
   req.user = {
     id: userId,
-    role: roleHeader ? String(roleHeader).toLowerCase() : "farmer",
+    role,
     assignedRegions,
   };
-  next();
+  return next();
 }
 
 function requireFarmer(req, res, next) {

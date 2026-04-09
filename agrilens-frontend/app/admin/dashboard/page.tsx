@@ -12,6 +12,7 @@ import {
   UserCheck,
   Activity,
 } from "lucide-react";
+import { getAdminHeaders } from "@/lib/adminApi";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
 const REFRESH_INTERVAL_MS = 60_000; // 60 seconds
@@ -47,18 +48,6 @@ type MetricsData = {
   activeFarmers: number;
   activeAgents: number;
 };
-
-// ── Auth helper (mirrors agent dashboard localStorage pattern) ────────────────
-
-function getAdminHeaders(): Record<string, string> {
-  if (typeof window === "undefined") return {};
-  const userId = window.localStorage.getItem("userId") || "admin-user";
-  return {
-    "Content-Type": "application/json",
-    "x-user-id": userId,
-    "x-user-role": "admin",
-  };
-}
 
 // ── Skeleton component ────────────────────────────────────────────────────────
 

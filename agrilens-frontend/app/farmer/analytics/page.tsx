@@ -17,6 +17,8 @@ import {
 } from "recharts";
 import type { FarmerAnalyticsResponse } from "@/lib/analytics";
 import { fetchFarmerAnalytics } from "@/lib/analytics";
+import { getAuthHeaders } from "@/lib/auth";
+import LogoutButton from "@/components/LogoutButton";
 
 type ProduceListing = {
   _id: string;
@@ -26,11 +28,6 @@ type ProduceListing = {
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
-
-function getUserId() {
-  if (typeof window === "undefined") return "demo-farmer";
-  return window.localStorage.getItem("farmerUserId") || "demo-farmer";
-}
 
 function toISOStart(dateStr: string) {
   const [y, m, d] = dateStr.split("-").map((x) => Number(x));
@@ -52,7 +49,6 @@ function formatDateInput(d: Date) {
 }
 
 export default function FarmerAnalyticsPage() {
-  const userId = useMemo(() => getUserId(), []);
 
   const defaultEnd = useMemo(() => formatDateInput(new Date()), []);
   const defaultStart = useMemo(() => {
@@ -81,10 +77,7 @@ export default function FarmerAnalyticsPage() {
       let effectiveCropType = cropType;
       try {
         const res = await fetch(`${API_BASE}/api/produce`, {
-          headers: {
-            "Content-Type": "application/json",
-            "x-user-id": userId,
-          },
+          headers: getAuthHeaders(),
           cache: "no-store",
         });
 
@@ -156,6 +149,7 @@ export default function FarmerAnalyticsPage() {
             Price trends and quantity summaries based on status changes.
           </div>
         </div>
+        <LogoutButton />
       </div>
 
       <Card className="p-4 space-y-4">

@@ -1,3 +1,5 @@
+import { getAuthHeaders } from "@/lib/auth";
+
 export type NotificationType = "LISTING_STATUS_UPDATE" | string;
 
 export type Notification = {
@@ -13,18 +15,9 @@ export type Notification = {
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
 
-function getUserId() {
-  if (typeof window === "undefined") return "demo-farmer";
-  return window.localStorage.getItem("farmerUserId") || "demo-farmer";
-}
-
 export async function fetchNotifications(): Promise<Notification[]> {
-  const userId = getUserId();
   const res = await fetch(`${API_BASE}/api/notifications`, {
-    headers: {
-      "Content-Type": "application/json",
-      "x-user-id": userId,
-    },
+    headers: getAuthHeaders(),
     cache: "no-store",
   });
 
@@ -38,13 +31,9 @@ export async function fetchNotifications(): Promise<Notification[]> {
 export async function markNotificationRead(
   id: string
 ): Promise<Notification> {
-  const userId = getUserId();
   const res = await fetch(`${API_BASE}/api/notifications/${id}/read`, {
     method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      "x-user-id": userId,
-    },
+    headers: getAuthHeaders(),
   });
 
   if (!res.ok) {
@@ -59,13 +48,9 @@ export async function markAllNotificationsRead(): Promise<{
   matchedCount?: number;
   modifiedCount?: number;
 }> {
-  const userId = getUserId();
   const res = await fetch(`${API_BASE}/api/notifications/read-all`, {
     method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      "x-user-id": userId,
-    },
+    headers: getAuthHeaders(),
   });
 
   if (!res.ok) {

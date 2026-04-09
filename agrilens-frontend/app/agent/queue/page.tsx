@@ -5,6 +5,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { getAssignedRegions, getAuthHeaders, getCurrentUserId } from "@/lib/auth";
+import LogoutButton from "@/components/LogoutButton";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
 
@@ -30,19 +32,8 @@ type QueueResponse = {
 };
 
 function getAgentContext() {
-  if (typeof window === "undefined") {
-    return {
-      id: "demo-agent",
-      assignedRegions: ["demo-upazila"],
-    };
-  }
-
-  const id = window.localStorage.getItem("agentUserId") || "demo-agent";
-  const rawRegions = window.localStorage.getItem("agentAssignedRegions");
-  const assignedRegions = rawRegions
-    ? rawRegions.split(",").map((r) => r.trim().toLowerCase()).filter(Boolean)
-    : ["demo-upazila"];
-
+  const id = getCurrentUserId();
+  const assignedRegions = getAssignedRegions();
   return { id, assignedRegions };
 }
 
@@ -65,12 +56,11 @@ export default function AgentQueuePage() {
         const res = await fetch(
           `${API_BASE}/api/agent/${agent.id}/queue?page=${page}&limit=${limit}`,
           {
-            headers: {
-              "Content-Type": "application/json",
-              "x-user-id": agent.id,
-              "x-user-role": "agent",
-              "x-assigned-regions": JSON.stringify(agent.assignedRegions),
-            },
+            headers: getAuthHeaders(
+              agent.assignedRegions.length
+                ? { "x-assigned-regions": JSON.stringify(agent.assignedRegions) }
+                : {}
+            ),
           }
         );
 
@@ -105,11 +95,14 @@ export default function AgentQueuePage() {
 
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Agent Pending Queue</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Review pending listings in your assigned regions.
-        </p>
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <h1 className="text-2xl font-semibold">Agent Pending Queue</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Review pending listings in your assigned regions.
+          </p>
+        </div>
+        <LogoutButton />
       </div>
 
       <Card className="p-4 flex flex-col gap-3 md:flex-row md:items-end">
