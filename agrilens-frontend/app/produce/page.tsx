@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ProduceCard, ProduceListing } from "@/components/ProduceCard";
+import { getAuthHeaders } from "@/lib/auth";
+import LogoutButton from "@/components/LogoutButton";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
@@ -13,11 +15,6 @@ export default function ProduceListingsPage() {
   const [loading, setLoading] = useState(true);
   const hasFetchedRef = useRef(false);
 
-  const userId =
-    typeof window !== "undefined"
-      ? window.localStorage.getItem("farmerUserId") || "demo-farmer"
-      : "demo-farmer";
-
   useEffect(() => {
     if (hasFetchedRef.current) return;
     hasFetchedRef.current = true;
@@ -25,10 +22,7 @@ export default function ProduceListingsPage() {
     const fetchListings = async () => {
       try {
         const res = await fetch(`${API_BASE}/api/produce`, {
-          headers: {
-            "Content-Type": "application/json",
-            "x-user-id": userId,
-          },
+          headers: getAuthHeaders(),
         });
 
         if (!res.ok) {
@@ -46,7 +40,7 @@ export default function ProduceListingsPage() {
     };
 
     fetchListings();
-  }, [userId]);
+  }, []);
 
   const handleDelete = async (id: string) => {
     const confirmed = window.confirm(
@@ -56,10 +50,7 @@ export default function ProduceListingsPage() {
 
     const res = await fetch(`${API_BASE}/api/produce/${id}`, {
       method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        "x-user-id": userId,
-      },
+      headers: getAuthHeaders(),
     });
 
     if (!res.ok) {
@@ -78,9 +69,12 @@ export default function ProduceListingsPage() {
     <div className="max-w-5xl mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">My Produce Listings</h1>
-        <Button asChild>
-          <Link href="/produce/new">New Listing</Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button asChild>
+            <Link href="/produce/new">New Listing</Link>
+          </Button>
+          <LogoutButton />
+        </div>
       </div>
 
       <div className="space-y-3">

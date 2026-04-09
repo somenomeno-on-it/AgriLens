@@ -5,6 +5,8 @@ import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { getAuthHeaders } from "@/lib/auth";
+import LogoutButton from "@/components/LogoutButton";
 
 type FarmerProfile = {
   _id: string;
@@ -52,26 +54,15 @@ export default function FarmerPage() {
     description: "",
   });
 
-  const userId =
-    typeof window !== "undefined"
-      ? window.localStorage.getItem("farmerUserId") || "demo-farmer"
-      : "demo-farmer";
-
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [profileRes, farmsRes] = await Promise.all([
           fetch(`${API_BASE}/api/farmer/profile`, {
-            headers: {
-              "Content-Type": "application/json",
-              "x-user-id": userId,
-            },
+            headers: getAuthHeaders(),
           }),
           fetch(`${API_BASE}/api/farmer/farms`, {
-            headers: {
-              "Content-Type": "application/json",
-              "x-user-id": userId,
-            },
+            headers: getAuthHeaders(),
           }),
         ]);
 
@@ -97,15 +88,12 @@ export default function FarmerPage() {
     };
 
     fetchData();
-  }, [userId]);
+  }, []);
 
   const saveProfile = async () => {
     const res = await fetch(`${API_BASE}/api/farmer/profile`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-user-id": userId,
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify(profileForm),
     });
 
@@ -122,10 +110,7 @@ export default function FarmerPage() {
   const createFarm = async () => {
     const res = await fetch(`${API_BASE}/api/farmer/farms`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-user-id": userId,
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify({
         name: farmForm.name,
         location: {
@@ -158,10 +143,7 @@ export default function FarmerPage() {
   const deleteFarm = async (id: string) => {
     const res = await fetch(`${API_BASE}/api/farmer/farms/${id}`, {
       method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        "x-user-id": userId,
-      },
+      headers: getAuthHeaders(),
     });
 
     if (!res.ok) {
@@ -180,9 +162,12 @@ export default function FarmerPage() {
     <div className="max-w-5xl mx-auto p-6 space-y-8">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-3xl font-semibold">Farmer & Farm Management</h1>
-        <Button asChild variant="outline">
-          <Link href="/produce">My Listings</Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button asChild variant="outline">
+            <Link href="/produce">My Listings</Link>
+          </Button>
+          <LogoutButton />
+        </div>
       </div>
 
       <Card className="p-4 space-y-4">

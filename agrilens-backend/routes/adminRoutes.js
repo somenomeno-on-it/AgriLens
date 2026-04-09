@@ -1,5 +1,5 @@
 const express = require("express");
-const mockAuth = require("../middleware/mockAuth");
+const { requireAuth } = require("../middleware/auth");
 const requireAdmin = require("../middleware/requireAdmin");
 const trackActivity = require("../middleware/trackActivity");
 const { getAdminDashboard } = require("../controllers/adminDashboardController");
@@ -15,10 +15,7 @@ const {
 
 const router = express.Router();
 
-// Middleware chain: mockAuth populates req.user from headers (non-blocking),
-// requireAdmin enforces the role === 'admin' gate (returns 403 otherwise),
-// trackActivity updates lastSeen fire-and-forget for verified admins.
-router.use(mockAuth, requireAdmin, trackActivity);
+router.use(requireAuth, requireAdmin, trackActivity);
 
 // GET /api/admin/dashboard
 router.get("/dashboard", getAdminDashboard);

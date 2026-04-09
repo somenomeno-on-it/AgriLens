@@ -11,6 +11,7 @@ const agentVerifyRoutes = require("./routes/agentVerify");
 const agentDashboardRoutes = require("./routes/agentDashboard");
 const notificationRoutes = require("./routes/notifications");
 const adminRoutes = require("./routes/adminRoutes");
+const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 
@@ -37,6 +38,7 @@ app.get("/api/debug", async (req, res) => {
 });
 
 app.use("/api/farmer", farmerRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/produce", produceRouter);
 app.use("/api/listings", listingRoutes);
 app.use("/api", agentVerifyRoutes);

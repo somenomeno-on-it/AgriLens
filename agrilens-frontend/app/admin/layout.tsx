@@ -11,6 +11,7 @@ import {
   MessageSquareWarning,
   Megaphone,
 } from "lucide-react";
+import LogoutButton from "@/components/LogoutButton";
 
 const navItems = [
   { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
@@ -72,10 +73,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 (n) => pathname === n.href || pathname.startsWith(n.href + "/")
               )?.label ?? "Admin"}
             </h2>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              Admin
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Admin
+              </span>
+              <LogoutButton />
+            </div>
           </header>
           <main className="flex-1 p-8">{children}</main>
         </div>

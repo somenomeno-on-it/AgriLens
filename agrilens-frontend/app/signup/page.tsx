@@ -1,75 +1,147 @@
-import { Button } from '@/components/ui/button'
-import React from 'react'
+"use client";
+
+import Link from "next/link";
+import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { saveAuthSession, type AuthRole } from "@/lib/auth";
 
-export function CardDemo() {
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
+
+export default function SignupPage() {
+  const router = useRouter();
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState<AuthRole>("farmer");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const onSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/signup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName,
+          email,
+          password,
+          role,
+          phone,
+          address,
+        }),
+      });
+
+      const payload = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(payload?.message || "Signup failed");
+        return;
+      }
+
+      saveAuthSession(payload.token, payload.user);
+      if (payload.user?.role === "admin") {
+        router.push("/admin/dashboard");
+      } else if (payload.user?.role === "agent") {
+        router.push("/agent/dashboard");
+      } else {
+        router.push("/farmer");
+      }
+    } catch {
+      setError("Signup failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <Card className="w-full max-w-sm">
-      <CardHeader>
-        <CardTitle>Signup to your account</CardTitle>
-        <CardDescription>
-          Enter your email below to Signup to your account
-        </CardDescription>
-        <CardAction>
-          <Button variant="link">Sign Up</Button>
-        </CardAction>
-      </CardHeader>
-      <CardContent>
-        <form>
-          <div className="flex flex-col gap-6">
+    <div className="min-h-screen grid place-items-center p-6">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle>Create account</CardTitle>
+          <CardDescription>Register and receive a JWT session</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form className="space-y-4" onSubmit={onSubmit}>
+            <div className="grid gap-2">
+              <Label htmlFor="fullName">Full name</Label>
+              <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+            </div>
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="m@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
             <div className="grid gap-2">
-              <div className="flex items-center">
-                <Label htmlFor="password">Password</Label>
-                <a
-                  href="#"
-                  className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                >
-                  Forgot your password?
-                </a>
-              </div>
-              <Input id="password" type="password" required />
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
             </div>
-          </div>
-        </form>
-      </CardContent>
-      <CardFooter className="flex-col gap-2">
-        <Button type="submit" className="w-full">
-          Signup
-        </Button>
-        <Button variant="outline" className="w-full">
-          Signup with Google
-        </Button>
-      </CardFooter>
-    </Card>
-  )
-}
-
-const Signup = () => {
-  return (
-    <div>
-      Welcome to the Signup Page
-    <CardDemo/>
+            <div className="grid gap-2">
+              <Label htmlFor="role">Role</Label>
+              <select
+                id="role"
+                className="h-10 rounded-md border px-3 text-sm bg-background"
+                value={role}
+                onChange={(e) => setRole(e.target.value as AuthRole)}
+              >
+                <option value="farmer">Farmer</option>
+                <option value="agent">Agent</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+            {role === "farmer" && (
+              <>
+                <div className="grid gap-2">
+                  <Label htmlFor="phone">Phone</Label>
+                  <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="address">Address</Label>
+                  <Input id="address" value={address} onChange={(e) => setAddress(e.target.value)} />
+                </div>
+              </>
+            )}
+            {error && <p className="text-sm text-red-600">{error}</p>}
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "Creating..." : "Sign up"}
+            </Button>
+          </form>
+        </CardContent>
+        <CardFooter>
+          <p className="text-sm text-muted-foreground">
+            Already have an account?{" "}
+            <Link className="underline" href="/login">
+              Login
+            </Link>
+          </p>
+        </CardFooter>
+      </Card>
     </div>
-  )
+  );
 }
-
-export default Signup

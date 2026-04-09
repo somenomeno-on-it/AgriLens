@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Link from "next/link";
 import "./globals.css";
-import { NotificationBell } from "@/components/NotificationBell";
+import { ConditionalHeader } from "@/components/ConditionalHeader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,43 +28,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <header className="sticky top-0 z-40 border-b bg-background">
-          <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
-            <nav className="flex items-center gap-4 text-sm">
-              <Link className="font-semibold" href="/farmer">
-                AgriLens
-              </Link>
-              <Link className="text-muted-foreground hover:text-foreground" href="/farmer">
-                Farmer
-              </Link>
-              <Link className="text-muted-foreground hover:text-foreground" href="/produce">
-                Produce
-              </Link>
-              <Link
-                className="text-muted-foreground hover:text-foreground"
-                href="/farmer/analytics"
-              >
-                Analytics
-              </Link>
-              <Link
-                className="text-muted-foreground hover:text-foreground"
-                href="/notifications"
-              >
-                Notifications
-              </Link>
-              <Link className="text-muted-foreground hover:text-foreground" href="/agent/queue">
-                Agent Queue
-              </Link>
-              <Link
-                className="text-muted-foreground hover:text-foreground"
-                href="/agent/dashboard"
-              >
-                Agent Dashboard
-              </Link>
-            </nav>
-            <NotificationBell />
-          </div>
-        </header>
+        <ConditionalHeader />
         <main>{children}</main>
       </body>
     </html>

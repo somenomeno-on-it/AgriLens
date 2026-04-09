@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { getAuthHeaders } from "@/lib/auth";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
@@ -38,26 +39,15 @@ export default function EditProducePage() {
   const [photoUploading, setPhotoUploading] = useState(false);
   const [photoError, setPhotoError] = useState<string | null>(null);
 
-  const userId =
-    typeof window !== "undefined"
-      ? window.localStorage.getItem("farmerUserId") || "demo-farmer"
-      : "demo-farmer";
-
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [farmsRes, listingRes] = await Promise.all([
           fetch(`${API_BASE}/api/farmer/farms`, {
-            headers: {
-              "Content-Type": "application/json",
-              "x-user-id": userId,
-            },
+            headers: getAuthHeaders(),
           }),
           fetch(`${API_BASE}/api/produce/${id}`, {
-            headers: {
-              "Content-Type": "application/json",
-              "x-user-id": userId,
-            },
+            headers: getAuthHeaders(),
           }),
         ]);
 
@@ -101,7 +91,7 @@ export default function EditProducePage() {
     if (id) {
       fetchData();
     }
-  }, [id, userId, router]);
+  }, [id, router]);
 
   const uploadPhotos = async (listingId: string) => {
     if (!photoFiles || photoFiles.length === 0) return;
@@ -116,9 +106,11 @@ export default function EditProducePage() {
 
     const res = await fetch(`${API_BASE}/api/produce/${listingId}/photos`, {
       method: "POST",
-      headers: {
-        "x-user-id": userId,
-      },
+      headers: (() => {
+        const headers = getAuthHeaders();
+        delete headers["Content-Type"];
+        return headers;
+      })(),
       body: formData,
     });
 
@@ -137,10 +129,7 @@ export default function EditProducePage() {
 
     const res = await fetch(`${API_BASE}/api/produce/${id}`, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        "x-user-id": userId,
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify({
         farmId: form.farmId || undefined,
         cropType: form.cropType,
