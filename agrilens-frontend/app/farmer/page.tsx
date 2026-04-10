@@ -1,4 +1,4 @@
-"use client";
+"use client"; //this file must run on the browser
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { getAuthHeaders } from "@/lib/auth";
 import LogoutButton from "@/components/LogoutButton";
 
+//farmer and farm object types
 type FarmerProfile = {
   _id: string;
   fullName: string;
@@ -29,14 +30,17 @@ type Farm = {
   description?: string;
 };
 
+//Where the API is hosted(local host 3001)
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
 
+//Page's memory state (actual data from the backend)
 export default function FarmerPage() {
   const [profile, setProfile] = useState<FarmerProfile | null>(null);
   const [farms, setFarms] = useState<Farm[]>([]);
   const [loading, setLoading] = useState(true);
 
+//Form's memory state (data that the user is typing in the form)
   const [profileForm, setProfileForm] = useState({
     fullName: "",
     phone: "",
@@ -54,18 +58,19 @@ export default function FarmerPage() {
     description: "",
   });
 
+//The function loads data when page opens
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchData = async () => { //this function fetches data from the backend and async=write code top to bottom fast
       try {
-        const [profileRes, farmsRes] = await Promise.all([
+        const [profileRes, farmsRes] = await Promise.all([ //Promise.all=call multiple APIs at the same time
           fetch(`${API_BASE}/api/farmer/profile`, {
-            headers: getAuthHeaders(),
+            headers: getAuthHeaders(), //authentication headers
           }),
           fetch(`${API_BASE}/api/farmer/farms`, {
             headers: getAuthHeaders(),
           }),
         ]);
-
+        //set the profile data to the state
         if (profileRes.ok) {
           const data = await profileRes.json();
           setProfile(data);
@@ -89,7 +94,7 @@ export default function FarmerPage() {
 
     fetchData();
   }, []);
-
+//The function saves the profile data to the backend
   const saveProfile = async () => {
     const res = await fetch(`${API_BASE}/api/farmer/profile`, {
       method: "POST",
@@ -102,12 +107,12 @@ export default function FarmerPage() {
       return;
     }
 
-    const data = await res.json();
+    const data = await res.json(); //convert the response to a JSON object
     setProfile(data);
     alert("Profile saved");
   };
 
-  const createFarm = async () => {
+  const createFarm = async () => { //The function creates a new farm
     const res = await fetch(`${API_BASE}/api/farmer/farms`, {
       method: "POST",
       headers: getAuthHeaders(),
@@ -140,7 +145,7 @@ export default function FarmerPage() {
     });
   };
 
-  const deleteFarm = async (id: string) => {
+  const deleteFarm = async (id: string) => { //The function deletes a farm
     const res = await fetch(`${API_BASE}/api/farmer/farms/${id}`, {
       method: "DELETE",
       headers: getAuthHeaders(),
@@ -151,14 +156,14 @@ export default function FarmerPage() {
       return;
     }
 
-    setFarms((prev) => prev.filter((farm) => farm._id !== id));
+    setFarms((prev) => prev.filter((farm) => farm._id !== id)); //filter out the deleted farm
   };
 
-  if (loading) {
+  if (loading) { //If the data is still loading, show a loading message
     return <div className="p-6">Loading farmer data...</div>;
   }
 
-  return (
+  return ( //The function returns the JSX code that will be rendered to the page
     <div className="max-w-5xl mx-auto p-6 space-y-8">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-3xl font-semibold">Farmer & Farm Management</h1>

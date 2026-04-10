@@ -20,16 +20,16 @@ import { fetchFarmerAnalytics } from "@/lib/analytics";
 import { getAuthHeaders } from "@/lib/auth";
 import LogoutButton from "@/components/LogoutButton";
 
-type ProduceListing = {
+type ProduceListing = { //produce listing object type
   _id: string;
   cropType: string;
   status: "pending" | "approved" | "rejected";
 };
 
-const API_BASE =
+const API_BASE = 
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
 
-function toISOStart(dateStr: string) {
+function toISOStart(dateStr: string) { //The function converts the date string to ISO format
   const [y, m, d] = dateStr.split("-").map((x) => Number(x));
   const dt = new Date(y, (m || 1) - 1, d || 1, 0, 0, 0, 0);
   return dt.toISOString();
@@ -41,22 +41,22 @@ function toISOEnd(dateStr: string) {
   return dt.toISOString();
 }
 
-function formatDateInput(d: Date) {
+function formatDateInput(d: Date) { //The function formats the date input
   const yyyy = d.getFullYear();
   const mm = String(d.getMonth() + 1).padStart(2, "0");
   const dd = String(d.getDate()).padStart(2, "0");
   return `${yyyy}-${mm}-${dd}`;
 }
 
-export default function FarmerAnalyticsPage() {
+export default function FarmerAnalyticsPage() { //The function renders the page
 
-  const defaultEnd = useMemo(() => formatDateInput(new Date()), []);
-  const defaultStart = useMemo(() => {
-    const d = new Date();
-    d.setDate(d.getDate() - 30);
+  const defaultEnd = useMemo(() => formatDateInput(new Date()), []); //The function formats the default end date
+  const defaultStart = useMemo(() => { //The function formats the default start date
+    const d = new Date(); 
+    d.setDate(d.getDate() - 30); //set the date to 30 days ago
     return formatDateInput(d);
   }, []);
-
+//Memory states
   const [cropTypes, setCropTypes] = useState<string[]>([]);
   const [cropType, setCropType] = useState<string>("all");
   const [startDate, setStartDate] = useState<string>(defaultStart);
@@ -69,27 +69,27 @@ export default function FarmerAnalyticsPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  useEffect(() =>  { //The function loads the crop types and initial analytics
     const loadCropTypesAndInitialAnalytics = async () => {
       setLoading(true);
       setError(null);
 
       let effectiveCropType = cropType;
       try {
-        const res = await fetch(`${API_BASE}/api/produce`, {
+        const res = await fetch(`${API_BASE}/api/produce`, { //fetch the crop types from the backend
           headers: getAuthHeaders(),
-          cache: "no-store",
+          cache: "no-store", 
         });
-
+        //set the crop type dropdown
         if (res.ok) {
-          const listings: ProduceListing[] = await res.json();
+          const listings: ProduceListing[] = await res.json(); 
           const unique = Array.from(
             new Set(listings.map((l) => l.cropType).filter(Boolean))
           ).sort((a, b) => a.localeCompare(b));
           setCropTypes(unique);
 
           if (
-            effectiveCropType !== "all" &&
+            effectiveCropType !== "all" && 
             unique.length > 0 &&
             !unique.includes(effectiveCropType)
           ) {
@@ -102,12 +102,12 @@ export default function FarmerAnalyticsPage() {
       }
 
       try {
-        const data = await fetchFarmerAnalytics({
+        const data = await fetchFarmerAnalytics({ //fetch the analytics from the backend
           startDate: toISOStart(startDate),
           endDate: toISOEnd(endDate),
           cropType: effectiveCropType,
         });
-        setAnalytics(data);
+        setAnalytics(data); //chart render
       } catch (e) {
         setError(e instanceof Error ? e.message : "Failed to load analytics");
       } finally {
@@ -120,8 +120,8 @@ export default function FarmerAnalyticsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onUpdate = async () => {
-    setSubmitting(true);
+  const onUpdate = async () => { //The function updates the analytics
+    setSubmitting(true); 
     setError(null);
     try {
       const data = await fetchFarmerAnalytics({
@@ -137,8 +137,8 @@ export default function FarmerAnalyticsPage() {
     }
   };
 
-  const priceSeries = analytics?.priceSeries ?? [];
-  const quantityByCrop = analytics?.quantityByCrop ?? [];
+  const priceSeries = analytics?.priceSeries ?? []; //price series data
+  const quantityByCrop = analytics?.quantityByCrop ?? []; //quantity by crop data
 
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-6">

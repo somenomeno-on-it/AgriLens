@@ -16,16 +16,29 @@ function shouldHideHeader(pathname: string) {
 
 export function ConditionalHeader() {
   const pathname = usePathname();
-  const [role, setRole] = useState<AuthRole | null>(() =>
-    typeof window !== "undefined" ? getAuthUser()?.role ?? null : null
-  );
+  const [isMounted, setIsMounted] = useState(false);
+  const [role, setRole] = useState<AuthRole | null>(null);
 
   useEffect(() => {
+    setIsMounted(true);
     setRole(getAuthUser()?.role ?? null);
   }, [pathname]);
 
   if (shouldHideHeader(pathname)) {
     return null;
+  }
+
+  // Prevent hydration mismatch by returning a neutral shell
+  // that matches the server's initial render structure.
+  if (!isMounted) {
+    return (
+      <header className="sticky top-0 z-40 border-b bg-background">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
+          <nav className="flex flex-wrap items-center gap-4 text-sm" />
+          <div className="w-10 shrink-0" aria-hidden />
+        </div>
+      </header>
+    );
   }
 
   const isFarmer = role === "farmer";

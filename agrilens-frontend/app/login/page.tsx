@@ -67,7 +67,9 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen grid place-items-center p-6">
-      <Card className="w-full max-w-md">
+      <div className="w-full max-w-md space-y-6">
+        <h1 className="text-3xl font-bold text-center">AgriLens</h1>
+        <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Login</CardTitle>
           <CardDescription>Sign in with your email and password</CardDescription>
@@ -108,7 +110,8 @@ export default function LoginPage() {
             </Link>
           </p>
         </CardFooter>
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 }

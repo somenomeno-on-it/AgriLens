@@ -107,7 +107,7 @@ function AdminUserDetailInner() {
   const [deleteConfirm, setDeleteConfirm] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async () => { //The function loads the user details from the backend (callback = uses the same load func)
     setLoading(true);
     setError(null);
     try {
@@ -144,13 +144,13 @@ function AdminUserDetailInner() {
     load();
   }, [load]);
 
-  const handleStatusPatch = async (status: "active" | "suspended") => {
+  const handleStatusPatch = async (status: "active" | "suspended") => { //The function handles the status patch
     setActionLoading(true);
     try {
       const res = await fetch(
         `${API_BASE}/api/admin/users/${encodeURIComponent(id)}/status`,
         {
-          method: "PATCH",
+          method: "PATCH", //partially update a resource
           headers: getAdminHeaders(),
           body: JSON.stringify({ status }),
         }
@@ -208,9 +208,9 @@ function AdminUserDetailInner() {
   const pieData =
     detail.role === "agent"
       ? [
-          { name: "Approved", value: (detail as AgentDetail).reviewStats.approved },
-          { name: "Rejected", value: (detail as AgentDetail).reviewStats.rejected },
-        ]
+        { name: "Approved", value: (detail as AgentDetail).reviewStats.approved },
+        { name: "Rejected", value: (detail as AgentDetail).reviewStats.rejected },
+      ]
       : [];
   const pieSum = pieData.reduce((s, x) => s + x.value, 0);
 
@@ -270,8 +270,8 @@ function AdminUserDetailInner() {
                 <dd>
                   {(detail as AgentDetail).profile.assignedRegions?.length
                     ? (detail as AgentDetail).profile.assignedRegions
-                        .map((r) => `${r.district}/${r.upazila}`)
-                        .join(", ")
+                      .map((r) => `${r.district}/${r.upazila}`)
+                      .join(", ")
                     : "—"}
                 </dd>
               </div>
