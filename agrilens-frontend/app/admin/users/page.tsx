@@ -10,7 +10,7 @@ import { API_BASE, getAdminHeaders } from "@/lib/adminApi";
 
 type RoleTab = "farmer" | "agent";
 
-type UserRow = {
+type UserRow = { //user row object type
   id: string;
   name: string;
   email: string;
@@ -22,34 +22,35 @@ type UserRow = {
   isSuspended: boolean;
 };
 
-function AdminUsersPageInner() {
-  const searchParams = useSearchParams();
-  const [tab, setTab] = useState<RoleTab>("farmer");
+//setting up the state
+function AdminUsersPageInner() { 
+  const searchParams = useSearchParams(); //get the search params from the URL
+  const [tab, setTab] = useState<RoleTab>("farmer"); //set the tab to farmer
   const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [page, setPage] = useState(1);
-  const limit = 20;
+  const [debouncedSearch, setDebouncedSearch] = useState(""); //set the debounced search to the search(avoid calling API in every key press)
+  const [page, setPage] = useState(1); 
+  const limit = 20; //set the limit to 20
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<UserRow[]>([]);
   const [totalPages, setTotalPages] = useState(0);
   const [total, setTotal] = useState(0);
 
   useEffect(() => {
-    const t = searchParams.get("tab");
+    const t = searchParams.get("tab"); //get the tab from the URL
     if (t === "agent") setTab("agent");
     if (t === "farmer") setTab("farmer");
   }, [searchParams]);
 
   useEffect(() => {
-    const t = setTimeout(() => setDebouncedSearch(search.trim()), 350);
+    const t = setTimeout(() => setDebouncedSearch(search.trim()), 350); //When search changes (user typing), it waits 350ms before updating 
     return () => clearTimeout(t);
   }, [search]);
 
   useEffect(() => {
-    setPage(1);
+    setPage(1); //reset the page to 1 when the tab or debounced search changes
   }, [tab, debouncedSearch]);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async () => { //The function loads the users from the backend
     setLoading(true);
     try {
       const qs = new URLSearchParams({
@@ -58,18 +59,18 @@ function AdminUsersPageInner() {
         limit: String(limit),
       });
       if (debouncedSearch) qs.set("search", debouncedSearch);
-      const res = await fetch(`${API_BASE}/api/admin/users?${qs}`, {
+      const res = await fetch(`${API_BASE}/api/admin/users?${qs}`, { //fetch the users from the backend
         headers: getAdminHeaders(),
         cache: "no-store",
       });
-      if (!res.ok) throw new Error("Failed to load users");
+      if (!res.ok) throw new Error("Failed to load users"); 
       const json = await res.json();
       setRows(json.data || []);
       setTotalPages(json.pagination?.totalPages ?? 0);
       setTotal(json.pagination?.total ?? 0);
     } catch {
-      setRows([]);
-      setTotalPages(0);
+      setRows([]); //clear the rows if the users fail to load
+      setTotalPages(0); //clear the total pages if the users fail to load
       setTotal(0);
     } finally {
       setLoading(false);

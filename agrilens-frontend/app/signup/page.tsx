@@ -71,7 +71,9 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen grid place-items-center p-6">
-      <Card className="w-full max-w-md">
+      <div className="w-full max-w-md space-y-6">
+        <h1 className="text-3xl font-bold text-center">AgriLens</h1>
+        <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Create account</CardTitle>
           <CardDescription>Register and receive a JWT session</CardDescription>
@@ -141,7 +143,8 @@ export default function SignupPage() {
             </Link>
           </p>
         </CardFooter>
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 }
