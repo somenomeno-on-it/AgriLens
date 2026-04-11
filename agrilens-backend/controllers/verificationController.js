@@ -23,7 +23,8 @@ async function verifyListing(req, res) {
       return res.status(400).json({ message: "grade must be between 0 and 100" });
     }
 
-    const listing = req.listing || (await Listing.findById(id));
+    // Always load full listing for updates + notifications (region middleware only loads farmId).
+    const listing = await Listing.findById(id);
     if (!listing || listing.isRemoved) {
       return res.status(404).json({ message: "Listing not found" });
     }
@@ -50,15 +51,18 @@ async function verifyListing(req, res) {
       timestamp: new Date(),
     });
 
+    const farmerNotifyId = listing.farmerId != null ? String(listing.farmerId).trim() : "";
     try {
-      await createNotification({
-        userId: listing.farmerId,
-        type: "LISTING_VERIFICATION_UPDATE",
-        message: `Your listing "${listing.cropType}" was ${action}.`,
-        listingId: listing._id,
-      });
+      if (farmerNotifyId) {
+        await createNotification({
+          userId: farmerNotifyId,
+          type: "LISTING_VERIFICATION_UPDATE",
+          message: `Your listing "${listing.cropType}" was ${action}.`,
+          listingId: listing._id,
+        });
+      }
     } catch (notifyErr) {
-      // Do not fail verification if notification creation fails.
+      console.error("createNotification failed after verification:", notifyErr);
     }
 
     return res.json(listing);
@@ -82,10 +86,7 @@ async function getAgentQueue(req, res) {
       ? req.user.assignedRegions
       : [];
     if (!assignedRegions.length) {
-      return res.json({
-        data: [],
-        pagination: { page, limit, total: 0, totalPages: 0 },
-      });
+      return res.status(403).json({ message: "Agent has no assigned regions" });
     }
 
     const regexRegions = assignedRegions.map(r => new RegExp(`^${r}$`, 'i'));

@@ -23,13 +23,16 @@ async function verifyAgentRegion(req, res, next) {
       ? req.user.assignedRegions
       : [];
 
+    if (!assignedRegions.length) {
+      return res.status(403).json({ message: "Agent has no assigned regions" });
+    }
+
     if (!assignedRegions.includes(upazila)) {
       return res
         .status(403)
         .json({ message: "Agent not assigned to listing region" });
     }
 
-    req.listing = listing;
     return next();
   } catch (err) {
     return res.status(500).json({ message: "Failed to verify agent region" });
