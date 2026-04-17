@@ -95,6 +95,17 @@ const produceSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    flagReason: {
+      type: String,
+      trim: true,
+    },
+    flaggedBy: {
+      type: String,
+      trim: true,
+    },
+    flaggedAt: {
+      type: Date,
+    },
     isRemoved: {
       type: Boolean,
       default: false,

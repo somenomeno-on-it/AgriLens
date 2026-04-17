@@ -23,6 +23,8 @@ const navItems = [
   { label: "Agent performance", href: "/admin/agents/performance", icon: BarChart3 },
   { label: "Listings", href: "/admin/listings", icon: Package },
   { label: "Complaints", href: "/admin/complaints", icon: MessageSquareWarning },
+  { label: "Flagged queue", href: "/admin/moderation", icon: Package },
+  { label: "Mod log", href: "/admin/moderation/log", icon: Package },
   { label: "Announcements", href: "/admin/announcements", icon: Megaphone },
 ];
 
