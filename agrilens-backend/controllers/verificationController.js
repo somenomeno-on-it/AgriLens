@@ -2,6 +2,7 @@ const Listing = require("../models/Listing");
 const Farm = require("../models/Farm");
 const AuditLog = require("../models/AuditLog");
 const { createNotification } = require("../services/notificationService");
+const { recalculateBadge } = require("../services/badgeService");
 const mongoose = require("mongoose");
 
 async function verifyListing(req, res) {
@@ -64,6 +65,11 @@ async function verifyListing(req, res) {
     } catch (notifyErr) {
       console.error("createNotification failed after verification:", notifyErr);
     }
+
+    // Recalculate badge eligibility (fire-and-forget)
+    recalculateBadge(listing.farmerId).catch((err) =>
+      console.error("recalculateBadge failed after verification:", err)
+    );
 
     return res.json(listing);
   } catch (err) {

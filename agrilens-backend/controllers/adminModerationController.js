@@ -1,6 +1,7 @@
 const Produce = require("../models/Produce");
 const AuditLog = require("../models/AuditLog");
 const Admin = require("../models/Admin");
+const { recalculateBadge } = require("../services/badgeService");
 
 /**
  * GET /api/admin/moderation/flagged
@@ -121,6 +122,11 @@ async function removeListing(req, res) {
     listing.status = "deleted";
     await listing.save();
 
+    // Recalculate badge after removal (fire-and-forget)
+    recalculateBadge(listing.farmerId).catch((err) =>
+      console.error("recalculateBadge failed after admin removal:", err)
+    );
+
     const adminId = req.user?.id || "unknown_admin";
 
     await AuditLog.create({
@@ -169,7 +175,12 @@ async function reinstateListing(req, res) {
       listing.flaggedAt = undefined;
 
       await listing.save();
-  
+
+      // Recalculate badge after reinstatement (fire-and-forget)
+      recalculateBadge(listing.farmerId).catch((err) =>
+        console.error("recalculateBadge failed after reinstatement:", err)
+      );
+
       const adminId = req.user?.id || "unknown_admin";
   
       await AuditLog.create({
