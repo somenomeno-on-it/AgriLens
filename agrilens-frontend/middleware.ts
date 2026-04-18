@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 const PROTECTED_PREFIXES = [
-  "/farmer",
+  "/farmer",  // also covers /farmer/complaints/*
   "/produce",
   "/notifications",
   "/admin",

@@ -25,11 +25,19 @@ export default function ProduceListingsPage() {
           headers: getAuthHeaders(),
         });
 
-        if (!res.ok) {
-          throw new Error("Failed to fetch listings");
+        if (res.status === 401) {
+          console.warn("Session expired or unauthorized");
+          alert("Your session has expired. Please log in again.");
+          window.location.href = "/login";
+          return;
         }
 
-        const data = await res.json();
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(`Failed to fetch listings (${res.status}): ${text}`);
+        }
+
+        const data = JSON.parse(await res.text());
         setListings(data);
       } catch (err) {
         console.error(err);
