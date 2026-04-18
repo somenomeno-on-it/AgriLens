@@ -105,6 +105,7 @@ function AdminUserDetailInner() {
   const [suspendOpen, setSuspendOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState("");
+  const [deleteReason, setDeleteReason] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
 
   const load = useCallback(async () => { //The function loads the user details from the backend (callback = uses the same load func)
@@ -170,13 +171,21 @@ function AdminUserDetailInner() {
       alert('Type DELETE to confirm.');
       return;
     }
+    if (!deleteReason.trim()) {
+      alert('Please provide a reason for deletion.');
+      return;
+    }
     setActionLoading(true);
     try {
       const res = await fetch(
         `${API_BASE}/api/admin/users/${encodeURIComponent(id)}?role=${roleParam}`,
         {
           method: "DELETE",
-          headers: getAdminHeaders(),
+          headers: {
+            ...getAdminHeaders(),
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ reason: deleteReason }),
         }
       );
       if (!res.ok) throw new Error("Delete failed");
@@ -187,6 +196,7 @@ function AdminUserDetailInner() {
       setActionLoading(false);
       setDeleteOpen(false);
       setDeleteConfirm("");
+      setDeleteReason("");
     }
   };
 
@@ -490,10 +500,19 @@ function AdminUserDetailInner() {
                 Type DELETE to confirm
               </label>
               <Input
-                className="mt-1"
+                className="mt-1 mb-3"
                 value={deleteConfirm}
                 onChange={(e) => setDeleteConfirm(e.target.value)}
                 placeholder="DELETE"
+              />
+              <label className="text-xs font-medium text-muted-foreground mt-2">
+                Reason for deletion (required)
+              </label>
+              <textarea
+                className="w-full min-h-[80px] mt-1 p-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                value={deleteReason}
+                onChange={(e) => setDeleteReason(e.target.value)}
+                placeholder="Reason..."
               />
             </div>
             <div className="flex justify-end gap-2">
@@ -502,6 +521,7 @@ function AdminUserDetailInner() {
                 onClick={() => {
                   setDeleteOpen(false);
                   setDeleteConfirm("");
+                  setDeleteReason("");
                 }}
               >
                 Cancel

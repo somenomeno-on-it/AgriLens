@@ -30,8 +30,15 @@ const auditLogSchema = new mongoose.Schema(
         "admin_suspend",
         "admin_activate",
         "admin_delete_user",
+        "admin_remove_listing",
+        "admin_reinstate_listing",
+        "agent_flag_listing",
       ],
       required: true,
+    },
+    reason: {
+      type: String,
+      trim: true,
     },
     grade: {
       type: Number,

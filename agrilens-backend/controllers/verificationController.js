@@ -131,7 +131,44 @@ async function getAgentQueue(req, res) {
   }
 }
 
+async function flagListing(req, res) {
+  try {
+    const { id } = req.params;
+    const { flagReason } = req.body;
+
+    if (!flagReason || !flagReason.trim()) {
+      return res.status(400).json({ message: "flagReason is required" });
+    }
+
+    const listing = await Listing.findById(id);
+    if (!listing || listing.isRemoved) {
+      return res.status(404).json({ message: "Listing not found" });
+    }
+
+    listing.isFlagged = true;
+    listing.flagReason = flagReason.trim();
+    listing.flaggedBy = req.user.id;
+    listing.flaggedAt = new Date();
+
+    await listing.save();
+
+    await AuditLog.create({
+      agentId: req.user.id,
+      listingId: listing._id,
+      action: "agent_flag_listing",
+      reason: flagReason.trim(),
+      timestamp: new Date(),
+    });
+
+    return res.json({ message: "Listing flagged successfully", listing });
+  } catch (err) {
+    console.error("Failed to flag listing:", err);
+    return res.status(500).json({ message: "Failed to flag listing" });
+  }
+}
+
 module.exports = {
   verifyListing,
   getAgentQueue,
+  flagListing,
 };

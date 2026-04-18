@@ -56,8 +56,9 @@ export default function AgentVerifyPage() {
 
   const [grade, setGrade] = useState(75);
   const [feedback, setFeedback] = useState("");
-  const [pendingAction, setPendingAction] = useState<"approved" | "rejected" | null>(null);
+  const [pendingAction, setPendingAction] = useState<"approved" | "rejected" | "flag" | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [flagReason, setFlagReason] = useState("");
 
   const [toast, setToast] = useState<{ type: "success" | "error"; message: string } | null>(
     null
@@ -136,6 +137,39 @@ export default function AgentVerifyPage() {
       router.push("/agent/queue");
     } catch (err) {
       setToast({ type: "error", message: "Failed to submit verification." });
+      setPendingAction(null);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const submitFlag = async () => {
+    if (!listingId || !flagReason.trim()) return;
+    setSubmitting(true);
+    try {
+      const agent = getAgentContext();
+      const res = await fetch(`${API_BASE}/api/listings/${listingId}/flag`, {
+        method: "PATCH",
+        headers: {
+          ...getAuthHeaders(
+            agent.assignedRegions.length
+              ? { "x-assigned-regions": JSON.stringify(agent.assignedRegions) }
+              : {}
+          ),
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ flagReason }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Flagging failed");
+      }
+
+      setToast({ type: "success", message: "Listing flagged for review." });
+      setPendingAction(null);
+      router.push("/agent/queue");
+    } catch (err) {
+      setToast({ type: "error", message: "Failed to flag listing." });
       setPendingAction(null);
     } finally {
       setSubmitting(false);
@@ -236,23 +270,57 @@ export default function AgentVerifyPage() {
               />
             </div>
 
-            <div className="flex items-center justify-end gap-2">
+            <div className="flex items-center justify-between mt-6">
               <Button
-                variant="outline"
-                onClick={() => setPendingAction("rejected")}
+                variant="destructive"
+                onClick={() => setPendingAction("flag")}
                 disabled={submitting}
               >
-                Reject
+                Flag for Admin Review
               </Button>
-              <Button onClick={() => setPendingAction("approved")} disabled={submitting}>
-                Approve
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setPendingAction("rejected")}
+                  disabled={submitting}
+                >
+                  Reject
+                </Button>
+                <Button onClick={() => setPendingAction("approved")} disabled={submitting}>
+                  Approve
+                </Button>
+              </div>
             </div>
           </Card>
         </>
       )}
 
-      {pendingAction && (
+      {pendingAction === "flag" && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <Card className="w-full max-w-md p-5 space-y-3">
+            <h3 className="text-lg font-semibold text-destructive">Flag Listing for Review</h3>
+            <p className="text-sm text-muted-foreground">
+              This will send the listing to the admin moderation queue. Please provide a reason.
+            </p>
+            <textarea
+              className="w-full min-h-[100px] border rounded-md p-2 text-sm focus:ring-2 focus:ring-primary focus:outline-none"
+              placeholder="Reason for flagging..."
+              value={flagReason}
+              onChange={(e) => setFlagReason(e.target.value)}
+            />
+            <div className="flex justify-end gap-2 mt-4">
+              <Button variant="outline" onClick={() => setPendingAction(null)} disabled={submitting}>
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={submitFlag} disabled={submitting || !flagReason.trim()}>
+                {submitting ? "Flagging..." : "Confirm Flag"}
+              </Button>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {(pendingAction === "approved" || pendingAction === "rejected") && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <Card className="w-full max-w-md p-5 space-y-3">
             <h3 className="text-lg font-semibold">Confirm {pendingAction}</h3>

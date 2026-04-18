@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,16 @@ import { clearAuthSession, getCurrentUserRole } from "@/lib/auth";
  */
 export default function AdminRoute({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null; // Prevent hydration mismatch
+  }
+
   const role = getCurrentUserRole();
 
   if (role !== "admin") {

@@ -5,6 +5,7 @@ const Produce = require("../models/Produce");
 const Listing = require("../models/Listing");
 const AuditLog = require("../models/AuditLog");
 const Complaint = require("../models/Complaint");
+const AuthUser = require("../models/AuthUser");
 
 function escapeRegex(s) {
   return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -407,6 +408,7 @@ async function logAdminAudit(req, payload) {
     targetUserId: payload.targetUserId,
     targetRole: payload.targetRole,
     action: payload.action,
+    reason: payload.reason,
     timestamp: new Date(),
   });
 }
@@ -478,6 +480,11 @@ async function deleteUser(req, res) {
   try {
     const { id } = req.params;
     const role = req.query.role ? String(req.query.role).toLowerCase() : null;
+    const { reason } = req.body;
+
+    if (!reason || !reason.trim()) {
+      return res.status(400).json({ message: "Deletion reason is required" });
+    }
 
     if (role === "farmer") {
       const farmer = await FarmerProfile.findOne({ userId: id });
@@ -489,10 +496,12 @@ async function deleteUser(req, res) {
         { $set: { status: "deleted", isRemoved: true } }
       );
       await FarmerProfile.deleteOne({ userId: id });
+      await AuthUser.deleteOne({ userId: id });
       await logAdminAudit(req, {
         targetUserId: id,
         targetRole: "farmer",
         action: "admin_delete_user",
+        reason: reason.trim(),
       });
       return res.json({
         message: "Farmer account deleted",
@@ -512,10 +521,12 @@ async function deleteUser(req, res) {
       );
       await AuditLog.deleteMany({ agentId: id });
       await Agent.deleteOne({ _id: agent._id });
+      await AuthUser.deleteOne({ userId: id });
       await logAdminAudit(req, {
         targetUserId: id,
         targetRole: "agent",
         action: "admin_delete_user",
+        reason: reason.trim(),
       });
       return res.json({
         message: "Agent account deleted",
@@ -530,10 +541,12 @@ async function deleteUser(req, res) {
         { $set: { status: "deleted", isRemoved: true } }
       );
       await FarmerProfile.deleteOne({ userId: id });
+      await AuthUser.deleteOne({ userId: id });
       await logAdminAudit(req, {
         targetUserId: id,
         targetRole: "farmer",
         action: "admin_delete_user",
+        reason: reason.trim(),
       });
       return res.json({
         message: "Farmer account deleted",
@@ -549,10 +562,12 @@ async function deleteUser(req, res) {
       );
       await AuditLog.deleteMany({ agentId: id });
       await Agent.deleteOne({ _id: agent._id });
+      await AuthUser.deleteOne({ userId: id });
       await logAdminAudit(req, {
         targetUserId: id,
         targetRole: "agent",
         action: "admin_delete_user",
+        reason: reason.trim(),
       });
       return res.json({
         message: "Agent account deleted",
