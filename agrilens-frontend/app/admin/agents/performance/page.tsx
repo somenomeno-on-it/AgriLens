@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { SimpleLineChart } from "@/components/charts/SimpleLineChart";
 import { API_BASE, getAdminHeaders } from "@/lib/adminApi";
@@ -22,6 +23,8 @@ export default function AgentPerformancePage() {
   const [data, setData] = useState<PerformancePayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [complaintCount, setComplaintCount] = useState<number | null>(null);
+  const [complaintThreshold, setComplaintThreshold] = useState<number | null>(null);
 
   const loadAgents = useCallback(async () => {
     const res = await fetch(
@@ -83,11 +86,56 @@ export default function AgentPerformancePage() {
     if (agentId) loadPerformance(agentId);
   }, [agentId, loadPerformance]);
 
+  const loadComplaintSummary = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/complaints/summary`, {
+        headers: getAdminHeaders(),
+        cache: "no-store",
+      });
+      if (!res.ok) {
+        setComplaintCount(null);
+        setComplaintThreshold(null);
+        return;
+      }
+      const json = await res.json();
+      const perAgent: { agentId: string; count: number }[] = Array.isArray(json.perAgent)
+        ? json.perAgent
+        : [];
+      const row = perAgent.find((x) => String(x.agentId) === String(agentId));
+      setComplaintCount(row ? Number(row.count) : 0);
+      setComplaintThreshold(
+        json.threshold != null ? Number(json.threshold) : null
+      );
+    } catch {
+      setComplaintCount(null);
+      setComplaintThreshold(null);
+    }
+  }, [agentId]);
+
+  useEffect(() => {
+    if (agentId) loadComplaintSummary();
+  }, [agentId, loadComplaintSummary]);
+
   const chartData =
     data?.reviewsLast30Days?.map((d) => ({
       label: d.date.slice(5),
       value: d.count,
     })) ?? [];
+
+  const complaintsBadge = useMemo(() => {
+    if (complaintCount == null) return null;
+    const flagged = complaintThreshold != null && complaintCount >= complaintThreshold;
+    return (
+      <span
+        className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${
+          flagged ? "bg-red-100 text-red-700" : "bg-muted text-muted-foreground"
+        }`}
+      >
+        Complaints: {complaintCount}
+        {flagged && <span className="ml-2 font-semibold">Flagged</span>}
+      </span>
+    );
+  }, [complaintCount, complaintThreshold]);
 
   return (
     <div className="space-y-8 max-w-5xl">
@@ -119,6 +167,19 @@ export default function AgentPerformancePage() {
 
       {data && !loading && (
         <>
+          <Card className="p-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div className="text-sm font-semibold">Agent complaint summary</div>
+            <div className="flex items-center gap-2">
+              {complaintsBadge}
+              <Link
+                className="text-sm underline"
+                href={`/admin/complaints?agentId=${encodeURIComponent(agentId)}`}
+              >
+                View complaints
+              </Link>
+            </div>
+          </Card>
+
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <Card className="p-4">
               <p className="text-xs font-medium text-muted-foreground">Total reviews</p>

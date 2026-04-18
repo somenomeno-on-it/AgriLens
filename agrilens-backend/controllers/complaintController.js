@@ -1,6 +1,7 @@
 const path = require("path");
 const Complaint = require("../models/Complaint");
 const Agent = require("../models/Agent");
+const { createAdminNotifications } = require("../services/notificationService");
 
 // POST /api/complaints
 // Creates a new complaint. farmerId is always taken from req.user (never client input).
@@ -31,6 +32,30 @@ async function createComplaint(req, res) {
       description: String(description).trim(),
       status: "pending",
     });
+
+    // Threshold alert: notify all admins once when an agent crosses complaint threshold.
+    try {
+      const thresholdRaw = Number(process.env.COMPLAINT_THRESHOLD);
+      const threshold =
+        Number.isFinite(thresholdRaw) && thresholdRaw > 0 ? thresholdRaw : 3;
+
+      const count = await Complaint.countDocuments({
+        agentId: String(agentId).trim(),
+        status: { $in: ["pending", "under_review", "resolved", "dismissed"] },
+      });
+
+      const prev = count - 1;
+      if (prev < threshold && count >= threshold) {
+        await createAdminNotifications({
+          type: "AGENT_COMPLAINT_THRESHOLD",
+          message: `Complaint threshold reached for agent "${String(
+            agentId
+          ).trim()}": ${count} complaint(s).`,
+        });
+      }
+    } catch (notifyErr) {
+      // Do not fail complaint creation if admin alert notification fails.
+    }
 
     return res.status(201).json(complaint);
   } catch (err) {
