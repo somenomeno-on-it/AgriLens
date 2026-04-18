@@ -13,6 +13,7 @@ const notificationRoutes = require("./routes/notifications");
 const adminRoutes = require("./routes/adminRoutes");
 const adminAgentAssignRoutes = require("./routes/adminAgentAssign");
 const adminModerationRoutes = require("./routes/adminModerationRoutes");
+const adminComplaintsRoutes = require("./routes/adminComplaints");
 const authRoutes = require("./routes/authRoutes");
 const complaintRoutes = require("./routes/complaints");
 
@@ -50,6 +51,7 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/admin", adminAgentAssignRoutes);
 app.use("/api/admin", adminModerationRoutes);
+app.use("/api/admin", adminComplaintsRoutes);
 app.use("/api/complaints", complaintRoutes);
 
 const PORT = process.env.PORT || 3001;

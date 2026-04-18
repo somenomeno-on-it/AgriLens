@@ -32,6 +32,9 @@ export default function AdminAgentAssignPage() {
   const [workload, setWorkload] = useState<WorkloadRow[]>([]);
   const [threshold, setThreshold] = useState(50);
   const [workloadLoading, setWorkloadLoading] = useState(true);
+  const [flaggedComplaintAgents, setFlaggedComplaintAgents] = useState<Set<string>>(
+    new Set()
+  );
 
   const districtOptions = useMemo(() => getDistrictOptions(), []);
   const upazilaOptions = useMemo(
@@ -91,6 +94,24 @@ export default function AdminAgentAssignPage() {
     }
   }, []);
 
+  const loadComplaintFlags = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/complaints/summary`, {
+        headers: getAdminHeaders(),
+        cache: "no-store",
+      });
+      if (!res.ok) {
+        setFlaggedComplaintAgents(new Set());
+        return;
+      }
+      const json = await res.json();
+      const ids = Array.isArray(json.flaggedAgentIds) ? json.flaggedAgentIds : [];
+      setFlaggedComplaintAgents(new Set(ids.map((x: unknown) => String(x))));
+    } catch {
+      setFlaggedComplaintAgents(new Set());
+    }
+  }, []);
+
   useEffect(() => {
     (async () => {
       setLoading(true);
@@ -121,6 +142,10 @@ export default function AdminAgentAssignPage() {
   }, [loadWorkload]);
 
   useEffect(() => {
+    loadComplaintFlags();
+  }, [loadComplaintFlags]);
+
+  useEffect(() => {
     setUpazila("");
   }, [district]);
 
@@ -146,6 +171,7 @@ export default function AdminAgentAssignPage() {
       setDistrict("");
       setUpazila("");
       loadWorkload();
+      loadComplaintFlags();
     } catch {
       setError("Assign failed");
     } finally {
@@ -173,6 +199,7 @@ export default function AdminAgentAssignPage() {
       }
       setRegions(json.assignedRegions || []);
       loadWorkload();
+      loadComplaintFlags();
     } catch {
       setError("Remove failed");
     } finally {
@@ -207,7 +234,8 @@ export default function AdminAgentAssignPage() {
                 <option value="">Select agent</option>
                 {agents.map((a) => (
                   <option key={a.id} value={a.id}>
-                    {a.name || a.id} {a.email ? `(${a.email})` : ""}
+                    {a.name || a.id} {a.email ? `(${a.email})` : ""}{" "}
+                    {flaggedComplaintAgents.has(a.id) ? "[Flagged]" : ""}
                   </option>
                 ))}
               </select>

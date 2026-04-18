@@ -97,6 +97,10 @@ function MetricCard({ label, value, icon: Icon, accent = "bg-primary/10 text-pri
 export default function AdminDashboardPage() {
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
   const [metrics, setMetrics] = useState<MetricsData | null>(null);
+  const [complaintAlert, setComplaintAlert] = useState<{
+    threshold: number;
+    flaggedCount: number;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
@@ -106,9 +110,10 @@ export default function AdminDashboardPage() {
     const headers = getAdminHeaders();
 
     try {
-      const [dashRes, metricsRes] = await Promise.all([
+      const [dashRes, metricsRes, complaintRes] = await Promise.all([
         fetch(`${API_BASE}/api/admin/dashboard`, { headers, cache: "no-store" }),
         fetch(`${API_BASE}/api/admin/metrics`, { headers, cache: "no-store" }),
+        fetch(`${API_BASE}/api/admin/complaints/summary`, { headers, cache: "no-store" }),
       ]);
 
       if (!dashRes.ok || !metricsRes.ok) {
@@ -123,6 +128,18 @@ export default function AdminDashboardPage() {
       setDashboard(dashData);
       setMetrics(metricsData);
       setLastRefreshed(new Date());
+
+      if (complaintRes.ok) {
+        const summary = await complaintRes.json();
+        const threshold = summary?.threshold != null ? Number(summary.threshold) : 3;
+        const flaggedAgentIds = Array.isArray(summary?.flaggedAgentIds)
+          ? summary.flaggedAgentIds
+          : [];
+        const flaggedCount = flaggedAgentIds.length;
+        setComplaintAlert(flaggedCount > 0 ? { threshold, flaggedCount } : null);
+      } else {
+        setComplaintAlert(null);
+      }
     } catch {
       setError("Failed to load dashboard data. Please try again.");
     } finally {
@@ -172,6 +189,19 @@ export default function AdminDashboardPage() {
           className="rounded-md border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive"
         >
           {error}
+        </div>
+      )}
+
+      {complaintAlert && (
+        <div
+          role="alert"
+          className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
+        >
+          <div className="font-semibold">Complaint threshold alert</div>
+          <div className="mt-1">
+            {complaintAlert.flaggedCount} agent(s) have reached the complaint threshold (≥{" "}
+            {complaintAlert.threshold}). Check the complaints inbox.
+          </div>
         </div>
       )}
 
