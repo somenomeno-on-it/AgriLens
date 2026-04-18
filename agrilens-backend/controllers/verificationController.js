@@ -1,6 +1,7 @@
 const Listing = require("../models/Listing");
 const Farm = require("../models/Farm");
 const AuditLog = require("../models/AuditLog");
+const Agent = require("../models/Agent");
 const { createNotification } = require("../services/notificationService");
 const { recalculateBadge } = require("../services/badgeService");
 const mongoose = require("mongoose");
@@ -38,7 +39,11 @@ async function verifyListing(req, res) {
     if (feedback != null) {
       listing.agentFeedback = String(feedback).trim();
     }
-    listing.verifiedBy = mongoose.isValidObjectId(req.user.id) ? req.user.id : null;
+    
+    // Look up Agent document to get the ObjectId mapping to this userId
+    const agentDoc = await Agent.findOne({ userId: req.user.id }).select("_id").lean();
+    listing.verifiedBy = agentDoc ? agentDoc._id : null;
+    
     listing.verifiedAt = new Date();
 
     await listing.save();
