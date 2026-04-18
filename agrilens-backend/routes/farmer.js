@@ -12,6 +12,7 @@ const {
   updateFarm,
   deleteFarm,
 } = require("../controllers/farmerController");
+const { getBadgeStatus } = require("../controllers/badgeController");
 
 const router = express.Router();
 
@@ -27,6 +28,9 @@ router.get("/:id/history", requireAuth, requireFarmer, getProduceHistory);
 
 // GET /api/farmer/:id/analytics - aggregation-based price trends + quantity summaries
 router.get("/:id/analytics", requireAuth, requireFarmer, getFarmerAnalytics);
+
+// GET /api/farmer/:id/badge-status - public badge status for any farmer
+router.get("/:id/badge-status", getBadgeStatus);
 
 module.exports = router;
 

@@ -39,6 +39,14 @@ const farmerProfileSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    verifiedBadge: {
+      type: Boolean,
+      default: false,
+    },
+    approvedListingCount: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

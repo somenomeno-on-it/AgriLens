@@ -151,6 +151,8 @@ async function buildFarmerDetailResponse(farmer) {
       createdAt: farmer.createdAt,
       lastActive: farmer.lastSeen || farmer.createdAt,
       isSuspended: !!farmer.isSuspended,
+      verifiedBadge: !!farmer.verifiedBadge,
+      approvedListingCount: farmer.approvedListingCount || 0,
     },
     listingCount,
     approvalStats: {
