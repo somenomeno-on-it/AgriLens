@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useInterval } from "@/hooks/useInterval";
 import { getAssignedRegions, getAuthHeaders, getCurrentUserId } from "@/lib/auth";
 import LogoutButton from "@/components/LogoutButton";
+import AnnouncementBanner from "@/components/AnnouncementBanner";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
 
@@ -119,8 +120,17 @@ export default function AgentDashboardPage() {
     });
   }, [items, searchTerm, sortBy]);
 
+  // Get first assigned region for region-targeted announcements
+  const regions = getAssignedRegions() as any[];
+  const firstRegion = regions?.[0] ?? null;
+
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6">
+      <AnnouncementBanner
+        role="agent"
+        district={firstRegion?.district ?? ""}
+        upazila={firstRegion?.upazila ?? ""}
+      />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold">Regional Monitoring Dashboard</h1>
