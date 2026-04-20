@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { getAuthHeaders } from "@/lib/auth";
 import LogoutButton from "@/components/LogoutButton";
+import AnnouncementBanner from "@/components/AnnouncementBanner";
 import {
   getDistrictOptions,
   getUpazilaOptionsForDistrict,
@@ -253,6 +254,7 @@ export default function FarmerPage() {
 
   return ( //The function returns the JSX code that will be rendered to the page
     <div className="max-w-5xl mx-auto p-6 space-y-8">
+      <AnnouncementBanner role="farmer" />
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <h1 className="text-3xl font-semibold">Farmer &amp; Farm Management</h1>
