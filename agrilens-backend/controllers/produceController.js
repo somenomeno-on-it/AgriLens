@@ -106,6 +106,7 @@ async function getListingsByFarmer(req, res) {
 
     return res.json(listings);
   } catch (err) {
+    console.error("[PRODUCE ERROR]:", err);
     return res.status(500).json({ message: "Failed to fetch listings" });
   }
 }

@@ -28,6 +28,8 @@ type FarmerDetail = {
     createdAt: string;
     lastActive: string;
     isSuspended: boolean;
+    verifiedBadge?: boolean;
+    approvedListingCount?: number;
   };
   listingCount: number;
   approvalStats: {
@@ -296,6 +298,30 @@ function AdminUserDetailInner() {
                 )}
               </dd>
             </div>
+            {detail.role === "farmer" && (detail as FarmerDetail).profile.verifiedBadge && (
+              <div className="pt-1">
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "5px",
+                    padding: "3px 11px",
+                    borderRadius: "9999px",
+                    background: "linear-gradient(135deg, #16a34a 0%, #15803d 100%)",
+                    color: "#fff",
+                    fontSize: "0.75rem",
+                    fontWeight: 700,
+                    letterSpacing: "0.02em",
+                    boxShadow: "0 2px 8px rgba(22,163,74,0.30)",
+                  }}
+                >
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  Verified Farmer · {(detail as FarmerDetail).profile.approvedListingCount ?? 0} approved
+                </span>
+              </div>
+            )}
             <div>
               <dt className="text-muted-foreground inline">Last active: </dt>
               <dd className="inline">
