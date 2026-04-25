@@ -1,6 +1,6 @@
 "use client"; //this file must run on the browser
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,242 @@ import {
   getDistrictOptions,
   getUpazilaOptionsForDistrict,
 } from "@/src/data/bdRegions";
+
+// ─── Month name helper ───────────────────────────────────────────────────────
+const MONTH_NAMES = [
+  "January","February","March","April","May","June",
+  "July","August","September","October","November","December",
+];
+
+// ─── Types ───────────────────────────────────────────────────────────────────
+type Recommendation = {
+  rank: number;
+  cropName: string;
+  rationale: string;
+};
+
+type RecommendationResult = {
+  farmId: string;
+  upazila: string;
+  currentMonth: number;
+  recommendations: Recommendation[];
+};
+
+// ─── Seasonal Recommendation Card ────────────────────────────────────────────
+function SeasonalRecommendationCard({ farmId, upazila }: { farmId: string; upazila: string }) {
+  const [data, setData] = useState<RecommendationResult | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState<number | null>(null);
+
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
+
+  const fetchRecs = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(
+        `${API_BASE}/api/recommendations?farmId=${farmId}`,
+        { headers: getAuthHeaders() }
+      );
+      if (!res.ok) throw new Error("Could not load recommendations");
+      const json: RecommendationResult = await res.json();
+      setData(json);
+    } catch {
+      setError("Unable to load seasonal recommendations.");
+    } finally {
+      setLoading(false);
+    }
+  }, [farmId, API_BASE]);
+
+  useEffect(() => {
+    fetchRecs();
+  }, [fetchRecs]);
+
+  // Crop emoji map (best-effort)
+  const cropEmoji: Record<string, string> = {
+    "Boro Rice": "🌾", "Aus Rice": "🌾", "Aman Rice": "🌾",
+    "Potato": "🥔", "Mustard": "🌻", "Lentil (Masur)": "🫘",
+    "Onion": "🧅", "Garlic": "🧄", "Wheat": "🌾",
+    "Chickpea (Boot)": "🫘", "Tomato": "🍅", "Cauliflower": "🥦",
+    "Cabbage": "🥬", "Carrot": "🥕", "Eggplant (Brinjal)": "🍆",
+    "Bitter Gourd (Karela)": "🥒", "Ridge Gourd": "🥒",
+    "Summer Tomato": "🍅", "Pointed Gourd (Potol)": "🥒",
+    "Bottle Gourd (Lau)": "🫙", "Snake Gourd": "🥒",
+    "Okra (Dharosh)": "🫑", "Mango": "🥭", "Jackfruit": "🍈",
+    "Banana": "🍌", "Pineapple": "🍍", "Litchi": "🍒", "Guava": "🍐",
+    "Jute (Kenaph / Tossa)": "🌿", "Sugarcane": "🎋", "Maize": "🌽",
+    "Chilli (Red Pepper)": "🌶️", "Coriander": "🌿",
+    "Turmeric": "🟡", "Ginger": "🫚",
+  };
+
+  const rankColor = ["#16a34a", "#0284c7", "#7c3aed", "#b45309", "#dc2626"];
+  const rankLabel = ["1st", "2nd", "3rd", "4th", "5th"];
+
+  return (
+    <div
+      style={{
+        marginTop: "16px",
+        borderRadius: "16px",
+        background: "linear-gradient(135deg, #f0fdf4 0%, #dcfce7 60%, #bbf7d0 100%)",
+        border: "1.5px solid #86efac",
+        padding: "20px 20px 16px",
+        boxShadow: "0 4px 24px rgba(22,163,74,0.10)",
+      }}
+    >
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <span style={{ fontSize: "22px" }}>🌱</span>
+          <div>
+            <div style={{ fontSize: "0.97rem", fontWeight: 700, color: "#14532d" }}>
+              Seasonal Crop Recommendations
+            </div>
+            <div style={{ fontSize: "0.75rem", color: "#15803d", marginTop: "1px" }}>
+              {data
+                ? `For ${upazila} · ${MONTH_NAMES[data.currentMonth - 1]}`
+                : `For ${upazila}`}
+            </div>
+          </div>
+        </div>
+        <button
+          onClick={fetchRecs}
+          disabled={loading}
+          title="Refresh recommendations"
+          style={{
+            background: "none", border: "none", cursor: loading ? "default" : "pointer",
+            fontSize: "18px", opacity: loading ? 0.5 : 1,
+            transition: "transform 0.2s",
+          }}
+          onMouseEnter={(e) => { if (!loading) (e.currentTarget as HTMLButtonElement).style.transform = "rotate(180deg)"; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = ""; }}
+        >
+          🔄
+        </button>
+      </div>
+
+      {/* Loading */}
+      {loading && (
+        <div style={{ textAlign: "center", padding: "18px 0", color: "#15803d", fontSize: "0.85rem" }}>
+          <span style={{ display: "inline-block", animation: "spin 1s linear infinite", marginRight: "6px" }}>⏳</span>
+          Calculating best crops for your farm…
+          <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+        </div>
+      )}
+
+      {/* Error */}
+      {!loading && error && (
+        <div style={{
+          padding: "10px 14px", borderRadius: "10px",
+          background: "#fef2f2", border: "1px solid #fecaca",
+          color: "#dc2626", fontSize: "0.83rem",
+        }}>
+          {error}
+        </div>
+      )}
+
+      {/* Results */}
+      {!loading && data && data.recommendations.length === 0 && (
+        <div style={{ padding: "10px 0", color: "#6b7280", fontSize: "0.85rem" }}>
+          No seasonal recommendations available for <strong>{upazila}</strong> this month.
+        </div>
+      )}
+
+      {!loading && data && data.recommendations.length > 0 && (
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+          {data.recommendations.map((rec) => (
+            <div
+              key={rec.rank}
+              onClick={() => setExpanded(expanded === rec.rank ? null : rec.rank)}
+              style={{
+                borderRadius: "12px",
+                background: expanded === rec.rank
+                  ? "linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%)"
+                  : "#ffffff",
+                border: `1.5px solid ${expanded === rec.rank ? rankColor[rec.rank - 1] + "60" : "#e2e8f0"}`,
+                padding: "10px 14px",
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+                boxShadow: expanded === rec.rank
+                  ? `0 2px 12px ${rankColor[rec.rank - 1]}22`
+                  : "0 1px 3px rgba(0,0,0,0.05)",
+              }}
+              onMouseEnter={(e) => {
+                if (expanded !== rec.rank) {
+                  (e.currentTarget as HTMLDivElement).style.borderColor = rankColor[rec.rank - 1] + "80";
+                  (e.currentTarget as HTMLDivElement).style.transform = "translateY(-1px)";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (expanded !== rec.rank) {
+                  (e.currentTarget as HTMLDivElement).style.borderColor = "#e2e8f0";
+                  (e.currentTarget as HTMLDivElement).style.transform = "";
+                }
+              }}
+            >
+              {/* Row: rank badge + name + emoji + chevron */}
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <span
+                  style={{
+                    minWidth: "32px", height: "32px",
+                    borderRadius: "50%",
+                    background: rankColor[rec.rank - 1],
+                    color: "#fff",
+                    display: "inline-flex", alignItems: "center", justifyContent: "center",
+                    fontSize: "0.7rem", fontWeight: 800,
+                    flexShrink: 0,
+                  }}
+                >
+                  {rankLabel[rec.rank - 1]}
+                </span>
+                <span style={{ fontSize: "20px", flexShrink: 0 }}>
+                  {cropEmoji[rec.cropName] ?? "🌿"}
+                </span>
+                <span style={{ fontWeight: 600, fontSize: "0.88rem", color: "#1a2e1b", flex: 1 }}>
+                  {rec.cropName}
+                </span>
+                <span
+                  style={{
+                    fontSize: "0.7rem", color: "#15803d",
+                    transition: "transform 0.2s",
+                    transform: expanded === rec.rank ? "rotate(180deg)" : "",
+                    display: "inline-block",
+                  }}
+                >
+                  ▼
+                </span>
+              </div>
+
+              {/* Expanded rationale */}
+              {expanded === rec.rank && (
+                <div
+                  style={{
+                    marginTop: "10px",
+                    paddingTop: "10px",
+                    borderTop: "1px solid #dcfce7",
+                    fontSize: "0.8rem",
+                    color: "#374151",
+                    lineHeight: 1.6,
+                  }}
+                >
+                  {rec.rationale}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Footer note */}
+      {!loading && data && (
+        <div style={{ marginTop: "12px", fontSize: "0.7rem", color: "#6b7280", textAlign: "right" }}>
+          Based on DAE Bangladesh agro-climatic calendar · Click any crop to read why it&apos;s recommended
+        </div>
+      )}
+    </div>
+  );
+}
+
 
 //farmer and farm object types
 type FarmerProfile = {
@@ -537,33 +773,42 @@ export default function FarmerPage() {
               /* ---- Read-only farm card ---- */
               <Card
                 key={farm._id}
-                className="p-3 flex items-center justify-between"
+                className="p-4 space-y-0"
               >
-                <div>
-                  <div className="font-medium">{farm.name}</div>
-                  <div className="text-sm text-zinc-500">
-                    {farm.location.district}, {farm.location.upazila}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium">{farm.name}</div>
+                    <div className="text-sm text-zinc-500">
+                      {farm.location.district}, {farm.location.upazila}
+                    </div>
+                    {farm.sizeInAcres != null && (
+                      <div className="text-sm text-zinc-400">{farm.sizeInAcres} acres</div>
+                    )}
                   </div>
-                  {farm.sizeInAcres != null && (
-                    <div className="text-sm text-zinc-400">{farm.sizeInAcres} acres</div>
-                  )}
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => startEditFarm(farm)}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => deleteFarm(farm._id)}
+                    >
+                      Delete
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => startEditFarm(farm)}
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => deleteFarm(farm._id)}
-                  >
-                    Delete
-                  </Button>
-                </div>
+                {/* Seasonal recommendations card — auto-loads for this farm */}
+                {farm.location.upazila && (
+                  <SeasonalRecommendationCard
+                    farmId={farm._id}
+                    upazila={farm.location.upazila}
+                  />
+                )}
               </Card>
             )
           )}
