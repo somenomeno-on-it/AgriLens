@@ -72,9 +72,9 @@ export default function AddProducePage() {
     const res = await fetch(`${API_BASE}/api/produce/${listingId}/photos`, {
       method: "POST",
       headers: (() => {
-        const headers = getAuthHeaders();
-        delete headers["Content-Type"];
-        return headers;
+        const headers = getAuthHeaders() as Record<string, string>;
+        const { ["Content-Type"]: _contentType, ...rest } = headers;
+        return rest;
       })(),
       body: formData,
     });

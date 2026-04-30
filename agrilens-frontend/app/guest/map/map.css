@@ -1,0 +1,41 @@
+.guest-map-shell {
+  position: relative;
+  height: calc(100vh - 57px);
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .guest-map-shell {
+    height: calc(100vh - 61px);
+  }
+}
+
+.guest-map-container {
+  height: 100%;
+  width: 100%;
+}
+
+.produce-selector {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 1000;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: oklch(var(--background) / 0.92);
+  border: 1px solid oklch(var(--border) / 0.8);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.produce-selector select {
+  min-width: 220px;
+}
+
+.leaflet-popup-content {
+  max-width: 250px;
+}
+
