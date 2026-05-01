@@ -112,13 +112,21 @@ function LoginPageInner() {
             </Button>
           </form>
         </CardContent>
-        <CardFooter>
-          <p className="text-sm text-muted-foreground">
+        <CardFooter className="flex-col gap-4">
+          <p className="text-sm text-muted-foreground w-full text-center">
             No account?{" "}
             <Link className="underline" href="/signup">
               Create one
             </Link>
           </p>
+          <div className="w-full text-center relative border-t pt-4">
+            <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-card px-2 text-xs text-muted-foreground">
+              OR
+            </span>
+            <Button variant="outline" className="w-full" asChild>
+              <Link href="/guest/map">Continue as Guest (View Map)</Link>
+            </Button>
+          </div>
         </CardFooter>
         </Card>
       </div>
