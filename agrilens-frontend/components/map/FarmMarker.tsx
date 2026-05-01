@@ -11,12 +11,10 @@ type ProduceListItem = {
 
 export type PublicFarm = {
   id: string;
-  farmName: string;
   district: string;
   upazila: string;
   distance?: number;
   coordinates: { lat?: number; lng?: number } | null;
-  farmerVerified?: boolean;
   produceList: ProduceListItem[];
 };
 
@@ -55,20 +53,24 @@ export function FarmMarker({ farm }: { farm: PublicFarm }) {
     <Marker position={[lat, lng]} icon={farmIcon}>
       <Popup>
         <div className="space-y-2">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <div className="text-sm font-semibold leading-snug">
-                {farm.farmName}
-              </div>
-              <div className="text-xs text-muted-foreground">
-                {farm.district}, {farm.upazila}
-              </div>
+          <div>
+            <div className="text-sm font-semibold leading-snug">Produce availability</div>
+            <div className="text-xs text-muted-foreground">
+              {farm.district}, {farm.upazila}
             </div>
-            {farm.farmerVerified ? (
-              <span className="inline-flex items-center rounded-full border bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
-                Verified
-              </span>
-            ) : null}
+          </div>
+          <div className="space-y-1">
+            {farm.produceList.map((item, idx) => (
+              <div key={`${item.produceName}-${item.harvestDate ?? "na"}-${idx}`} className="text-xs">
+                <span className="font-medium">{item.produceName}</span>: {item.quantity}
+                {formatHarvestDate(item.harvestDate) ? (
+                  <span className="text-muted-foreground">
+                    {" "}
+                    (Harvest: {formatHarvestDate(item.harvestDate)})
+                  </span>
+                ) : null}
+              </div>
+            ))}
           </div>
         </div>
       </Popup>

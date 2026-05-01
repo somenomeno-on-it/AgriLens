@@ -9,6 +9,7 @@ function normalizeProduceName(value) {
 async function getPublicFarms(req, res) {
   try {
     const { district, upazila, lat, lng, radius } = req.query;
+    const produce = normalizeProduceName(req.query.produce);
     const pipeline = [];
 
     // 1. Spatial Filtering via $geoNear (MUST be first stage if used)
@@ -57,6 +58,15 @@ async function getPublicFarms(req, res) {
               isRemoved: { $ne: true },
             },
           },
+          ...(produce
+            ? [
+                {
+                  $match: {
+                    cropType: { $regex: new RegExp(`^${produce}$`, "i") },
+                  },
+                },
+              ]
+            : []),
         ],
         as: "produces",
       },
@@ -70,12 +80,10 @@ async function getPublicFarms(req, res) {
       $project: {
         _id: 0,
         id: "$_id",
-        farmName: "$name",
         district: "$location.district",
         upazila: "$location.upazila",
         coordinates: "$location.coordinates",
         distance: 1,
-        farmerVerified: "$farmerProfile.verifiedBadge",
         produceList: {
           $map: {
             input: "$produces",
@@ -90,7 +98,7 @@ async function getPublicFarms(req, res) {
       },
     });
 
-    pipeline.push({ $sort: { distance: 1, farmName: 1 } });
+    pipeline.push({ $sort: { distance: 1, district: 1, upazila: 1 } });
 
     const farms = await Farm.aggregate(pipeline);
     return res.json(farms);
@@ -114,7 +122,7 @@ async function getProduceHeatmap(req, res) {
         $match: {
           status: "approved",
           isRemoved: { $ne: true },
-          cropType: produce,
+          cropType: { $regex: new RegExp(`^${produce}$`, "i") },
         },
       },
       {

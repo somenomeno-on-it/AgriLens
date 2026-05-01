@@ -1,12 +1,14 @@
 .guest-map-shell {
   position: relative;
-  height: calc(100vh - 57px);
+  height: calc(100dvh - 57px);
+  min-height: calc(100vh - 57px);
   width: 100%;
 }
 
 @media (min-width: 640px) {
   .guest-map-shell {
-    height: calc(100vh - 61px);
+    height: calc(100dvh - 61px);
+    min-height: calc(100vh - 61px);
   }
 }
 
