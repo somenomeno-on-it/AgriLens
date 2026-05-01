@@ -67,10 +67,16 @@ async function createFarm(req, res) {
       return res.status(404).json({ message: "Profile not found" });
     }
 
+    const geoPoint =
+      location?.coordinates?.lng && location?.coordinates?.lat
+        ? { type: "Point", coordinates: [location.coordinates.lng, location.coordinates.lat] }
+        : undefined;
+
     const farm = await Farm.create({
       farmerProfile: profile._id,
       name,
       location,
+      geoPoint,
       sizeInAcres,
       description,
     });
@@ -91,9 +97,14 @@ async function updateFarm(req, res) {
       return res.status(404).json({ message: "Profile not found" });
     }
 
+    const geoPoint =
+      location?.coordinates?.lng && location?.coordinates?.lat
+        ? { type: "Point", coordinates: [location.coordinates.lng, location.coordinates.lat] }
+        : undefined;
+
     const farm = await Farm.findOneAndUpdate(
       { _id: id, farmerProfile: profile._id },
-      { name, location, sizeInAcres, description },
+      { name, location, geoPoint, sizeInAcres, description },
       { new: true }
     );
 

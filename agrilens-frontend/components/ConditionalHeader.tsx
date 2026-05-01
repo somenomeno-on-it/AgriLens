@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { getAuthUser, type AuthRole } from "@/lib/auth";
 
@@ -16,12 +17,18 @@ function shouldHideHeader(pathname: string) {
 export function ConditionalHeader() {
   const pathname = usePathname();
 
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   if (shouldHideHeader(pathname)) {
     return null;
   }
 
-  // Prevent hydration mismatch by returning a neutral shell on the server.
-  if (typeof window === "undefined") {
+  // Prevent hydration mismatch by returning a neutral shell until mounted.
+  if (!mounted) {
     return (
       <header className="sticky top-0 z-40 border-b bg-background">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">

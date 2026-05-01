@@ -14,6 +14,7 @@ export type PublicFarm = {
   farmName: string;
   district: string;
   upazila: string;
+  distance?: number;
   coordinates: { lat?: number; lng?: number } | null;
   farmerVerified?: boolean;
   produceList: ProduceListItem[];
@@ -68,22 +69,6 @@ export function FarmMarker({ farm }: { farm: PublicFarm }) {
                 Verified
               </span>
             ) : null}
-          </div>
-
-          <div className="flex flex-wrap gap-1.5">
-            {farm.produceList.map((p, idx) => {
-              const harvest = formatHarvestDate(p.harvestDate);
-              const title = harvest ? `${p.quantity} • ${harvest}` : `${p.quantity}`;
-              return (
-                <span
-                  key={`${p.produceName}-${idx}`}
-                  title={title}
-                  className="inline-flex items-center rounded-full border bg-background px-2 py-0.5 text-[11px]"
-                >
-                  {p.produceName} ({p.quantity})
-                </span>
-              );
-            })}
           </div>
         </div>
       </Popup>

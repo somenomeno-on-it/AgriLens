@@ -38,9 +38,21 @@ const farmSchema = new mongoose.Schema(
     description: {
       type: String,
     },
+    geoPoint: {
+      type: {
+        type: String,
+        enum: ["Point"],
+        default: "Point",
+      },
+      coordinates: {
+        type: [Number],
+      },
+    },
   },
   { timestamps: true }
 );
+
+farmSchema.index({ geoPoint: "2dsphere" });
 
 module.exports = mongoose.model("Farm", farmSchema);
 
