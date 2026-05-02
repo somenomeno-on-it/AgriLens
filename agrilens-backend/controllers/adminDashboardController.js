@@ -2,6 +2,7 @@ const Produce = require("../models/Produce");
 const Agent = require("../models/Agent");
 const FarmerProfile = require("../models/FarmerProfile");
 const Admin = require("../models/Admin");
+const Customer = require("../models/Customer");
 
 /**
  * GET /api/admin/dashboard
@@ -25,6 +26,7 @@ async function getAdminDashboard(req, res) {
       activeFarmerCount,
       activeAgentCount,
       activeAdminCount,
+      activeCustomerCount,
       approvedListings,
       latestAgents,
     ] = await Promise.all([
@@ -36,6 +38,9 @@ async function getAdminDashboard(req, res) {
 
       // Active admins: Admin.lastSeen within 24h
       Admin.countDocuments({ lastSeen: { $gte: since24h } }),
+
+      // Active customers: Customer.lastSeen within 24h
+      Customer.countDocuments({ lastSeen: { $gte: since24h } }),
 
       // Latest 5 approved listings, sorted by verifiedAt desc (verifiedAt === approvedAt)
       Produce.find({ status: "approved", isRemoved: { $ne: true } })
@@ -52,7 +57,7 @@ async function getAdminDashboard(req, res) {
         .lean(),
     ]);
 
-    const activeUserCount = activeFarmerCount + activeAgentCount + activeAdminCount;
+    const activeUserCount = activeFarmerCount + activeAgentCount + activeAdminCount + activeCustomerCount;
 
     // Enrich approved listings with farmerName via FarmerProfile lookup
     let enrichedListings = [];

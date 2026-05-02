@@ -20,6 +20,7 @@ const announcementRoutes = require("./routes/announcementRoutes");
 const complaintRoutes = require("./routes/complaints");
 const recommendationRoutes = require("./routes/recommendations");
 const publicMapRoutes = require("./routes/publicMap");
+const customerRoutes = require("./routes/customer");
 
 const app = express();
 
@@ -61,6 +62,7 @@ app.use("/api/admin", adminComplaintsRoutes);
 app.use("/api/complaints", complaintRoutes);
 app.use("/api/recommendations", recommendationRoutes);
 app.use("/api/public", publicMapRoutes);
+app.use("/api/customer", customerRoutes);
 
 const PORT = process.env.PORT || 3001;
 const MONGODB_URI =

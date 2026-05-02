@@ -5,6 +5,7 @@ const AuthUser = require("../models/AuthUser");
 const FarmerProfile = require("../models/FarmerProfile");
 const Agent = require("../models/Agent");
 const Admin = require("../models/Admin");
+const Customer = require("../models/Customer");
 
 function getJwtSecret() {
   return process.env.JWT_SECRET || "change-this-jwt-secret";
@@ -57,6 +58,16 @@ async function createRoleProfile(role, userId, body, email) {
     return { fullName: name, assignedRegions: assignedRegions.map((r) => r.upazila) };
   }
 
+  if (role === "customer") {
+    await Customer.create({
+      userId,
+      name: name,
+      email,
+      phone: body.phone || "",
+    });
+    return { fullName: name };
+  }
+
   await Admin.create({
     userId,
     fullName: name,
@@ -92,6 +103,18 @@ async function getRoleDetails(role, userId) {
         : [],
     };
   }
+  if (role === "customer") {
+    const customer = await Customer.findOne({ userId })
+      .select("name isSuspended email")
+      .lean();
+    return {
+      fullName: customer?.name || "",
+      isSuspended: !!customer?.isSuspended,
+      email: customer?.email || "",
+      assignedRegions: [],
+    };
+  }
+
   const admin = await Admin.findOne({ userId }).select("fullName email").lean();
   return {
     fullName: admin?.fullName || "",
@@ -113,7 +136,7 @@ async function signup(req, res) {
     if (password.length < 6) {
       return res.status(400).json({ message: "Password must be at least 6 characters" });
     }
-    if (!["farmer", "agent", "admin"].includes(role)) {
+    if (!["farmer", "agent", "admin", "customer"].includes(role)) {
       return res.status(400).json({ message: "Invalid role" });
     }
 

@@ -59,6 +59,8 @@ export default function SignupPage() {
         router.push("/admin/dashboard");
       } else if (payload.user?.role === "agent") {
         router.push("/agent/dashboard");
+      } else if (payload.user?.role === "customer") {
+        router.push("/customer/profile");
       } else {
         router.push("/farmer");
       }
@@ -112,9 +114,10 @@ export default function SignupPage() {
                 value={role}
                 onChange={(e) => setRole(e.target.value as AuthRole)}
               >
-                <option value="farmer">Farmer</option>
+              <option value="farmer">Farmer</option>
                 <option value="agent">Agent</option>
                 <option value="admin">Admin</option>
+                <option value="customer">Customer</option>
               </select>
             </div>
             {role === "farmer" && (
@@ -128,6 +131,17 @@ export default function SignupPage() {
                   <Input id="address" value={address} onChange={(e) => setAddress(e.target.value)} />
                 </div>
               </>
+            )}
+            {role === "customer" && (
+              <div className="grid gap-2">
+                <Label htmlFor="customer-phone">Phone</Label>
+                <Input
+                  id="customer-phone"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="Optional"
+                />
+              </div>
             )}
             {error && <p className="text-sm text-red-600">{error}</p>}
             <Button type="submit" className="w-full" disabled={loading}>

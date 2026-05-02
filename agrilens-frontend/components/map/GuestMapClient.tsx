@@ -119,6 +119,7 @@ export default function GuestMapClient({
   setRadius,
   mapCenter,
   setMapCenter,
+  showFarms = true,
 }: {
   district: string;
   setDistrict: (v: string) => void;
@@ -128,6 +129,7 @@ export default function GuestMapClient({
   setRadius: (v: number) => void;
   mapCenter: [number, number];
   setMapCenter: (v: [number, number]) => void;
+  showFarms?: boolean;
 }) {
   const [farms, setFarms] = useState<PublicFarm[]>([]);
   const [produceQuery, setProduceQuery] = useState("");
@@ -146,6 +148,7 @@ export default function GuestMapClient({
   }, [district, setUpazila]);
 
   useEffect(() => {
+    if (!showFarms) return; // skip farm fetching when not needed
     let cancelled = false;
 
     async function load() {
@@ -177,7 +180,7 @@ export default function GuestMapClient({
       cancelled = true;
       clearTimeout(timeout);
     };
-  }, [district, upazila, radius, mapCenter, produceQuery]);
+  }, [district, upazila, radius, mapCenter, produceQuery, showFarms]);
 
   const fitTriggerKey = useMemo(
     () => JSON.stringify({ district, upazila, produce: produceQuery.trim() }),
@@ -237,47 +240,47 @@ export default function GuestMapClient({
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">
-                Produce (map-based search)
-              </label>
-              <input
-                type="text"
-                value={produceQuery}
-                onChange={(e) => setProduceQuery(e.target.value)}
-                placeholder="e.g. Rice"
-                className="w-full p-2 border rounded text-sm"
-                list="produce-options"
-              />
-              <datalist id="produce-options">
-                {availableProduceOptions.map((p) => (
-                  <option key={p} value={p} />
-                ))}
-              </datalist>
-              <div className="mt-2 flex items-center justify-between gap-3">
-                <label className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={showHeatmap}
-                    onChange={(e) => setShowHeatmap(e.target.checked)}
-                    disabled={!produceQuery.trim()}
-                  />
-                  Crop density heatmap
+                <label className="block text-sm font-medium mb-1">
+                  Produce (map-based search)
                 </label>
-                <button
-                  type="button"
-                  className="text-xs underline text-muted-foreground hover:text-foreground"
-                  onClick={() => {
-                    setProduceQuery("");
-                    setShowHeatmap(false);
-                  }}
-                >
-                  Clear produce
-                </button>
+                <input
+                  type="text"
+                  value={produceQuery}
+                  onChange={(e) => setProduceQuery(e.target.value)}
+                  placeholder="e.g. Rice"
+                  className="w-full p-2 border rounded text-sm"
+                  list="produce-options"
+                />
+                <datalist id="produce-options">
+                  {availableProduceOptions.map((p) => (
+                    <option key={p} value={p} />
+                  ))}
+                </datalist>
+                <div className="mt-2 flex items-center justify-between gap-3">
+                  <label className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={showHeatmap}
+                      onChange={(e) => setShowHeatmap(e.target.checked)}
+                      disabled={!produceQuery.trim()}
+                    />
+                    Crop density heatmap
+                  </label>
+                  <button
+                    type="button"
+                    className="text-xs underline text-muted-foreground hover:text-foreground"
+                    onClick={() => {
+                      setProduceQuery("");
+                      setShowHeatmap(false);
+                    }}
+                  >
+                    Clear produce
+                  </button>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Select a produce to filter farms; enable heatmap to visualize density.
+                </p>
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Select a produce to filter farms; enable heatmap to visualize density.
-              </p>
-            </div>
 
             <div className="pt-2 border-t">
               <label className="block text-sm font-medium mb-1">
@@ -323,7 +326,7 @@ export default function GuestMapClient({
             />
           )}
 
-          {farms.map((farm) => (
+          {showFarms && farms.map((farm) => (
             <FarmMarker key={farm.id} farm={farm} />
           ))}
         </MapContainer>

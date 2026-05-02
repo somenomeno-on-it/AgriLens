@@ -6,7 +6,6 @@ import AdminRoute from "@/components/AdminRoute";
 import {
   LayoutDashboard,
   Users,
-  UserCheck,
   Package,
   MessageSquareWarning,
   Megaphone,
@@ -18,7 +17,7 @@ import LogoutButton from "@/components/LogoutButton";
 const navItems = [
   { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
   { label: "Users", href: "/admin/users", icon: Users },
-  { label: "Agents", href: "/admin/users?tab=agent", icon: UserCheck },
+
   { label: "Agent regions", href: "/admin/agents/assign", icon: MapPin },
   { label: "Agent performance", href: "/admin/agents/performance", icon: BarChart3 },
   { label: "Listings", href: "/admin/listings", icon: Package },

@@ -65,6 +65,8 @@ function LoginPageInner() {
         router.push("/admin/dashboard");
       } else if (role === "agent") {
         router.push("/agent/dashboard");
+      } else if (role === "customer") {
+        router.push("/customer/profile");
       } else {
         router.push("/farmer");
       }

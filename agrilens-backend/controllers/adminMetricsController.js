@@ -1,6 +1,7 @@
 const Produce = require("../models/Produce");
 const FarmerProfile = require("../models/FarmerProfile");
 const Agent = require("../models/Agent");
+const Customer = require("../models/Customer");
 const cache = require("../utils/cache");
 
 const CACHE_KEY = "admin:metrics";
@@ -33,12 +34,14 @@ async function getAdminMetrics(req, res) {
         totalRejected,
         activeFarmers,
         activeAgents,
+        activeCustomers,
       ] = await Promise.all([
         Produce.countDocuments({ isRemoved: { $ne: true } }),
         Produce.countDocuments({ status: "approved", isRemoved: { $ne: true } }),
         Produce.countDocuments({ status: "rejected", isRemoved: { $ne: true } }),
         FarmerProfile.countDocuments({ lastSeen: { $gte: since24h } }),
         Agent.countDocuments({ lastSeen: { $gte: since24h } }),
+        Customer.countDocuments({ lastSeen: { $gte: since24h } }),
       ]);
 
       // Safe division — guard against zero
@@ -54,6 +57,7 @@ async function getAdminMetrics(req, res) {
         overallApprovalRate,
         activeFarmers,
         activeAgents,
+        activeCustomers,
       };
     });
 

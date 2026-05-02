@@ -1,6 +1,7 @@
 const FarmerProfile = require("../models/FarmerProfile");
 const Agent = require("../models/Agent");
 const Admin = require("../models/Admin");
+const Customer = require("../models/Customer");
 
 /**
  * trackActivity middleware
@@ -23,6 +24,10 @@ function trackActivity(req, res, next) {
         .catch(() => {});
     } else if (user.role === "admin") {
       Admin.updateOne({ userId: user.id }, { $set: { lastSeen: now } })
+        .exec()
+        .catch(() => {});
+    } else if (user.role === "customer") {
+      Customer.updateOne({ userId: user.id }, { $set: { lastSeen: now } })
         .exec()
         .catch(() => {});
     }
