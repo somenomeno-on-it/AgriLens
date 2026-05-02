@@ -43,6 +43,7 @@ export function ConditionalHeader() {
   const isFarmer = role === "farmer";
   const isAgent = role === "agent";
   const isAdmin = role === "admin";
+  const isCustomer = role === "customer";
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background">
@@ -111,7 +112,27 @@ export function ConditionalHeader() {
             </>
           )}
 
-          {!isFarmer && !isAgent && !isAdmin && (
+          {isCustomer && (
+            <>
+              <Link className="font-semibold" href="/customer/profile">
+                AgriLens
+              </Link>
+              <Link
+                className="text-muted-foreground hover:text-foreground"
+                href="/customer/profile"
+              >
+                My Profile
+              </Link>
+              <Link
+                className="text-muted-foreground hover:text-foreground"
+                href="/customer/marketplace"
+              >
+                Marketplace
+              </Link>
+            </>
+          )}
+
+          {!isFarmer && !isAgent && !isAdmin && !isCustomer && (
             <>
               <Link className="font-semibold" href="/guest/map">
                 AgriLens

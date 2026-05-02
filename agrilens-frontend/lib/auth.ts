@@ -1,4 +1,4 @@
-export type AuthRole = "farmer" | "agent" | "admin";
+export type AuthRole = "farmer" | "agent" | "admin" | "customer";
 
 export type AuthSessionUser = {
   id: string;

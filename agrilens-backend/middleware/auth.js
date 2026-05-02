@@ -28,7 +28,7 @@ async function requireAuth(req, res, next) {
 
   const userId = payload?.sub ? String(payload.sub) : "";
   const role = payload?.role ? String(payload.role).toLowerCase() : "";
-  if (!userId || !["farmer", "agent", "admin"].includes(role)) {
+  if (!userId || !["farmer", "agent", "admin", "customer"].includes(role)) {
     return res.status(401).json({ message: "Invalid token payload" });
   }
 
@@ -64,9 +64,17 @@ function requireAgent(req, res, next) {
   next();
 }
 
+function requireCustomer(req, res, next) {
+  if (!req.user || req.user.role !== "customer") {
+    return res.status(403).json({ message: "Customer role required" });
+  }
+  next();
+}
+
 module.exports = {
   requireAuth,
   requireFarmer,
   requireAgent,
+  requireCustomer,
 };
 
