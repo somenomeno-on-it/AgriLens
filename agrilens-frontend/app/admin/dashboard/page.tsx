@@ -47,6 +47,7 @@ type MetricsData = {
   overallApprovalRate: number;
   activeFarmers: number;
   activeAgents: number;
+  activeCustomers: number;
 };
 
 // ── Skeleton component ────────────────────────────────────────────────────────
@@ -218,7 +219,7 @@ export default function AdminDashboardPage() {
             ))}
           </div>
         ) : metrics ? (
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-7">
             <MetricCard
               label="Total Listings"
               value={metrics.totalListings}
@@ -254,6 +255,12 @@ export default function AdminDashboardPage() {
               value={metrics.activeAgents}
               icon={Activity}
               accent="bg-cyan-100 text-cyan-700"
+            />
+            <MetricCard
+              label="Active Customers"
+              value={metrics.activeCustomers}
+              icon={UserCheck}
+              accent="bg-orange-100 text-orange-700"
             />
           </div>
         ) : null}
@@ -395,7 +402,7 @@ export default function AdminDashboardPage() {
                 {dashboard.activeUserCount}
               </p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Across all roles — farmers, agents, and admins combined.
+                Across all roles — farmers, agents, admins, and customers combined.
               </p>
             </div>
           </Card>
