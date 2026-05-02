@@ -2,24 +2,24 @@
 
 import { useState } from "react";
 import dynamic from "next/dynamic";
-import "./map.css";
+import AdminRoute from "@/components/AdminRoute";
+import { PublicStatsWidgets } from "@/components/charts/PublicStatsWidgets";
+import "../../guest/map/map.css";
 
 const GuestMapClient = dynamic(() => import("@/components/map/GuestMapClient"), {
   ssr: false,
 });
 
-import { PublicStatsWidgets } from "@/components/charts/PublicStatsWidgets";
-
-export default function GuestMapPage() {
+function AdminListingsInner() {
   const [district, setDistrict] = useState("");
   const [upazila, setUpazila] = useState("");
   const [radius, setRadius] = useState<number>(0);
   const [mapCenter, setMapCenter] = useState<[number, number]>([23.8, 90.4]);
 
   return (
-    <div className="min-h-screen bg-background pb-12">
-      <div className="w-full">
-        <GuestMapClient 
+    <div className="-m-8">
+      <div className="guest-map-shell">
+        <GuestMapClient
           district={district}
           setDistrict={setDistrict}
           upazila={upazila}
@@ -28,10 +28,10 @@ export default function GuestMapPage() {
           setRadius={setRadius}
           mapCenter={mapCenter}
           setMapCenter={setMapCenter}
-          showFarms={false}
+          showFarms={true}
         />
       </div>
-      <PublicStatsWidgets 
+      <PublicStatsWidgets
         district={district}
         upazila={upazila}
         radius={radius}
@@ -41,3 +41,10 @@ export default function GuestMapPage() {
   );
 }
 
+export default function AdminListingsPage() {
+  return (
+    <AdminRoute>
+      <AdminListingsInner />
+    </AdminRoute>
+  );
+}
