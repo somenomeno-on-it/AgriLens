@@ -54,8 +54,29 @@ async function createAdminNotifications({ type, message, listingId }) {
   return Notification.insertMany(docs);
 }
 
+/**
+ * Notify a farmer that a customer placed a new order.
+ */
+async function createNewOrderNotificationForFarmer({
+  farmerUserId,
+  produceName,
+  orderedQty,
+  unit,
+  customerPhone,
+  customerAddress,
+  listingId,
+}) {
+  return createNotification({
+    userId: farmerUserId,
+    type: "new_order",
+    message: `New order for ${produceName}: ${orderedQty} ${unit}. Customer phone: ${customerPhone}. Address: ${customerAddress}.`,
+    listingId,
+  });
+}
+
 module.exports = {
   createNotification,
   createAdminNotifications,
+  createNewOrderNotificationForFarmer,
 };
 

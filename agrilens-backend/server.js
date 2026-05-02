@@ -21,6 +21,8 @@ const complaintRoutes = require("./routes/complaints");
 const recommendationRoutes = require("./routes/recommendations");
 const publicMapRoutes = require("./routes/publicMap");
 const customerRoutes = require("./routes/customer");
+const marketplaceRoutes = require("./routes/marketplace");
+const orderRoutes = require("./routes/orders");
 
 const app = express();
 
@@ -63,6 +65,8 @@ app.use("/api/complaints", complaintRoutes);
 app.use("/api/recommendations", recommendationRoutes);
 app.use("/api/public", publicMapRoutes);
 app.use("/api/customer", customerRoutes);
+app.use("/api/marketplace", marketplaceRoutes);
+app.use("/api/orders", orderRoutes);
 
 const PORT = process.env.PORT || 3001;
 const MONGODB_URI =
