@@ -74,9 +74,28 @@ async function createNewOrderNotificationForFarmer({
   });
 }
 
+/**
+ * Notify a customer that a farmer updated their order status.
+ */
+async function notifyCustomerOrderUpdate({
+  customerUserId,
+  status,
+  produceName,
+  orderedQty,
+  unit,
+}) {
+  const statusLabel = status.replace(/_/g, " ");
+  return createNotification({
+    userId: customerUserId,
+    type: "order_update",
+    message: `Your order for ${produceName} (${orderedQty} ${unit}) has been updated to: ${statusLabel}.`,
+  });
+}
+
 module.exports = {
   createNotification,
   createAdminNotifications,
   createNewOrderNotificationForFarmer,
+  notifyCustomerOrderUpdate,
 };
 

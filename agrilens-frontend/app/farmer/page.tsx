@@ -523,6 +523,9 @@ export default function FarmerPage() {
             <Link href="/produce">My Listings</Link>
           </Button>
           <Button asChild variant="outline">
+            <Link href="/farmer/orders">📬 Order Inbox</Link>
+          </Button>
+          <Button asChild variant="outline">
             <Link href="/farmer/complaints">My Complaints</Link>
           </Button>
           <LogoutButton />

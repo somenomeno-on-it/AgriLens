@@ -56,10 +56,10 @@ export function SimpleLineChart({
       aria-label="Line chart of values over time"
     >
       <rect width={w} height={height} fill="transparent" />
-      {yTicks.map((t) => {
+      {[...new Set([0, Math.ceil(max / 2), max])].map((t, idx) => {
         const y = pad.top + innerH - (t / max) * innerH;
         return (
-          <g key={t}>
+          <g key={`ytick-${idx}`}>
             <line
               x1={pad.left}
               x2={w - pad.right}
