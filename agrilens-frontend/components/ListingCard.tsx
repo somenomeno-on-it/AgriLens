@@ -67,7 +67,7 @@ export default function ListingCard({ listing }: { listing: MarketplaceListing }
 
           <div className="flex items-center justify-between gap-2">
             <p className="text-sm font-semibold">
-              BDT {Number(listing.price || 0).toLocaleString()} / {listing.unit || "unit"}
+              BDT {Number(listing.price || 0).toLocaleString("en-US")} / {listing.unit || "unit"}
             </p>
             <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700">
               {listing.availableQty} {listing.unit || "unit"} left

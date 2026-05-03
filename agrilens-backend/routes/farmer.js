@@ -13,6 +13,7 @@ const {
   deleteFarm,
 } = require("../controllers/farmerController");
 const { getBadgeStatus } = require("../controllers/badgeController");
+const { getFarmerOrders } = require("../controllers/orderController");
 
 const router = express.Router();
 
@@ -31,6 +32,9 @@ router.get("/:id/analytics", requireAuth, requireFarmer, getFarmerAnalytics);
 
 // GET /api/farmer/:id/badge-status - public badge status for any farmer
 router.get("/:id/badge-status", getBadgeStatus);
+
+// GET /api/farmer/:id/orders - paginated order inbox for a farmer (JWT-enforced)
+router.get("/:id/orders", requireAuth, requireFarmer, getFarmerOrders);
 
 module.exports = router;
 
