@@ -556,48 +556,63 @@ export default function FarmerPage() {
           </div>
         )}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Input
-            placeholder="Full Name"
-            value={profileForm.fullName}
-            onChange={(e) =>
-              setProfileForm({ ...profileForm, fullName: e.target.value })
-            }
-          />
-          <Input
-            placeholder="Phone"
-            value={profileForm.phone}
-            onChange={(e) =>
-              setProfileForm({ ...profileForm, phone: e.target.value })
-            }
-          />
-          <Input
-            placeholder="Address"
-            value={profileForm.address}
-            onChange={(e) =>
-              setProfileForm({ ...profileForm, address: e.target.value })
-            }
-          />
-          <Input
-            placeholder="National ID (optional)"
-            value={profileForm.nationalId}
-            onChange={(e) =>
-              setProfileForm({
-                ...profileForm,
-                nationalId: e.target.value,
-              })
-            }
-          />
-          <Input
-            type="number"
-            placeholder="Years of experience"
-            value={profileForm.experienceYears}
-            onChange={(e) =>
-              setProfileForm({
-                ...profileForm,
-                experienceYears: Number(e.target.value) || 0,
-              })
-            }
-          />
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-zinc-500">Full Name</label>
+            <Input
+              placeholder="e.g. Rahim Uddin"
+              value={profileForm.fullName}
+              onChange={(e) =>
+                setProfileForm({ ...profileForm, fullName: e.target.value })
+              }
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-zinc-500">Phone</label>
+            <Input
+              placeholder="e.g. 01711-000000"
+              value={profileForm.phone}
+              onChange={(e) =>
+                setProfileForm({ ...profileForm, phone: e.target.value })
+              }
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-zinc-500">Address</label>
+            <Input
+              placeholder="e.g. Village, Upazila, District"
+              value={profileForm.address}
+              onChange={(e) =>
+                setProfileForm({ ...profileForm, address: e.target.value })
+              }
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-zinc-500">National ID (optional)</label>
+            <Input
+              placeholder="e.g. 1234567890"
+              value={profileForm.nationalId}
+              onChange={(e) =>
+                setProfileForm({
+                  ...profileForm,
+                  nationalId: e.target.value,
+                })
+              }
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-zinc-500">Years of Experience</label>
+            <Input
+              type="number"
+              placeholder="e.g. 5"
+              value={profileForm.experienceYears}
+              onChange={(e) =>
+                setProfileForm({
+                  ...profileForm,
+                  experienceYears: Number(e.target.value) || 0,
+                })
+              }
+            />
+          </div>
         </div>
         <Button className="mt-4" onClick={saveProfile}>
           Save Profile
@@ -608,13 +623,16 @@ export default function FarmerPage() {
         <h2 className="text-xl font-semibold">Farms</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Input
-            placeholder="Farm name"
-            value={farmForm.name}
-            onChange={(e) =>
-              setFarmForm({ ...farmForm, name: e.target.value })
-            }
-          />
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-zinc-500">Farm Name</label>
+            <Input
+              placeholder="e.g. Green Valley Farm"
+              value={farmForm.name}
+              onChange={(e) =>
+                setFarmForm({ ...farmForm, name: e.target.value })
+              }
+            />
+          </div>
 
           {/* District dropdown */}
           <div className="flex flex-col gap-1">
@@ -654,34 +672,43 @@ export default function FarmerPage() {
               ))}
             </select>
           </div>
-          <Input
-            placeholder="Address"
-            value={farmForm.address}
-            onChange={(e) =>
-              setFarmForm({ ...farmForm, address: e.target.value })
-            }
-          />
-          <Input
-            type="number"
-            placeholder="Size (acres)"
-            value={farmForm.sizeInAcres}
-            onChange={(e) =>
-              setFarmForm({
-                ...farmForm,
-                sizeInAcres: e.target.value,
-              })
-            }
-          />
-          <Input
-            placeholder="Description"
-            value={farmForm.description}
-            onChange={(e) =>
-              setFarmForm({
-                ...farmForm,
-                description: e.target.value,
-              })
-            }
-          />
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-zinc-500">Address</label>
+            <Input
+              placeholder="e.g. Village road, near market"
+              value={farmForm.address}
+              onChange={(e) =>
+                setFarmForm({ ...farmForm, address: e.target.value })
+              }
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-zinc-500">Size (acres)</label>
+            <Input
+              type="number"
+              placeholder="e.g. 3.5"
+              value={farmForm.sizeInAcres}
+              onChange={(e) =>
+                setFarmForm({
+                  ...farmForm,
+                  sizeInAcres: e.target.value,
+                })
+              }
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-zinc-500">Description</label>
+            <Input
+              placeholder="e.g. Paddy and vegetable farm"
+              value={farmForm.description}
+              onChange={(e) =>
+                setFarmForm({
+                  ...farmForm,
+                  description: e.target.value,
+                })
+              }
+            />
+          </div>
         </div>
 
         <Button className="mt-4" onClick={createFarm}>
@@ -695,13 +722,16 @@ export default function FarmerPage() {
               <Card key={farm._id} className="p-4 space-y-3 border-2 border-primary/30">
                 <div className="text-sm font-semibold text-muted-foreground">Editing farm</div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <Input
-                    placeholder="Farm name"
-                    value={editFarmForm.name}
-                    onChange={(e) =>
-                      setEditFarmForm({ ...editFarmForm, name: e.target.value })
-                    }
-                  />
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-medium text-zinc-500">Farm Name</label>
+                    <Input
+                      placeholder="e.g. Green Valley Farm"
+                      value={editFarmForm.name}
+                      onChange={(e) =>
+                        setEditFarmForm({ ...editFarmForm, name: e.target.value })
+                      }
+                    />
+                  </div>
 
                   <div className="flex flex-col gap-1">
                     <label className="text-xs font-medium text-zinc-500">District</label>
@@ -740,28 +770,37 @@ export default function FarmerPage() {
                     </select>
                   </div>
 
-                  <Input
-                    placeholder="Address"
-                    value={editFarmForm.address}
-                    onChange={(e) =>
-                      setEditFarmForm({ ...editFarmForm, address: e.target.value })
-                    }
-                  />
-                  <Input
-                    type="number"
-                    placeholder="Size (acres)"
-                    value={editFarmForm.sizeInAcres}
-                    onChange={(e) =>
-                      setEditFarmForm({ ...editFarmForm, sizeInAcres: e.target.value })
-                    }
-                  />
-                  <Input
-                    placeholder="Description"
-                    value={editFarmForm.description}
-                    onChange={(e) =>
-                      setEditFarmForm({ ...editFarmForm, description: e.target.value })
-                    }
-                  />
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-medium text-zinc-500">Address</label>
+                    <Input
+                      placeholder="e.g. Village road, near market"
+                      value={editFarmForm.address}
+                      onChange={(e) =>
+                        setEditFarmForm({ ...editFarmForm, address: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-medium text-zinc-500">Size (acres)</label>
+                    <Input
+                      type="number"
+                      placeholder="e.g. 3.5"
+                      value={editFarmForm.sizeInAcres}
+                      onChange={(e) =>
+                        setEditFarmForm({ ...editFarmForm, sizeInAcres: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-medium text-zinc-500">Description</label>
+                    <Input
+                      placeholder="e.g. Paddy and vegetable farm"
+                      value={editFarmForm.description}
+                      onChange={(e) =>
+                        setEditFarmForm({ ...editFarmForm, description: e.target.value })
+                      }
+                    />
+                  </div>
                 </div>
                 <div className="flex gap-2">
                   <Button size="sm" onClick={saveEditFarm}>

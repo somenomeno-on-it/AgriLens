@@ -78,7 +78,7 @@ export default function SignupPage() {
         <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Create account</CardTitle>
-          <CardDescription>Register and receive a JWT session</CardDescription>
+          <CardDescription>Register and create an account</CardDescription>
         </CardHeader>
         <CardContent>
           <form className="space-y-4" onSubmit={onSubmit}>
@@ -116,7 +116,6 @@ export default function SignupPage() {
               >
               <option value="farmer">Farmer</option>
                 <option value="agent">Agent</option>
-                <option value="admin">Admin</option>
                 <option value="customer">Customer</option>
               </select>
             </div>
