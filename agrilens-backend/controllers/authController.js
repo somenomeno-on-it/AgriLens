@@ -136,8 +136,11 @@ async function signup(req, res) {
     if (password.length < 6) {
       return res.status(400).json({ message: "Password must be at least 6 characters" });
     }
-    if (!["farmer", "agent", "admin", "customer"].includes(role)) {
+    if (!["farmer", "agent", "customer"].includes(role)) {
       return res.status(400).json({ message: "Invalid role" });
+    }
+    if (role === "admin") {
+      return res.status(403).json({ message: "Admin accounts cannot be created via signup" });
     }
 
     const existing = await AuthUser.findOne({ email }).lean();

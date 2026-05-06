@@ -83,7 +83,8 @@ async function createFarm(req, res) {
 
     return res.status(201).json(farm);
   } catch (err) {
-    return res.status(500).json({ message: "Failed to create farm" });
+    console.error("[createFarm] Error:", err.message, err.errors || "");
+    return res.status(500).json({ message: "Failed to create farm", error: err.message });
   }
 }
 
