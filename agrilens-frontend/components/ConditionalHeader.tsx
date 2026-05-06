@@ -116,6 +116,9 @@ export function ConditionalHeader() {
               <Link className={navClass("/customer/marketplace")} href="/customer/marketplace">
                 Marketplace
               </Link>
+              <Link className={navClass("/customer/orders")} href="/customer/orders">
+                My Orders
+              </Link>
             </>
           )}
 
