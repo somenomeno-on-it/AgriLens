@@ -81,7 +81,7 @@ export function ConditionalHeader() {
                 AgriLens
               </Link>
               <Link className="text-muted-foreground hover:text-foreground" href="/agent/queue">
-                Agent Queue
+                Produce Queue
               </Link>
               <Link
                 className="text-muted-foreground hover:text-foreground"

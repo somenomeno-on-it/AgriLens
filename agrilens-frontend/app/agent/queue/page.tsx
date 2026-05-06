@@ -97,7 +97,7 @@ export default function AgentQueuePage() {
     <div className="max-w-5xl mx-auto p-6 space-y-6">
       <div className="flex items-start justify-between gap-2">
         <div>
-          <h1 className="text-2xl font-semibold">Agent Pending Queue</h1>
+          <h1 className="text-2xl font-semibold">Produce Pending Queue</h1>
           <p className="text-sm text-muted-foreground mt-1">
             Review pending listings in your assigned regions.
           </p>

@@ -6,6 +6,7 @@ import ListingCard, { MarketplaceListing } from "@/components/ListingCard";
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
 
 export default function MarketplacePage() {
+  const [allListings, setAllListings] = useState<MarketplaceListing[]>([]);
   const [listings, setListings] = useState<MarketplaceListing[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -15,6 +16,26 @@ export default function MarketplacePage() {
   const [maxPrice, setMaxPrice] = useState(10000);
   const [minGrade, setMinGrade] = useState(0);
   const [maxGrade, setMaxGrade] = useState(100);
+
+  useEffect(() => {
+    const loadAllListings = async () => {
+      try {
+        const params = new URLSearchParams();
+        params.set("limit", "200");
+        const res = await fetch(`${API_BASE}/api/marketplace/listings?${params.toString()}`);
+        if (!res.ok) {
+          setAllListings([]);
+          return;
+        }
+        const payload = await res.json();
+        setAllListings(payload?.listings || []);
+      } catch {
+        setAllListings([]);
+      }
+    };
+
+    loadAllListings();
+  }, []);
 
   useEffect(() => {
     const loadListings = async () => {
@@ -47,13 +68,13 @@ export default function MarketplacePage() {
   }, [crop, district, minPrice, maxPrice, minGrade, maxGrade]);
 
   const cropOptions = useMemo(
-    () => Array.from(new Set(listings.map((item) => item.produceName).filter(Boolean))).sort(),
-    [listings]
+    () => Array.from(new Set(allListings.map((item) => item.produceName).filter(Boolean))).sort(),
+    [allListings]
   );
 
   const districtOptions = useMemo(
-    () => Array.from(new Set(listings.map((item) => item.district).filter(Boolean))).sort(),
-    [listings]
+    () => Array.from(new Set(allListings.map((item) => item.district).filter(Boolean))).sort(),
+    [allListings]
   );
 
   return (

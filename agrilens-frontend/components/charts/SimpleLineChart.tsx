@@ -6,6 +6,8 @@ type Props = {
   data: Point[];
   height?: number;
   strokeClassName?: string;
+  xAxisLabel?: string;
+  yAxisLabel?: string;
 };
 
 /**
@@ -16,6 +18,8 @@ export function SimpleLineChart({
   data,
   height = 260,
   strokeClassName = "stroke-primary",
+  xAxisLabel,
+  yAxisLabel,
 }: Props) {
   if (!data.length) {
     return (
@@ -31,7 +35,7 @@ export function SimpleLineChart({
   const values = data.map((d) => d.value);
   const max = Math.max(1, ...values);
   const w = 600;
-  const pad = { top: 12, right: 12, bottom: 28, left: 36 };
+  const pad = { top: 12, right: 12, bottom: 44, left: 52 };
   const innerW = w - pad.left - pad.right;
   const innerH = height - pad.top - pad.bottom;
   const n = data.length;
@@ -105,6 +109,27 @@ export function SimpleLineChart({
           </text>
         );
       })}
+      {xAxisLabel ? (
+        <text
+          x={pad.left + innerW / 2}
+          y={height - 4}
+          textAnchor="middle"
+          className="fill-muted-foreground text-[11px]"
+        >
+          {xAxisLabel}
+        </text>
+      ) : null}
+      {yAxisLabel ? (
+        <text
+          x={14}
+          y={pad.top + innerH / 2}
+          transform={`rotate(-90 14 ${pad.top + innerH / 2})`}
+          textAnchor="middle"
+          className="fill-muted-foreground text-[11px]"
+        >
+          {yAxisLabel}
+        </text>
+      ) : null}
     </svg>
   );
 }
