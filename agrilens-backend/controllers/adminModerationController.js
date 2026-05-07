@@ -147,6 +147,33 @@ async function removeListing(req, res) {
 }
 
 /**
+ * PATCH /api/admin/listings/:id/dismiss-flag
+ * Dismiss the flag on a listing without changing its status or reinstating it.
+ */
+async function dismissFlag(req, res) {
+  try {
+    const { id } = req.params;
+
+    const listing = await Produce.findById(id);
+    if (!listing) {
+      return res.status(404).json({ message: "Listing not found" });
+    }
+
+    listing.isFlagged = false;
+    listing.flagReason = undefined;
+    listing.flaggedBy = undefined;
+    listing.flaggedAt = undefined;
+
+    await listing.save();
+
+    res.json({ message: "Flag dismissed successfully", id: listing._id });
+  } catch (err) {
+    console.error("Error dismissing flag:", err);
+    res.status(500).json({ message: "Failed to dismiss flag" });
+  }
+}
+
+/**
  * PATCH /api/admin/listings/:id/reinstate
  * Reinstate a previously removed listing.
  */
@@ -205,4 +232,5 @@ module.exports = {
   getModerationLog,
   removeListing,
   reinstateListing,
+  dismissFlag,
 };
