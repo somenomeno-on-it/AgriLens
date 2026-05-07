@@ -45,6 +45,17 @@ export function ConditionalHeader() {
   const isAdmin = role === "admin";
   const isCustomer = role === "customer";
 
+  // Admin has its own sidebar — no top nav needed.
+  if (isAdmin) return null;
+
+  // Returns className for a nav link: bold + full colour if active, muted otherwise.
+  function navClass(href: string, exact = false) {
+    const isActive = exact ? pathname === href : pathname.startsWith(href);
+    return isActive
+      ? "font-bold text-foreground"
+      : "text-muted-foreground hover:text-foreground";
+  }
+
   return (
     <header className="sticky top-0 z-40 border-b bg-background">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
@@ -54,22 +65,16 @@ export function ConditionalHeader() {
               <Link className="font-semibold" href="/farmer">
                 AgriLens
               </Link>
-              <Link className="text-muted-foreground hover:text-foreground" href="/farmer">
+              <Link className={navClass("/farmer", true)} href="/farmer">
                 Farmer
               </Link>
-              <Link className="text-muted-foreground hover:text-foreground" href="/produce">
+              <Link className={navClass("/produce")} href="/produce">
                 Produce
               </Link>
-              <Link
-                className="text-muted-foreground hover:text-foreground"
-                href="/farmer/analytics"
-              >
+              <Link className={navClass("/farmer/analytics")} href="/farmer/analytics">
                 Analytics
               </Link>
-              <Link
-                className="text-muted-foreground hover:text-foreground"
-                href="/notifications"
-              >
+              <Link className={navClass("/notifications")} href="/notifications">
                 Notifications
               </Link>
             </>
@@ -80,13 +85,10 @@ export function ConditionalHeader() {
               <Link className="font-semibold" href="/agent/dashboard">
                 AgriLens
               </Link>
-              <Link className="text-muted-foreground hover:text-foreground" href="/agent/queue">
-                Produce Queue
+              <Link className={navClass("/agent/queue")} href="/agent/queue">
+                Agent Queue
               </Link>
-              <Link
-                className="text-muted-foreground hover:text-foreground"
-                href="/agent/dashboard"
-              >
+              <Link className={navClass("/agent/dashboard", true)} href="/agent/dashboard">
                 Agent Dashboard
               </Link>
             </>
@@ -97,16 +99,10 @@ export function ConditionalHeader() {
               <Link className="font-semibold" href="/admin/dashboard">
                 AgriLens
               </Link>
-              <Link
-                className="text-muted-foreground hover:text-foreground"
-                href="/admin/dashboard"
-              >
+              <Link className={navClass("/admin/dashboard", true)} href="/admin/dashboard">
                 Dashboard
               </Link>
-              <Link
-                className="text-muted-foreground hover:text-foreground"
-                href="/admin/users"
-              >
+              <Link className={navClass("/admin/users")} href="/admin/users">
                 Users
               </Link>
             </>
@@ -117,17 +113,14 @@ export function ConditionalHeader() {
               <Link className="font-semibold" href="/customer/profile">
                 AgriLens
               </Link>
-              <Link
-                className="text-muted-foreground hover:text-foreground"
-                href="/customer/profile"
-              >
+              <Link className={navClass("/customer/profile")} href="/customer/profile">
                 My Profile
               </Link>
-              <Link
-                className="text-muted-foreground hover:text-foreground"
-                href="/customer/marketplace"
-              >
+              <Link className={navClass("/customer/marketplace")} href="/customer/marketplace">
                 Marketplace
+              </Link>
+              <Link className={navClass("/customer/orders")} href="/customer/orders">
+                My Orders
               </Link>
             </>
           )}
@@ -137,13 +130,10 @@ export function ConditionalHeader() {
               <Link className="font-semibold" href="/guest/map">
                 AgriLens
               </Link>
-              <Link
-                className="text-muted-foreground hover:text-foreground"
-                href="/guest/map"
-              >
+              <Link className={navClass("/guest/map")} href="/guest/map">
                 Public Map
               </Link>
-              <Link className="text-muted-foreground hover:text-foreground" href="/login">
+              <Link className={navClass("/login", true)} href="/login">
                 Login
               </Link>
             </>

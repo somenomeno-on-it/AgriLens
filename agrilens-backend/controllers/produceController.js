@@ -371,6 +371,13 @@ async function deleteListing(req, res) {
       return res.status(404).json({ message: "Listing not found" });
     }
 
+    // Remove all history/analytics snapshots for this listing
+    try {
+      await ProduceHistory.deleteMany({ produceId: id });
+    } catch (historyErr) {
+      // Intentionally do not fail the delete if history cleanup fails
+    }
+
     return res.json({ message: "Listing deleted" });
   } catch (err) {
     return res.status(500).json({ message: "Failed to delete listing" });

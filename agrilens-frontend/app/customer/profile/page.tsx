@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,10 @@ import { Label } from "@/components/ui/label";
 import { getAuthHeaders } from "@/lib/auth";
 import LogoutButton from "@/components/LogoutButton";
 import CustomerRoute from "@/components/CustomerRoute";
+import {
+  getDistrictOptions,
+  getUpazilaOptionsForDistrict,
+} from "@/src/data/bdRegions";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
 
@@ -27,6 +31,9 @@ type CustomerProfile = {
   address: CustomerAddress;
 };
 
+const selectClass =
+  "flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm disabled:opacity-50 disabled:cursor-not-allowed";
+
 function CustomerProfileInner() {
   const [profile, setProfile] = useState<CustomerProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -42,6 +49,18 @@ function CustomerProfileInner() {
     upazila: "",
     details: "",
   });
+
+  // Cascading dropdown data
+  const districtOptions = useMemo(() => getDistrictOptions(), []);
+  const upazilaOptions = useMemo(
+    () => getUpazilaOptionsForDistrict(form.district),
+    [form.district]
+  );
+
+  // Clear upazila whenever district changes
+  const handleDistrictChange = (value: string) => {
+    setForm((prev) => ({ ...prev, district: value, upazila: "" }));
+  };
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -151,6 +170,7 @@ function CustomerProfileInner() {
         <h2 className="text-lg font-semibold">Address</h2>
 
         <div className="grid gap-4 sm:grid-cols-2">
+          {/* Division — free text */}
           <div className="grid gap-2">
             <Label htmlFor="division">Division</Label>
             <Input
@@ -161,26 +181,42 @@ function CustomerProfileInner() {
             />
           </div>
 
-          <div className="grid gap-2">
-            <Label htmlFor="district">District</Label>
-            <Input
-              id="district"
+          {/* District — dropdown */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-zinc-500">District</label>
+            <select
+              className={selectClass}
               value={form.district}
-              onChange={(e) => setForm({ ...form, district: e.target.value })}
-              placeholder="e.g. Gazipur"
-            />
+              onChange={(e) => handleDistrictChange(e.target.value)}
+            >
+              <option value="">Choose district</option>
+              {districtOptions.map((d) => (
+                <option key={d.value} value={d.value}>
+                  {d.label}
+                </option>
+              ))}
+            </select>
           </div>
 
-          <div className="grid gap-2">
-            <Label htmlFor="upazila">Upazila</Label>
-            <Input
-              id="upazila"
+          {/* Upazila — dropdown, disabled until district picked */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-zinc-500">Upazila</label>
+            <select
+              className={selectClass}
               value={form.upazila}
               onChange={(e) => setForm({ ...form, upazila: e.target.value })}
-              placeholder="e.g. Savar"
-            />
+              disabled={!form.district}
+            >
+              <option value="">Choose upazila</option>
+              {upazilaOptions.map((u) => (
+                <option key={u.value} value={u.value}>
+                  {u.label}
+                </option>
+              ))}
+            </select>
           </div>
 
+          {/* Street / details — free text */}
           <div className="grid gap-2">
             <Label htmlFor="details">Street / Details</Label>
             <Input
