@@ -70,17 +70,16 @@ export default function ModerationQueue() {
     }
   };
 
-  const handleReinstate = async (id: string) => {
+  const handleDismissFlag = async (id: string) => {
     try {
-      const res = await fetch(`${API_BASE}/api/admin/listings/${id}/reinstate`, {
+      const res = await fetch(`${API_BASE}/api/admin/listings/${id}/dismiss-flag`, {
         method: "PATCH",
         headers: getAdminHeaders(),
-        body: JSON.stringify({ reason: "Unflagged by admin" }),
       });
-      if (!res.ok) throw new Error("Failed to reinstate");
+      if (!res.ok) throw new Error("Failed to dismiss flag");
       setListings((prev) => prev.filter((l) => l.id !== id));
     } catch (err) {
-      alert("Failed to reinstate listing");
+      alert("Failed to dismiss flag");
     }
   };
 
@@ -119,7 +118,7 @@ export default function ModerationQueue() {
                   <td className="p-4">{l.flaggedAt ? new Date(l.flaggedAt).toLocaleDateString() : ""}</td>
                   <td className="p-4 italic text-red-600/80">{l.flagReason}</td>
                   <td className="p-4 text-right space-x-2">
-                    <Button variant="outline" size="sm" onClick={() => handleReinstate(l.id)}>
+                    <Button variant="outline" size="sm" onClick={() => handleDismissFlag(l.id)}>
                       Dismiss Flag
                     </Button>
                     <Button variant="destructive" size="sm" onClick={() => openRemoveDialog(l.id)}>

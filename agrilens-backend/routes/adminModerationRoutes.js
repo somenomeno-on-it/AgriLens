@@ -7,6 +7,7 @@ const {
   getModerationLog,
   removeListing,
   reinstateListing,
+  dismissFlag,
 } = require("../controllers/adminModerationController");
 
 const router = express.Router();
@@ -16,6 +17,7 @@ router.use(requireAuth, requireAdmin, trackActivity);
 router.get("/moderation/flagged", getFlaggedListings);
 router.get("/moderation/log", getModerationLog);
 router.delete("/listings/:id", removeListing);
+router.patch("/listings/:id/dismiss-flag", dismissFlag);
 router.patch("/listings/:id/reinstate", reinstateListing);
 
 module.exports = router;
