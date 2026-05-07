@@ -45,6 +45,9 @@ export function ConditionalHeader() {
   const isAdmin = role === "admin";
   const isCustomer = role === "customer";
 
+  // Admin has its own sidebar — no top nav needed.
+  if (isAdmin) return null;
+
   // Returns className for a nav link: bold + full colour if active, muted otherwise.
   function navClass(href: string, exact = false) {
     const isActive = exact ? pathname === href : pathname.startsWith(href);

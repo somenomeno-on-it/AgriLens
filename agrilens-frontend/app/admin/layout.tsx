@@ -46,7 +46,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
           <nav className="flex-1 px-3 py-4 space-y-0.5">
             {navItems.map(({ label, href, icon: Icon }) => {
-              const isActive = pathname === href || pathname.startsWith(href + "/");
+              const isActive = pathname === href;
               return (
                 <Link
                   key={href}
@@ -74,9 +74,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="flex-1 flex flex-col min-w-0">
           <header className="sticky top-0 z-10 border-b bg-background px-8 py-4 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-              {navItems.find(
-                (n) => pathname === n.href || pathname.startsWith(n.href + "/")
-              )?.label ?? "Admin"}
+              {navItems.find((n) => pathname === n.href)?.label ?? "Admin"}
             </h2>
             <div className="flex items-center gap-2">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700">
