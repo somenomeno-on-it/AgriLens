@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
-import { SimpleLineChart } from "@/components/charts/SimpleLineChart";
 import { API_BASE, getAdminHeaders } from "@/lib/adminApi";
 
 type AgentRow = { id: string; name: string; email: string };
@@ -116,12 +115,6 @@ export default function AgentPerformancePage() {
     if (agentId) loadComplaintSummary();
   }, [agentId, loadComplaintSummary]);
 
-  const chartData =
-    data?.reviewsLast30Days?.map((d) => ({
-      label: d.date.slice(5),
-      value: d.count,
-    })) ?? [];
-
   const complaintsBadge = useMemo(() => {
     if (complaintCount == null) return null;
     const flagged = complaintThreshold != null && complaintCount >= complaintThreshold;
@@ -201,14 +194,9 @@ export default function AgentPerformancePage() {
             </Card>
           </div>
 
-          <Card className="p-6">
-            <h2 className="text-sm font-semibold mb-4">Reviews over last 30 days</h2>
-            <div className="w-full overflow-x-auto">
-              <SimpleLineChart data={chartData} height={280} />
-            </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              Rejection rate: {data.rejectionRate}%
-            </p>
+          <Card className="p-4">
+            <p className="text-xs font-medium text-muted-foreground">Rejection rate</p>
+            <p className="mt-1 text-2xl font-semibold tabular-nums">{data.rejectionRate}%</p>
           </Card>
         </>
       )}

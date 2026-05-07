@@ -45,8 +45,57 @@ async function createListing(req, res) {
       if (parsedExpectedHarvestDate <= now) {
         return res
           .status(400)
-          .json({ message: "expectedHarvestDate must be in the future" });
+          .json({ message: "Expected Harvest Date must be in the future" });
       }
+    }
+
+    let parsedAvailabilityStart = null;
+    if (availabilityStart) {
+      parsedAvailabilityStart = new Date(availabilityStart);
+      if (Number.isNaN(parsedAvailabilityStart.getTime())) {
+        return res
+          .status(400)
+          .json({ message: "Availability Start Date is invalid" });
+      }
+    }
+
+    let parsedAvailabilityEnd = null;
+    if (availabilityEnd) {
+      parsedAvailabilityEnd = new Date(availabilityEnd);
+      if (Number.isNaN(parsedAvailabilityEnd.getTime())) {
+        return res.status(400).json({ message: "Availability End Date is invalid" });
+      }
+    }
+
+    if (
+      parsedExpectedHarvestDate &&
+      parsedAvailabilityStart &&
+      parsedAvailabilityStart < parsedExpectedHarvestDate
+    ) {
+      return res.status(400).json({
+        message:
+          "Availability Start Date cannot be before Expected Harvest Date",
+      });
+    }
+
+    if (
+      parsedExpectedHarvestDate &&
+      parsedAvailabilityEnd &&
+      parsedAvailabilityEnd < parsedExpectedHarvestDate
+    ) {
+      return res.status(400).json({
+        message: "Availability End Date cannot be before Expected Harvest Date",
+      });
+    }
+
+    if (
+      parsedAvailabilityStart &&
+      parsedAvailabilityEnd &&
+      parsedAvailabilityEnd < parsedAvailabilityStart
+    ) {
+      return res.status(400).json({
+        message: "Availability End Date cannot be before Availability Start Date",
+      });
     }
 
     const listing = await Produce.create({
@@ -55,8 +104,8 @@ async function createListing(req, res) {
       cropType,
       description,
       expectedHarvestDate: parsedExpectedHarvestDate,
-      availabilityStart,
-      availabilityEnd,
+      availabilityStart: parsedAvailabilityStart,
+      availabilityEnd: parsedAvailabilityEnd,
       quantity,
       initialQuantity: Number(quantity),
       unit,
@@ -138,14 +187,26 @@ async function updateListing(req, res) {
     const { id } = req.params;
     const updates = { ...req.body };
 
+    const shouldFetchExisting =
+      updates.status ||
+      Object.prototype.hasOwnProperty.call(updates, "expectedHarvestDate") ||
+      Object.prototype.hasOwnProperty.call(updates, "availabilityStart") ||
+      Object.prototype.hasOwnProperty.call(updates, "availabilityEnd");
+
+    let existing = null;
     let previousStatus = null;
-    if (updates.status) {
-      const existing = await Produce.findOne({
+    if (shouldFetchExisting) {
+      existing = await Produce.findOne({
         _id: id,
         farmerId: req.user.id,
         isRemoved: { $ne: true },
-      }).select("status cropType");
-      previousStatus = existing ? existing.status : null;
+      }).select("status cropType expectedHarvestDate availabilityStart availabilityEnd");
+
+      if (!existing) {
+        return res.status(404).json({ message: "Listing not found" });
+      }
+
+      previousStatus = existing.status;
     }
 
     // Validation if these fields are being updated
@@ -173,6 +234,74 @@ async function updateListing(req, res) {
           .json({ message: "expectedHarvestDate must be in the future" });
       }
       updates.expectedHarvestDate = parsed;
+    }
+
+    if (updates.availabilityStart) {
+      const parsed = new Date(updates.availabilityStart);
+      if (Number.isNaN(parsed.getTime())) {
+        return res.status(400).json({ message: "availabilityStart is invalid" });
+      }
+      updates.availabilityStart = parsed;
+    }
+
+    if (updates.availabilityEnd) {
+      const parsed = new Date(updates.availabilityEnd);
+      if (Number.isNaN(parsed.getTime())) {
+        return res.status(400).json({ message: "availabilityEnd is invalid" });
+      }
+      updates.availabilityEnd = parsed;
+    }
+
+    const effectiveExpectedHarvestDate = Object.prototype.hasOwnProperty.call(
+      updates,
+      "expectedHarvestDate"
+    )
+      ? updates.expectedHarvestDate
+      : existing?.expectedHarvestDate;
+
+    const effectiveAvailabilityStart = Object.prototype.hasOwnProperty.call(
+      updates,
+      "availabilityStart"
+    )
+      ? updates.availabilityStart
+      : existing?.availabilityStart;
+
+    const effectiveAvailabilityEnd = Object.prototype.hasOwnProperty.call(
+      updates,
+      "availabilityEnd"
+    )
+      ? updates.availabilityEnd
+      : existing?.availabilityEnd;
+
+    if (
+      effectiveExpectedHarvestDate &&
+      effectiveAvailabilityStart &&
+      effectiveAvailabilityStart < effectiveExpectedHarvestDate
+    ) {
+      return res.status(400).json({
+        message:
+          "availabilityStart cannot be before expectedHarvestDate",
+      });
+    }
+
+    if (
+      effectiveExpectedHarvestDate &&
+      effectiveAvailabilityEnd &&
+      effectiveAvailabilityEnd < effectiveExpectedHarvestDate
+    ) {
+      return res.status(400).json({
+        message: "availabilityEnd cannot be before expectedHarvestDate",
+      });
+    }
+
+    if (
+      effectiveAvailabilityStart &&
+      effectiveAvailabilityEnd &&
+      effectiveAvailabilityEnd < effectiveAvailabilityStart
+    ) {
+      return res.status(400).json({
+        message: "availabilityEnd cannot be before availabilityStart",
+      });
     }
 
     const listing = await Produce.findOneAndUpdate(
