@@ -44,6 +44,14 @@ The main goal of AgriLens is to **increase transparency and trust** in agricultu
   - **Map-Based Search**: Search for produce by district, upazila, or radius.
   - **Market Insights**: Explore public statistics on crop distribution and production trends via an interactive map.
 
+- **Customer Module**
+  - **Account & Profile**:: Register/login, manage personal details, phone number, and delivery address.
+  - **Marketplace Browsing**: Browse and filter approved produce listings by crop type, region, price, and availability.
+  - **Ordering**: Place orders on live listings with quantity selection and delivery contact details.
+  - **Order Tracking**: Monitor real-time order status from placement through to delivery with full status history.
+  - **Notifications**: Receive in-app alerts on every order status change from confirmation to delivery.
+  - **Complaints**: Submit and track complaints about orders or delivery issues with resolution status.
+
 ## System Architecture
 
 AgriLens is a **web-based application** built on the **MERN stack**:
@@ -156,6 +164,7 @@ Then open the frontend URL in your browser (e.g. `http://localhost:3000`).
 - **Local Agents**: Review pending listings, approve/reject with feedback, assign quality grades, and flag suspicious activity.
 - **Admins**: Oversee system metrics, manage users, assign agents, moderate content, handle complaints, and publish announcements.
 - **Guests**: Browse the interactive map, search for produce by region, and explore high-level agricultural insights.
+- **Customer**: Register/login, browse the marketplace, place orders on verified produce, track delivery status, and manage their profile and complaints 
 
 ## Class Diagram
 
