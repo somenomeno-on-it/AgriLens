@@ -3,10 +3,9 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { getAssignedRegions, getAuthHeaders, getCurrentUserId } from "@/lib/auth";
-import LogoutButton from "@/components/LogoutButton";
+import { ArrowLeft, CheckCircle2, AlertTriangle, XCircle, ChevronLeft, ChevronRight } from "lucide-react";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
 
@@ -35,12 +34,11 @@ function Toast({
   type: "success" | "error";
 }) {
   return (
-    <div
-      className={`fixed right-4 top-4 z-50 rounded-md px-4 py-3 text-sm text-white shadow ${
-        type === "success" ? "bg-green-600" : "bg-red-600"
-      }`}
-    >
-      {message}
+    <div className={`agri-toast ${type === "success" ? "agri-toast-success" : "agri-toast-error"}`}>
+      <div className="flex items-center gap-2">
+        {type === "success" ? <CheckCircle2 className="h-5 w-5" /> : <AlertTriangle className="h-5 w-5" />}
+        <span>{message}</span>
+      </div>
     </div>
   );
 }
@@ -177,163 +175,219 @@ export default function AgentVerifyPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
+    <div className="space-y-8 max-w-4xl mx-auto">
       {toast && <Toast message={toast.message} type={toast.type} />}
 
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Agent Verify Listing</h1>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" asChild>
-            <Link href="/agent/queue">Back to Queue</Link>
-          </Button>
-          <LogoutButton />
-        </div>
+      <div className="flex items-center gap-4 mb-6">
+        <Link href="/agent/queue" className="text-muted-foreground hover:text-foreground transition-colors">
+          <ArrowLeft className="h-6 w-6" />
+        </Link>
+        <h1 className="agri-page-title">Agent Verify Listing</h1>
       </div>
 
-      {loading && <div>Loading listing...</div>}
-      {error && <div className="text-sm text-red-600">{error}</div>}
+      {loading && (
+        <div className="space-y-6">
+          <div className="agri-skeleton h-48 w-full" />
+          <div className="agri-skeleton h-64 w-full" />
+        </div>
+      )}
+      {error && (
+        <div role="alert" className="agri-alert agri-alert-error">
+          {error}
+        </div>
+      )}
 
       {!loading && listing && (
         <>
-          <Card className="p-5 space-y-3">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold">{listing.cropType}</h2>
-              <span className="inline-flex rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700">
-                Farmer: {listing.farmerId}
-              </span>
+          <div className="agri-section space-y-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-bold text-[var(--agri-green-900)]">{listing.cropType}</h2>
+                <div className="flex items-center gap-2 mt-2">
+                  <span className="agri-badge bg-blue-100 text-blue-700 border-blue-200">
+                    Farmer ID: {listing.farmerId.slice(-6).toUpperCase()}
+                  </span>
+                  <span className="text-sm text-muted-foreground font-medium">
+                    {listing.quantity} {listing.unit}
+                  </span>
+                </div>
+              </div>
+              <div className="text-sm bg-muted/50 rounded-lg p-3 border border-border">
+                <span className="font-semibold text-foreground">Expected Harvest:</span>{" "}
+                <span className="text-muted-foreground">
+                  {listing.expectedHarvestDate
+                    ? new Date(listing.expectedHarvestDate).toLocaleDateString()
+                    : "N/A"}
+                </span>
+              </div>
             </div>
-            <div className="text-sm text-muted-foreground">
-              Quantity: {listing.quantity} {listing.unit}
-            </div>
-            <div className="text-sm text-muted-foreground">
-              Harvest date:{" "}
-              {listing.expectedHarvestDate
-                ? new Date(listing.expectedHarvestDate).toLocaleDateString()
-                : "N/A"}
-            </div>
+
             {listing.description && (
-              <p className="text-sm rounded-md border p-3 bg-muted/30">{listing.description}</p>
+              <div className="bg-amber-50/50 border border-amber-100 rounded-xl p-4">
+                <p className="text-sm text-amber-900 leading-relaxed">{listing.description}</p>
+              </div>
             )}
 
             {photos.length > 0 && (
-              <div className="space-y-3">
-                <div className="rounded-lg border p-2">
+              <div className="space-y-4">
+                <h3 className="agri-section-title">Listing Photos</h3>
+                <div className="rounded-xl overflow-hidden border border-border bg-muted/30 relative group">
                   <img
                     src={`${API_BASE}/${activePhoto}`}
                     alt="Listing preview"
-                    className="h-72 w-full object-cover rounded"
+                    className="h-96 w-full object-contain"
                   />
+                  {photos.length > 1 && (
+                    <>
+                      <button
+                        className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 hover:bg-white shadow-sm text-foreground transition-all opacity-0 group-hover:opacity-100"
+                        onClick={() => setActivePhotoIndex((i) => (i - 1 + photos.length) % photos.length)}
+                      >
+                        <ChevronLeft className="h-5 w-5" />
+                      </button>
+                      <button
+                        className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 hover:bg-white shadow-sm text-foreground transition-all opacity-0 group-hover:opacity-100"
+                        onClick={() => setActivePhotoIndex((i) => (i + 1) % photos.length)}
+                      >
+                        <ChevronRight className="h-5 w-5" />
+                      </button>
+                    </>
+                  )}
                 </div>
-                <div className="flex items-center justify-between">
-                  <Button
-                    variant="outline"
-                    onClick={() =>
-                      setActivePhotoIndex((i) => (i - 1 + photos.length) % photos.length)
-                    }
-                  >
-                    Prev
-                  </Button>
-                  <div className="text-xs text-muted-foreground">
-                    {activePhotoIndex + 1} / {photos.length}
+                {photos.length > 1 && (
+                  <div className="flex items-center justify-center gap-2">
+                    {photos.map((_, i) => (
+                      <button
+                        key={i}
+                        className={`h-2 rounded-full transition-all ${
+                          i === activePhotoIndex ? "w-6 bg-[var(--agri-green-500)]" : "w-2 bg-muted-foreground/30 hover:bg-muted-foreground/50"
+                        }`}
+                        onClick={() => setActivePhotoIndex(i)}
+                      />
+                    ))}
                   </div>
-                  <Button
-                    variant="outline"
-                    onClick={() => setActivePhotoIndex((i) => (i + 1) % photos.length)}
-                  >
-                    Next
-                  </Button>
-                </div>
+                )}
               </div>
             )}
-          </Card>
+          </div>
 
-          <Card className="p-5 space-y-4">
-            <div>
-              <label className="text-sm font-medium">Grade: {grade}</label>
+          <div className="agri-section space-y-6">
+            <h3 className="agri-section-title">Verification Assessment</h3>
+            
+            <div className="p-5 rounded-xl border border-[var(--agri-green-100)] bg-[var(--agri-green-50)]/50 space-y-4">
+              <div className="flex justify-between items-center">
+                <label className="font-semibold text-[var(--agri-green-900)]">Produce Quality Grade</label>
+                <span className="text-xl font-bold text-[var(--agri-green-700)]">{grade}%</span>
+              </div>
               <input
-                className="mt-2 w-full"
+                className="agri-range"
                 type="range"
                 min={0}
                 max={100}
                 value={grade}
                 onChange={(e) => setGrade(Number(e.target.value))}
               />
+              <div className="flex justify-between text-xs text-[var(--agri-green-700)] font-medium">
+                <span>Poor (0)</span>
+                <span>Excellent (100)</span>
+              </div>
             </div>
 
             <div>
-              <label className="text-sm font-medium">Feedback</label>
+              <label className="agri-label">Agent Feedback</label>
               <textarea
-                className="mt-2 w-full min-h-[120px] rounded-md border p-2 text-sm"
-                placeholder="Write agent feedback..."
+                className="agri-input min-h-[120px] py-3 resize-y"
+                placeholder="Write detailed assessment feedback for the farmer..."
                 value={feedback}
                 onChange={(e) => setFeedback(e.target.value)}
               />
             </div>
 
-            <div className="flex items-center justify-between mt-6">
-              <Button
-                variant="destructive"
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 mt-6 border-t border-border">
+              <button
+                className="agri-btn-danger w-full sm:w-auto"
                 onClick={() => setPendingAction("flag")}
                 disabled={submitting}
               >
                 Flag for Admin Review
-              </Button>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
+              </button>
+              <div className="flex items-center gap-3 w-full sm:w-auto">
+                <button
+                  className="agri-btn-outline w-full sm:w-auto"
                   onClick={() => setPendingAction("rejected")}
                   disabled={submitting}
                 >
-                  Reject
-                </Button>
-                <Button onClick={() => setPendingAction("approved")} disabled={submitting}>
-                  Approve
-                </Button>
+                  Reject Listing
+                </button>
+                <button 
+                  className="agri-btn-primary w-full sm:w-auto" 
+                  onClick={() => setPendingAction("approved")} 
+                  disabled={submitting}
+                >
+                  Approve Listing
+                </button>
               </div>
             </div>
-          </Card>
+          </div>
         </>
       )}
 
+      {/* Flag Modal */}
       {pendingAction === "flag" && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <Card className="w-full max-w-md p-5 space-y-3">
-            <h3 className="text-lg font-semibold text-destructive">Flag Listing for Review</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <Card className="w-full max-w-md agri-card p-6 space-y-4">
+            <div className="flex items-center gap-3 text-destructive mb-2">
+              <AlertTriangle className="h-6 w-6" />
+              <h3 className="text-xl font-bold">Flag for Review</h3>
+            </div>
             <p className="text-sm text-muted-foreground">
-              This will send the listing to the admin moderation queue. Please provide a reason.
+              This will send the listing to the admin moderation queue. Please provide a detailed reason.
             </p>
             <textarea
-              className="w-full min-h-[100px] border rounded-md p-2 text-sm focus:ring-2 focus:ring-primary focus:outline-none"
+              className="agri-input min-h-[120px] py-3 resize-y"
               placeholder="Reason for flagging..."
               value={flagReason}
               onChange={(e) => setFlagReason(e.target.value)}
             />
-            <div className="flex justify-end gap-2 mt-4">
-              <Button variant="outline" onClick={() => setPendingAction(null)} disabled={submitting}>
+            <div className="flex justify-end gap-3 pt-4 border-t border-border mt-2">
+              <button className="agri-btn-outline" onClick={() => setPendingAction(null)} disabled={submitting}>
                 Cancel
-              </Button>
-              <Button variant="destructive" onClick={submitFlag} disabled={submitting || !flagReason.trim()}>
+              </button>
+              <button className="agri-btn-danger" onClick={submitFlag} disabled={submitting || !flagReason.trim()}>
                 {submitting ? "Flagging..." : "Confirm Flag"}
-              </Button>
+              </button>
             </div>
           </Card>
         </div>
       )}
 
+      {/* Approve/Reject Modal */}
       {(pendingAction === "approved" || pendingAction === "rejected") && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <Card className="w-full max-w-md p-5 space-y-3">
-            <h3 className="text-lg font-semibold">Confirm {pendingAction}</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <Card className="w-full max-w-md agri-card p-6 space-y-4">
+            <div className={`flex items-center gap-3 mb-2 ${pendingAction === "approved" ? "text-emerald-600" : "text-destructive"}`}>
+              {pendingAction === "approved" ? <CheckCircle2 className="h-6 w-6" /> : <XCircle className="h-6 w-6" />}
+              <h3 className="text-xl font-bold">
+                Confirm {pendingAction === "approved" ? "Approval" : "Rejection"}
+              </h3>
+            </div>
             <p className="text-sm text-muted-foreground">
-              Are you sure you want to {pendingAction} this listing?
+              Are you sure you want to {pendingAction} this listing? This action cannot be easily undone.
             </p>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setPendingAction(null)} disabled={submitting}>
+            <div className="bg-muted/50 p-3 rounded-lg border border-border">
+              <div className="text-sm font-semibold">Assigned Grade: {grade}%</div>
+            </div>
+            <div className="flex justify-end gap-3 pt-4 border-t border-border mt-2">
+              <button className="agri-btn-outline" onClick={() => setPendingAction(null)} disabled={submitting}>
                 Cancel
-              </Button>
-              <Button onClick={submitVerification} disabled={submitting}>
-                {submitting ? "Submitting..." : "Confirm"}
-              </Button>
+              </button>
+              <button 
+                className={pendingAction === "approved" ? "agri-btn-primary" : "agri-btn-danger"} 
+                onClick={submitVerification} 
+                disabled={submitting}
+              >
+                {submitting ? "Submitting..." : `Confirm ${pendingAction}`}
+              </button>
             </div>
           </Card>
         </div>

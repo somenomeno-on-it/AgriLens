@@ -3,12 +3,15 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { useInterval } from "@/hooks/useInterval";
 import { getAssignedRegions, getAuthHeaders, getCurrentUserId } from "@/lib/auth";
-import LogoutButton from "@/components/LogoutButton";
 import AnnouncementBanner from "@/components/AnnouncementBanner";
+import {
+  ListTodo,
+  CheckCircle2,
+  XCircle,
+  TrendingUp,
+} from "lucide-react";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
 
@@ -40,9 +43,23 @@ function getAgentContext() {
 }
 
 function statusBadgeClass(status: DashboardListing["status"]) {
-  if (status === "approved") return "bg-green-100 text-green-700";
-  if (status === "rejected") return "bg-red-100 text-red-700";
-  return "bg-amber-100 text-amber-700";
+  if (status === "approved") return "agri-badge agri-badge-approved";
+  if (status === "rejected") return "agri-badge agri-badge-rejected";
+  return "agri-badge agri-badge-pending";
+}
+
+function MetricCard({ label, value, icon: Icon, accent = "bg-primary/10 text-primary" }: any) {
+  return (
+    <Card className="agri-stat-card flex items-start gap-4">
+      <div className={`rounded-lg p-2.5 shrink-0 ${accent}`}>
+        <Icon className="h-5 w-5" />
+      </div>
+      <div className="min-w-0">
+        <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">{label}</p>
+        <p className="mt-1 text-2xl font-bold tabular-nums truncate text-[var(--agri-green-900)]">{value}</p>
+      </div>
+    </Card>
+  );
 }
 
 export default function AgentDashboardPage() {
@@ -125,140 +142,159 @@ export default function AgentDashboardPage() {
   const firstRegion = regions?.[0] ?? null;
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-6">
+    <div className="space-y-8 max-w-7xl mx-auto">
       <AnnouncementBanner
         role="agent"
         district={firstRegion?.district ?? ""}
         upazila={firstRegion?.upazila ?? ""}
       />
-      <div className="flex items-center justify-between">
+
+      <div className="agri-hero flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold">Regional Monitoring Dashboard</h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <h1 className="agri-page-title">Regional Monitoring</h1>
+          <p className="agri-page-subtitle">
             Listings and verification KPIs for your assigned upazilas.
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" asChild>
-            <Link href="/agent/queue">Open Queue</Link>
-          </Button>
-          <LogoutButton />
-        </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="p-4">
-          <div className="text-xs text-muted-foreground">Pending</div>
-          <div className="mt-1 text-2xl font-semibold">{stats.pendingCount}</div>
-        </Card>
-        <Card className="p-4">
-          <div className="text-xs text-muted-foreground">Approved Today</div>
-          <div className="mt-1 text-2xl font-semibold">{stats.approvedToday}</div>
-        </Card>
-        <Card className="p-4">
-          <div className="text-xs text-muted-foreground">Rejected Today</div>
-          <div className="mt-1 text-2xl font-semibold">{stats.rejectedToday}</div>
-        </Card>
-        <Card className="p-4">
-          <div className="text-xs text-muted-foreground">Approval Rate (30d)</div>
-          <div className="mt-1 text-2xl font-semibold">{stats.approvalRate}%</div>
-        </Card>
-      </div>
-
-      <Card className="p-4 flex flex-col gap-3 md:flex-row md:items-end">
-        <div className="flex-1">
-          <label className="text-sm font-medium">Search by produce name</label>
-          <Input
-            className="mt-1"
-            placeholder="e.g., rice, tomato"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+      {error && (
+        <div role="alert" className="agri-alert agri-alert-error">
+          {error}
         </div>
-        <div>
-          <label className="text-sm font-medium">Sort</label>
-          <select
-            className="mt-1 h-10 rounded-md border px-3 text-sm bg-background"
-            value={sortBy}
-            onChange={(e) =>
-              setSortBy(e.target.value as "dateDesc" | "dateAsc" | "status")
-            }
-          >
-            <option value="dateDesc">Harvest date (newest)</option>
-            <option value="dateAsc">Harvest date (oldest)</option>
-            <option value="status">Status</option>
-          </select>
-        </div>
-      </Card>
-
-      {loading && <div>Loading dashboard...</div>}
-      {error && <div className="text-sm text-red-600">{error}</div>}
-
-      {!loading && !error && (
-        <Card className="overflow-x-auto">
-          <table className="w-full min-w-[820px] text-sm">
-            <thead className="bg-muted/50">
-              <tr>
-                <th className="p-3 text-left font-medium">Thumbnail</th>
-                <th className="p-3 text-left font-medium">Produce</th>
-                <th className="p-3 text-left font-medium">Farmer</th>
-                <th className="p-3 text-left font-medium">Harvest Date</th>
-                <th className="p-3 text-left font-medium">Price</th>
-                <th className="p-3 text-left font-medium">Status</th>
-                <th className="p-3 text-left font-medium">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredAndSortedItems.map((item) => (
-                <tr key={item.id} className="border-t">
-                  <td className="p-3">
-                    {item.imageUrl ? (
-                      <img
-                        src={`${API_BASE}/${item.imageUrl}`}
-                        alt={item.produceName}
-                        className="h-12 w-12 rounded object-cover"
-                      />
-                    ) : (
-                      <div className="h-12 w-12 rounded bg-muted" />
-                    )}
-                  </td>
-                  <td className="p-3 font-medium">{item.produceName}</td>
-                  <td className="p-3">{item.farmerName}</td>
-                  <td className="p-3">
-                    {item.harvestDate
-                      ? new Date(item.harvestDate).toLocaleDateString()
-                      : "N/A"}
-                  </td>
-                  <td className="p-3">
-                    {typeof item.price === "number" ? `${item.price}` : "N/A"}
-                  </td>
-                  <td className="p-3">
-                    <span
-                      className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${statusBadgeClass(
-                        item.status
-                      )}`}
-                    >
-                      {item.status}
-                    </span>
-                  </td>
-                  <td className="p-3">
-                    <Button asChild size="sm">
-                      <Link href={`/agent/verify/${item.id}`}>Verify</Link>
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-              {filteredAndSortedItems.length === 0 && (
-                <tr className="border-t">
-                  <td className="p-3 text-muted-foreground" colSpan={7}>
-                    No listings found for your current filters.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </Card>
       )}
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <MetricCard
+          label="Pending Queue"
+          value={stats.pendingCount}
+          icon={ListTodo}
+          accent="bg-amber-100 text-amber-700"
+        />
+        <MetricCard
+          label="Approved Today"
+          value={stats.approvedToday}
+          icon={CheckCircle2}
+          accent="bg-emerald-100 text-emerald-700"
+        />
+        <MetricCard
+          label="Rejected Today"
+          value={stats.rejectedToday}
+          icon={XCircle}
+          accent="bg-red-100 text-red-700"
+        />
+        <MetricCard
+          label="Approval Rate (30d)"
+          value={`${stats.approvalRate}%`}
+          icon={TrendingUp}
+          accent="bg-blue-100 text-blue-700"
+        />
+      </div>
+
+      <section aria-label="Recent listings" className="space-y-4">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+          Recent Regional Listings
+        </h2>
+        
+        {/* Filters */}
+        <Card className="agri-card p-5 flex flex-col gap-3 md:flex-row md:items-end">
+          <div className="flex-1">
+            <label className="agri-label">Search by produce name</label>
+            <input
+              className="agri-input"
+              placeholder="e.g., rice, tomato"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <div className="w-full md:w-64 shrink-0">
+            <label className="agri-label">Sort</label>
+            <select
+              className="agri-select"
+              value={sortBy}
+              onChange={(e) =>
+                setSortBy(e.target.value as "dateDesc" | "dateAsc" | "status")
+              }
+            >
+              <option value="dateDesc">Harvest date (newest)</option>
+              <option value="dateAsc">Harvest date (oldest)</option>
+              <option value="status">Status</option>
+            </select>
+          </div>
+        </Card>
+
+        {loading ? (
+          <div className="agri-card p-8">
+            <div className="agri-skeleton h-40 w-full" />
+          </div>
+        ) : (
+          <div className="agri-table-wrapper">
+            <table className="agri-table">
+              <thead>
+                <tr>
+                  <th>Thumbnail</th>
+                  <th>Produce</th>
+                  <th>Farmer</th>
+                  <th>Harvest Date</th>
+                  <th>Price</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredAndSortedItems.length === 0 ? (
+                  <tr>
+                    <td className="p-8 text-center text-muted-foreground" colSpan={7}>
+                      No listings found for your current filters.
+                    </td>
+                  </tr>
+                ) : (
+                  filteredAndSortedItems.map((item) => (
+                    <tr key={item.id}>
+                      <td>
+                        {item.imageUrl ? (
+                          <img
+                            src={`${API_BASE}/${item.imageUrl}`}
+                            alt={item.produceName}
+                            className="h-10 w-10 rounded-md object-cover border border-border"
+                          />
+                        ) : (
+                          <div className="h-10 w-10 rounded-md bg-muted border border-border flex items-center justify-center text-xs text-muted-foreground">
+                            N/A
+                          </div>
+                        )}
+                      </td>
+                      <td className="font-semibold text-[var(--agri-green-900)]">{item.produceName}</td>
+                      <td>{item.farmerName}</td>
+                      <td className="whitespace-nowrap">
+                        {item.harvestDate
+                          ? new Date(item.harvestDate).toLocaleDateString()
+                          : "—"}
+                      </td>
+                      <td>
+                        {typeof item.price === "number" ? `৳${item.price}` : "—"}
+                      </td>
+                      <td>
+                        <span className={statusBadgeClass(item.status)}>
+                          {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                        </span>
+                      </td>
+                      <td>
+                        <Link href={`/agent/verify/${item.id}`}>
+                          <button className="agri-btn-outline px-3 py-1.5 text-xs">
+                            Verify
+                          </button>
+                        </Link>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
     </div>
   );
 }
