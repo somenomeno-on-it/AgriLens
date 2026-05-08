@@ -44,7 +44,8 @@ export default function RejectionModal({ orderId, produceName, onSuccess, onErro
       style={{
         position: "fixed",
         inset: 0,
-        background: "rgba(0,0,0,0.5)",
+        background: "rgba(28, 25, 23, 0.5)",
+        backdropFilter: "blur(4px)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -55,86 +56,83 @@ export default function RejectionModal({ orderId, produceName, onSuccess, onErro
       <div
         style={{
           background: "#fff",
-          borderRadius: "18px",
-          padding: "28px 32px",
+          borderRadius: "20px",
+          padding: "32px",
           maxWidth: "420px",
-          width: "92%",
-          boxShadow: "0 24px 64px rgba(0,0,0,0.22)",
-          animation: "modalIn 0.2s ease",
+          width: "90%",
+          boxShadow: "0 24px 48px rgba(220, 38, 38, 0.15)",
+          border: "1.5px solid #fecaca",
+          animation: "agri-modal-in 0.2s ease-out",
         }}
         onClick={(e) => e.stopPropagation()}
       >
         <style>{`
-          @keyframes modalIn {
-            from { opacity:0; transform:scale(0.93) translateY(10px); }
-            to   { opacity:1; transform:scale(1)    translateY(0);    }
+          @keyframes agri-modal-in {
+            from { opacity: 0; transform: scale(0.95) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
           }
         `}</style>
 
-        <div style={{ textAlign: "center", marginBottom: "16px" }}>
-          <div style={{ fontSize: "2.2rem" }}>❌</div>
-          <h3 style={{ margin: "8px 0 4px", fontSize: "1.1rem", fontWeight: 800, color: "#0f172a" }}>
+        <div style={{ 
+          width: "56px", height: "56px", borderRadius: "50%", background: "#fef2f2", 
+          display: "flex", alignItems: "center", justifyContent: "center", 
+          margin: "0 auto 20px" 
+        }}>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </div>
+
+        <div style={{ textAlign: "center", marginBottom: "20px" }}>
+          <h3 style={{ margin: "0 0 8px", fontSize: "1.2rem", fontWeight: 800, color: "#991b1b" }}>
             Reject Order
           </h3>
-          <p style={{ fontSize: "0.83rem", color: "#64748b", margin: 0 }}>
+          <p style={{ fontSize: "0.9rem", color: "#44403c", margin: 0, lineHeight: 1.5 }}>
             You are about to reject the order for{" "}
             <strong>{produceName}</strong>. This cannot be undone.
           </p>
         </div>
 
-        <div style={{ marginBottom: "18px" }}>
+        <div style={{ marginBottom: "24px" }}>
           <label
             htmlFor={`rejection-note-${orderId}`}
-            style={{ display: "block", fontSize: "0.78rem", fontWeight: 700, color: "#475569", marginBottom: "6px" }}
+            style={{ display: "block", fontSize: "0.85rem", fontWeight: 700, color: "#44403c", marginBottom: "8px" }}
           >
             Reason for rejection{" "}
-            <span style={{ fontWeight: 400, color: "#94a3b8" }}>(optional)</span>
+            <span style={{ fontWeight: 500, color: "#78716c" }}>(optional)</span>
           </label>
           <textarea
             id={`rejection-note-${orderId}`}
             value={note}
             onChange={(e) => setNote(e.target.value)}
             rows={3}
-            placeholder="e.g. Stock unavailable, cannot fulfil this quantity…"
+            placeholder="e.g. Stock unavailable, cannot fulfill this quantity..."
             style={{
               width: "100%",
               borderRadius: "10px",
-              border: "1.5px solid #e2e8f0",
-              padding: "10px 12px",
-              fontSize: "0.83rem",
-              color: "#1e293b",
+              border: "1.5px solid #e7e5e4",
+              padding: "12px",
+              fontSize: "0.85rem",
+              color: "#1c1917",
               resize: "vertical",
               outline: "none",
               fontFamily: "inherit",
               boxSizing: "border-box",
-              transition: "border-color 0.2s",
+              transition: "all 0.2s ease",
             }}
-            onFocus={(e) => { e.target.style.borderColor = "#dc2626"; }}
-            onBlur={(e)  => { e.target.style.borderColor = "#e2e8f0"; }}
+            onFocus={(e) => { 
+              e.target.style.borderColor = "#dc2626"; 
+              e.target.style.boxShadow = "0 0 0 3px rgba(220, 38, 38, 0.1)";
+            }}
+            onBlur={(e)  => { 
+              e.target.style.borderColor = "#e7e5e4"; 
+              e.target.style.boxShadow = "none";
+            }}
           />
         </div>
 
-        <div style={{ display: "flex", gap: "10px" }}>
-          <button
-            onClick={handleConfirm}
-            disabled={submitting}
-            style={{
-              flex: 1,
-              padding: "10px",
-              borderRadius: "10px",
-              background: submitting
-                ? "#e2e8f0"
-                : "linear-gradient(135deg,#dc2626,#b91c1c)",
-              color: submitting ? "#94a3b8" : "#fff",
-              border: "none",
-              fontWeight: 800,
-              fontSize: "0.88rem",
-              cursor: submitting ? "default" : "pointer",
-              transition: "opacity 0.2s",
-            }}
-          >
-            {submitting ? "Rejecting…" : "Confirm Rejection"}
-          </button>
+        <div style={{ display: "flex", gap: "12px" }}>
           <button
             onClick={onClose}
             disabled={submitting}
@@ -142,15 +140,33 @@ export default function RejectionModal({ orderId, produceName, onSuccess, onErro
               flex: 1,
               padding: "10px",
               borderRadius: "10px",
-              background: "#f1f5f9",
-              color: "#475569",
-              border: "1.5px solid #e2e8f0",
+              background: "#f5f5f4",
+              color: "#44403c",
+              border: "1.5px solid #e7e5e4",
               fontWeight: 700,
-              fontSize: "0.88rem",
+              fontSize: "0.85rem",
               cursor: "pointer",
+              transition: "all 0.2s ease",
             }}
+            onMouseEnter={(e) => e.currentTarget.style.background = "#e7e5e4"}
+            onMouseLeave={(e) => e.currentTarget.style.background = "#f5f5f4"}
           >
             Cancel
+          </button>
+          <button
+            onClick={handleConfirm}
+            disabled={submitting}
+            className="agri-btn-danger"
+            style={{
+              flex: 1,
+              padding: "10px",
+              border: "none",
+              background: submitting ? "#fca5a5" : "#dc2626",
+              color: "#fff",
+              cursor: submitting ? "default" : "pointer",
+            }}
+          >
+            {submitting ? "Rejecting..." : "Reject Order"}
           </button>
         </div>
       </div>

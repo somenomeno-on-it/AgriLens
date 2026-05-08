@@ -1,3 +1,6 @@
+/* ─── Google Fonts ─────────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -8,7 +11,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-inter), var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -48,83 +51,569 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* ─── AgriLens Agriculture Theme ───────────────────────────────────────────── */
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  /* Warm background — not pure white */
+  --background: oklch(0.982 0.008 120);
+  --foreground: oklch(0.2 0.01 140);
+
+  /* Cards — very slightly warm white */
+  --card: oklch(0.997 0.004 110);
+  --card-foreground: oklch(0.22 0.012 140);
+
+  /* Popover */
+  --popover: oklch(0.997 0.004 110);
+  --popover-foreground: oklch(0.22 0.012 140);
+
+  /* Primary — natural leaf green */
+  --primary: oklch(0.48 0.16 145);
+  --primary-foreground: oklch(0.99 0 0);
+
+  /* Secondary — earthy beige/warm sand */
+  --secondary: oklch(0.94 0.025 95);
+  --secondary-foreground: oklch(0.35 0.05 95);
+
+  /* Muted */
+  --muted: oklch(0.94 0.012 110);
+  --muted-foreground: oklch(0.52 0.02 140);
+
+  /* Accent — soft yellow/gold harvest */
+  --accent: oklch(0.92 0.06 90);
+  --accent-foreground: oklch(0.35 0.08 85);
+
+  /* Destructive */
   --destructive: oklch(0.58 0.22 27);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.809 0.105 251.813);
-  --chart-2: oklch(0.623 0.214 259.815);
-  --chart-3: oklch(0.546 0.245 262.881);
-  --chart-4: oklch(0.488 0.243 264.376);
-  --chart-5: oklch(0.424 0.199 265.638);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+
+  /* Borders — warm, subtle */
+  --border: oklch(0.88 0.018 120);
+  --input: oklch(0.88 0.018 120);
+  --ring: oklch(0.52 0.14 145);
+
+  /* Charts — green palette */
+  --chart-1: oklch(0.52 0.16 145);
+  --chart-2: oklch(0.66 0.14 150);
+  --chart-3: oklch(0.75 0.12 100);
+  --chart-4: oklch(0.62 0.13 65);
+  --chart-5: oklch(0.55 0.18 30);
+
+  /* Border radius — more rounded for modern SaaS */
+  --radius: 0.75rem;
+
+  /* Sidebar */
+  --sidebar: oklch(0.24 0.05 145);
+  --sidebar-foreground: oklch(0.96 0.01 120);
+  --sidebar-primary: oklch(0.55 0.16 145);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.32 0.05 140);
+  --sidebar-accent-foreground: oklch(0.92 0.02 120);
+  --sidebar-border: oklch(0.32 0.04 145);
+  --sidebar-ring: oklch(0.55 0.14 145);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.87 0.00 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.371 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
+  --background: oklch(0.14 0.02 145);
+  --foreground: oklch(0.95 0.01 120);
+  --card: oklch(0.18 0.025 145);
+  --card-foreground: oklch(0.95 0.01 120);
+  --popover: oklch(0.18 0.025 145);
+  --popover-foreground: oklch(0.95 0.01 120);
+  --primary: oklch(0.6 0.17 145);
+  --primary-foreground: oklch(0.12 0.02 145);
+  --secondary: oklch(0.26 0.03 140);
+  --secondary-foreground: oklch(0.88 0.02 120);
+  --muted: oklch(0.24 0.03 140);
+  --muted-foreground: oklch(0.65 0.03 130);
+  --accent: oklch(0.55 0.12 90);
+  --accent-foreground: oklch(0.95 0.01 120);
+  --destructive: oklch(0.65 0.2 22);
+  --border: oklch(1 0 0 / 12%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.809 0.105 251.813);
-  --chart-2: oklch(0.623 0.214 259.815);
-  --chart-3: oklch(0.546 0.245 262.881);
-  --chart-4: oklch(0.488 0.243 264.376);
-  --chart-5: oklch(0.424 0.199 265.638);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --ring: oklch(0.55 0.14 145);
+  --chart-1: oklch(0.65 0.17 145);
+  --chart-2: oklch(0.75 0.14 150);
+  --chart-3: oklch(0.8 0.12 100);
+  --chart-4: oklch(0.72 0.13 65);
+  --chart-5: oklch(0.68 0.18 30);
+  --sidebar: oklch(0.16 0.03 145);
+  --sidebar-foreground: oklch(0.92 0.01 120);
+  --sidebar-primary: oklch(0.58 0.16 145);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.24 0.04 140);
+  --sidebar-accent-foreground: oklch(0.88 0.02 120);
+  --sidebar-border: oklch(1 0 0 / 12%);
+  --sidebar-ring: oklch(0.55 0.14 145);
 }
 
+/* ─── AgriLens Design Tokens ────────────────────────────────────────────────── */
+:root {
+  /* Farmer green palette */
+  --agri-green-50:  #f0fdf4;
+  --agri-green-100: #dcfce7;
+  --agri-green-200: #bbf7d0;
+  --agri-green-300: #86efac;
+  --agri-green-500: #22c55e;
+  --agri-green-600: #16a34a;
+  --agri-green-700: #15803d;
+  --agri-green-800: #166534;
+  --agri-green-900: #14532d;
+
+  /* Earthy/harvest tones */
+  --agri-amber-50:  #fffbeb;
+  --agri-amber-100: #fef3c7;
+  --agri-amber-400: #fbbf24;
+  --agri-amber-600: #d97706;
+
+  /* Warm neutrals */
+  --agri-warm-50:   #fafaf9;
+  --agri-warm-100:  #f5f5f4;
+  --agri-warm-200:  #e7e5e4;
+  --agri-warm-500:  #78716c;
+  --agri-warm-700:  #44403c;
+  --agri-warm-900:  #1c1917;
+
+  /* Page bg gradient */
+  --page-gradient: linear-gradient(160deg, #f0fdf4 0%, #fafaf9 45%, #fefce8 100%);
+}
+
+/* ─── Base Layer ─────────────────────────────────────────────────────────────── */
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
+  html {
+    font-family: 'Inter', var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
   body {
     @apply bg-background text-foreground;
+    background: var(--page-gradient);
+    min-height: 100vh;
   }
-  html {
-    @apply font-sans;
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
   }
+}
+
+/* ─── AgriLens Farmer Components ─────────────────────────────────────────────── */
+
+/* Auth pages — full-page gradient background */
+.agri-auth-bg {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 30%, #fefce8 70%, #fafaf9 100%);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+/* Page container */
+.agri-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+}
+
+/* Page header with gradient accent */
+.agri-page-header {
+  padding: 28px 0 20px;
+  margin-bottom: 8px;
+}
+
+.agri-page-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--agri-green-900);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.agri-page-subtitle {
+  font-size: 0.875rem;
+  color: var(--agri-warm-500);
+  margin-top: 4px;
+}
+
+/* Dashboard stat cards */
+.agri-stat-card {
+  background: #fff;
+  border: 1.5px solid var(--agri-green-100);
+  border-radius: 16px;
+  padding: 20px 24px;
+  box-shadow: 0 2px 12px rgba(22, 163, 74, 0.06), 0 1px 3px rgba(0,0,0,0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.agri-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(22, 163, 74, 0.12), 0 2px 6px rgba(0,0,0,0.06);
+}
+
+/* Cards with hover elevation */
+.agri-card {
+  background: #fff;
+  border: 1.5px solid var(--agri-green-100);
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(22, 163, 74, 0.05), 0 1px 3px rgba(0,0,0,0.04);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.agri-card:hover {
+  box-shadow: 0 6px 20px rgba(22, 163, 74, 0.10), 0 2px 6px rgba(0,0,0,0.06);
+}
+
+/* Section cards (forms, content) */
+.agri-section {
+  background: #fff;
+  border: 1.5px solid var(--agri-green-100);
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: 0 2px 12px rgba(22, 163, 74, 0.05);
+}
+
+/* Section title */
+.agri-section-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--agri-green-900);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Primary green button */
+.agri-btn-primary {
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 22px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(22, 163, 74, 0.30);
+  letter-spacing: 0.01em;
+}
+.agri-btn-primary:hover {
+  background: linear-gradient(135deg, #15803d 0%, #166534 100%);
+  box-shadow: 0 4px 16px rgba(22, 163, 74, 0.40);
+  transform: translateY(-1px);
+}
+.agri-btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(22, 163, 74, 0.25);
+}
+.agri-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Secondary outline button */
+.agri-btn-outline {
+  background: #fff;
+  color: var(--agri-green-700);
+  border: 1.5px solid var(--agri-green-300);
+  border-radius: 10px;
+  padding: 9px 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.agri-btn-outline:hover {
+  background: var(--agri-green-50);
+  border-color: var(--agri-green-500);
+}
+
+/* Danger button */
+.agri-btn-danger {
+  background: #fff;
+  color: #dc2626;
+  border: 1.5px solid #fca5a5;
+  border-radius: 10px;
+  padding: 9px 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.agri-btn-danger:hover {
+  background: #fef2f2;
+  border-color: #f87171;
+}
+
+/* Form label */
+.agri-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--agri-warm-700);
+  margin-bottom: 6px;
+  letter-spacing: 0.01em;
+}
+
+/* Form field wrapper */
+.agri-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Styled native selects */
+.agri-select {
+  height: 42px;
+  width: 100%;
+  border-radius: 10px;
+  border: 1.5px solid var(--agri-green-200);
+  background: #fff;
+  padding: 0 12px;
+  font-size: 0.875rem;
+  color: var(--agri-warm-900);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+.agri-select:focus {
+  border-color: var(--agri-green-500);
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.12);
+}
+.agri-select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #f9fafb;
+}
+
+/* Status badges */
+.agri-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+.agri-badge-pending   { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+.agri-badge-approved  { background: #dcfce7; color: #14532d; border: 1px solid #86efac; }
+.agri-badge-rejected  { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+.agri-badge-confirmed { background: #dcfce7; color: #14532d; border: 1px solid #86efac; }
+.agri-badge-packaging { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+.agri-badge-delivery  { background: #ede9fe; color: #4c1d95; border: 1px solid #c4b5fd; }
+.agri-badge-delivered { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+.agri-badge-info      { background: #e0f2fe; color: #075985; border: 1px solid #7dd3fc; }
+
+/* Empty state */
+.agri-empty {
+  text-align: center;
+  padding: 56px 24px;
+  border-radius: 16px;
+  background: #fff;
+  border: 1.5px dashed var(--agri-green-200);
+}
+.agri-empty-icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 14px;
+  background: var(--agri-green-50);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.agri-empty-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--agri-warm-700);
+  margin-bottom: 4px;
+}
+.agri-empty-text {
+  font-size: 0.85rem;
+  color: var(--agri-warm-500);
+}
+
+/* Skeleton loader */
+@keyframes agri-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.agri-skeleton {
+  border-radius: 10px;
+  background: linear-gradient(90deg, #f0fdf4 25%, #dcfce7 50%, #f0fdf4 75%);
+  background-size: 200% 100%;
+  animation: agri-shimmer 1.6s ease-in-out infinite;
+}
+
+/* Navigation header */
+.agri-nav {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--agri-green-100);
+  box-shadow: 0 1px 12px rgba(22, 163, 74, 0.06);
+}
+
+/* Nav brand */
+.agri-nav-brand {
+  font-size: 1.15rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #15803d 0%, #16a34a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.02em;
+}
+
+/* Nav links */
+.agri-nav-link {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--agri-warm-500);
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+  text-decoration: none;
+}
+.agri-nav-link:hover {
+  color: var(--agri-green-700);
+  background: var(--agri-green-50);
+}
+.agri-nav-link-active {
+  font-weight: 700;
+  color: var(--agri-green-700);
+  background: var(--agri-green-50);
+}
+
+/* Toast */
+.agri-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  padding: 14px 22px;
+  border-radius: 14px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #fff;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  z-index: 9999;
+  max-width: 360px;
+  animation: agri-toast-in 0.3s ease;
+}
+@keyframes agri-toast-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.agri-toast-success { background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); }
+.agri-toast-error   { background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); }
+
+/* Verified badge */
+.agri-verified-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  box-shadow: 0 2px 8px rgba(22, 163, 74, 0.35);
+}
+
+/* Table styles */
+.agri-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  font-size: 0.82rem;
+}
+.agri-table thead tr {
+  background: linear-gradient(135deg, #f0fdf4, #fafaf9);
+}
+.agri-table th {
+  padding: 14px 16px;
+  text-align: left;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--agri-warm-500);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1.5px solid var(--agri-green-100);
+  white-space: nowrap;
+}
+.agri-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f5f5f4;
+  color: var(--agri-warm-700);
+  vertical-align: middle;
+}
+.agri-table tbody tr {
+  transition: background 0.12s ease;
+}
+.agri-table tbody tr:hover {
+  background: var(--agri-green-50);
+}
+.agri-table-wrapper {
+  overflow-x: auto;
+  border-radius: 16px;
+  border: 1.5px solid var(--agri-green-100);
+  box-shadow: 0 2px 12px rgba(22, 163, 74, 0.05);
+}
+
+/* Input overrides — make inputs feel agricultural */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="date"],
+input[type="file"],
+textarea {
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+input:focus,
+textarea:focus {
+  outline: none;
+}
+
+/* Notification bell dropdown */
+.agri-notif-panel {
+  border-radius: 18px;
+  border: 1.5px solid var(--agri-green-100);
+  background: #fff;
+  box-shadow: 0 12px 40px rgba(22, 163, 74, 0.12), 0 4px 12px rgba(0,0,0,0.06);
+  overflow: hidden;
+}
+
+/* Smooth page transition */
+main {
+  animation: agri-page-in 0.25s ease;
+}
+@keyframes agri-page-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Scrollbar — thin green */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--agri-green-200); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--agri-green-300); }
+
+/* Responsive container */
+@media (max-width: 640px) {
+  .agri-page { padding: 16px 14px 48px; }
+  .agri-section { padding: 18px 16px; }
+  .agri-page-title { font-size: 1.4rem; }
 }

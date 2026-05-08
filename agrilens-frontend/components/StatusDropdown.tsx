@@ -5,16 +5,14 @@ import { getAuthHeaders } from "@/lib/auth";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
 
-// "rejected" is intentionally placed after "delivered" in STATUS_ORDER
-// so its index is always > any non-terminal status, keeping isDisabled correct.
 const STATUS_ORDER = ["pending", "confirmed", "packaging", "out_for_delivery", "delivered", "rejected"];
 
 const STATUS_OPTIONS: { value: string; label: string }[] = [
-  { value: "confirmed",        label: "✅ Confirm" },
-  { value: "packaging",        label: "📦 Packaging" },
-  { value: "out_for_delivery", label: "🚚 Out for Delivery" },
-  { value: "delivered",        label: "🎉 Delivered" },
-  { value: "rejected",         label: "❌ Reject" },
+  { value: "confirmed",        label: "Confirm Order" },
+  { value: "packaging",        label: "Start Packaging" },
+  { value: "out_for_delivery", label: "Out for Delivery" },
+  { value: "delivered",        label: "Mark Delivered" },
+  { value: "rejected",         label: "Reject Order" },
 ];
 
 type Props = {
@@ -40,7 +38,6 @@ export default function StatusDropdown({
 }: Props) {
   const [updating, setUpdating] = useState(false);
   const [confirmDelivery, setConfirmDelivery] = useState(false);
-  // ✅ Fix: controlled value so React always re-renders after we reset it to ""
   const [selectValue, setSelectValue] = useState("");
 
   const isTerminal = currentStatus === "delivered" || currentStatus === "rejected";
@@ -48,9 +45,9 @@ export default function StatusDropdown({
 
   const isOptionDisabled = (optionValue: string) => {
     if (updating || isTerminal) return true;
-    if (optionValue === "rejected") return false; // reject always available for non-terminal
+    if (optionValue === "rejected") return false;
     const optionIdx = STATUS_ORDER.indexOf(optionValue);
-    return optionIdx <= currentIdx; // no backward transitions
+    return optionIdx <= currentIdx;
   };
 
   const doUpdate = async (newStatus: string) => {
@@ -76,7 +73,7 @@ export default function StatusDropdown({
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newStatus = e.target.value;
-    setSelectValue(""); // ✅ reset controlled value back to placeholder
+    setSelectValue("");
 
     if (!newStatus) return;
 
@@ -98,22 +95,36 @@ export default function StatusDropdown({
       <div style={{ position: "relative", display: "inline-block" }}>
         <select
           id={`status-dropdown-${orderId}`}
-          value={selectValue}          // ✅ controlled
+          value={selectValue}
           onChange={handleChange}
           disabled={updating || isTerminal}
           style={{
-            padding: "6px 28px 6px 10px",
+            padding: "8px 30px 8px 12px",
             borderRadius: "8px",
-            border: "1.5px solid #e2e8f0",
-            background: isTerminal ? "#f8fafc" : "#ffffff",
-            fontSize: "0.78rem",
+            border: "1.5px solid #bbf7d0",
+            background: isTerminal ? "#f9fafb" : "#ffffff",
+            fontSize: "0.8rem",
             fontWeight: 600,
-            color: isTerminal ? "#94a3b8" : "#1e293b",
+            color: isTerminal ? "#a8a29e" : "#1c1917",
             cursor: isTerminal ? "not-allowed" : "pointer",
             appearance: "none",
             WebkitAppearance: "none",
-            minWidth: "140px",
+            minWidth: "150px",
             outline: "none",
+            transition: "all 0.2s ease",
+            boxShadow: "0 1px 3px rgba(22, 163, 74, 0.05)",
+          }}
+          onFocus={(e) => {
+            if (!isTerminal) {
+              e.target.style.borderColor = "#16a34a";
+              e.target.style.boxShadow = "0 0 0 3px rgba(22, 163, 74, 0.1)";
+            }
+          }}
+          onBlur={(e) => {
+            if (!isTerminal) {
+              e.target.style.borderColor = "#bbf7d0";
+              e.target.style.boxShadow = "0 1px 3px rgba(22, 163, 74, 0.05)";
+            }
           }}
         >
           <option value="" disabled>
@@ -132,25 +143,26 @@ export default function StatusDropdown({
         <span
           style={{
             position: "absolute",
-            right: "8px",
+            right: "10px",
             top: "50%",
             transform: "translateY(-50%)",
             pointerEvents: "none",
-            fontSize: "10px",
-            color: "#94a3b8",
+            color: "#16a34a",
           }}
         >
-          ▼
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
         </span>
       </div>
 
-      {/* Delivery confirmation dialog */}
       {confirmDelivery && (
         <div
           style={{
             position: "fixed",
             inset: 0,
-            background: "rgba(0,0,0,0.45)",
+            background: "rgba(28, 25, 23, 0.5)",
+            backdropFilter: "blur(4px)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -161,56 +173,58 @@ export default function StatusDropdown({
           <div
             style={{
               background: "#fff",
-              borderRadius: "16px",
-              padding: "28px 32px",
-              maxWidth: "380px",
+              borderRadius: "20px",
+              padding: "32px",
+              maxWidth: "400px",
               width: "90%",
-              boxShadow: "0 20px 60px rgba(0,0,0,0.2)",
+              boxShadow: "0 24px 48px rgba(22, 163, 74, 0.15)",
+              border: "1.5px solid #dcfce7",
+              animation: "agri-modal-in 0.2s ease-out",
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ fontSize: "2rem", textAlign: "center", marginBottom: "12px" }}>🎉</div>
-            <h3 style={{ textAlign: "center", margin: "0 0 10px", fontSize: "1rem", fontWeight: 800, color: "#0f172a" }}>
+            <style>{`
+              @keyframes agri-modal-in {
+                from { opacity: 0; transform: scale(0.95) translateY(10px); }
+                to { opacity: 1; transform: scale(1) translateY(0); }
+              }
+            `}</style>
+            
+            <div style={{ 
+              width: "56px", height: "56px", borderRadius: "50%", background: "#dcfce7", 
+              display: "flex", alignItems: "center", justifyContent: "center", 
+              margin: "0 auto 20px" 
+            }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 6 9 17l-5-5"/>
+              </svg>
+            </div>
+            
+            <h3 style={{ textAlign: "center", margin: "0 0 12px", fontSize: "1.2rem", fontWeight: 800, color: "#14532d" }}>
               Confirm Delivery
             </h3>
-            <p style={{ textAlign: "center", fontSize: "0.85rem", color: "#475569", marginBottom: "20px" }}>
+            <p style={{ textAlign: "center", fontSize: "0.9rem", color: "#44403c", marginBottom: "24px", lineHeight: 1.5 }}>
               This will mark the order as <strong>Delivered</strong> and deduct{" "}
-              <strong>{orderedQty} {unit}</strong> of{" "}
-              <strong>{produceName}</strong> from available inventory. Continue?
+              <strong style={{ color: "#16a34a" }}>{orderedQty} {unit}</strong> of{" "}
+              <strong style={{ color: "#16a34a" }}>{produceName}</strong> from available inventory. Continue?
             </p>
-            <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
+            <div style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
+              <button
+                onClick={() => setConfirmDelivery(false)}
+                className="agri-btn-outline"
+                style={{ flex: 1, padding: "10px" }}
+              >
+                Cancel
+              </button>
               <button
                 onClick={() => {
                   setConfirmDelivery(false);
                   doUpdate("delivered");
                 }}
-                style={{
-                  padding: "9px 22px",
-                  borderRadius: "10px",
-                  background: "linear-gradient(135deg,#16a34a,#15803d)",
-                  color: "#fff",
-                  border: "none",
-                  fontWeight: 700,
-                  fontSize: "0.85rem",
-                  cursor: "pointer",
-                }}
+                className="agri-btn-primary"
+                style={{ flex: 1, padding: "10px" }}
               >
-                Confirm Delivery
-              </button>
-              <button
-                onClick={() => setConfirmDelivery(false)}
-                style={{
-                  padding: "9px 22px",
-                  borderRadius: "10px",
-                  background: "#f1f5f9",
-                  color: "#475569",
-                  border: "1.5px solid #e2e8f0",
-                  fontWeight: 700,
-                  fontSize: "0.85rem",
-                  cursor: "pointer",
-                }}
-              >
-                Cancel
+                Confirm
               </button>
             </div>
           </div>

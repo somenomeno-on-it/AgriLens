@@ -1,9 +1,6 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { PhotoGallery } from "@/components/PhotoGallery";
 import { updateInventory } from "@/services/inventoryService";
 
@@ -12,7 +9,7 @@ export type ProduceStatus = "pending" | "approved" | "rejected";
 export type ProduceListing = {
   _id: string;
   cropType: string;
-  quantity: number; // available quantity
+  quantity: number;
   unit: string;
   expectedHarvestDate?: string;
   status: ProduceStatus;
@@ -27,18 +24,6 @@ type Props = {
   onEdit?: () => void;
   onDelete?: () => void;
 };
-
-function statusStyles(status: ProduceStatus) {
-  switch (status) {
-    case "approved":
-      return "bg-green-100 text-green-800";
-    case "rejected":
-      return "bg-red-100 text-red-800";
-    case "pending":
-    default:
-      return "bg-yellow-100 text-yellow-800";
-  }
-}
 
 export function ProduceCard({ listing, onEdit, onDelete }: Props) {
   const [showPopup, setShowPopup] = useState(false);
@@ -63,17 +48,12 @@ export function ProduceCard({ listing, onEdit, onDelete }: Props) {
   }, [showPopup, listing._id]);
 
   const harvestLabel = listing.expectedHarvestDate
-    ? new Date(listing.expectedHarvestDate).toLocaleDateString()
-    : "N/A";
+    ? new Date(listing.expectedHarvestDate).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+    : "Not specified";
 
-  const initial =
-    typeof listing.initialQuantity === "number"
-      ? listing.initialQuantity
-      : listing.quantity;
-
+  const initial = typeof listing.initialQuantity === "number" ? listing.initialQuantity : listing.quantity;
   const sold = listing.soldQuantity ?? 0;
   const reserved = listing.reservedQuantity ?? 0;
-
   const canUpdateInventory = listing.status === "approved";
 
   const handleUpdate = async () => {
@@ -89,148 +69,125 @@ export function ProduceCard({ listing, onEdit, onDelete }: Props) {
     try {
       await updateInventory(listing._id, numAmount, type);
       window.location.reload();
-    } catch (err) {
+    } catch {
       setError("Failed to update inventory");
       setLoading(false);
     }
   };
 
+  const statusClass = `agri-badge agri-badge-${listing.status}`;
+  const statusIcon = listing.status === "approved" ? "✅" : listing.status === "rejected" ? "❌" : "⏳";
+
   return (
-    <Card className="p-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between overflow-visible">
-      <div className="flex-1">
-        <div className="flex items-center gap-2">
-          <h3 className="text-lg font-semibold">{listing.cropType}</h3>
-          <span
-            className={`px-2 py-1 rounded-full text-xs font-medium capitalize ${statusStyles(
-              listing.status
-            )}`}
-          >
-            {listing.status}
-          </span>
-        </div>
-        <div className="text-sm text-zinc-600 mt-1">
-          Available: {listing.quantity} {listing.unit}
-        </div>
-        <div className="text-sm text-zinc-600">
-          Expected harvest: {harvestLabel}
-        </div>
-        <div className="text-xs text-zinc-500 mt-1">
-          Inventory — Initial: {initial} {listing.unit}, Sold: {sold}{" "}
-          {listing.unit}, Reserved: {reserved} {listing.unit}
-        </div>
-        {listing.photos && listing.photos.length > 0 && (
-          <PhotoGallery photos={listing.photos} />
-        )}
-      </div>
-      <div className="flex flex-col gap-2 self-start md:self-auto items-end md:items-start relative">
-        <div className="flex gap-2 w-full justify-end md:justify-start">
-          {onEdit && (
-            <Button variant="outline" size="sm" onClick={onEdit}>
-              Edit
-            </Button>
-          )}
-          {onDelete && (
-            <Button variant="destructive" size="sm" onClick={onDelete}>
-              Delete
-            </Button>
-          )}
-        </div>
-
-        <div className="flex flex-col gap-1 w-full relative">
-          <Button
-            className={`inventory-update-btn-${listing._id} w-full md:w-auto`}
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              if (canUpdateInventory) {
-                setShowPopup((v) => !v);
-                setError("");
-                setAmount("");
-                setType("sold");
-              }
-            }}
-            disabled={!canUpdateInventory}
-          >
-            Sold / Reserved
-          </Button>
-
-          {!canUpdateInventory && (
-            <span className="text-[10px] sm:text-xs text-muted-foreground text-center md:text-left md:max-w-[140px] leading-tight">
-              Inventory can only be updated after approval.
+    <div className="agri-card" style={{ padding: "24px", display: "flex", flexDirection: "column", gap: "20px" }}>
+      {/* Top Header Row */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "16px" }}>
+        <div>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "6px" }}>
+            <h3 style={{ fontSize: "1.2rem", fontWeight: 800, color: "#14532d", margin: 0 }}>{listing.cropType}</h3>
+            <span className={statusClass}>
+              {statusIcon} {listing.status.charAt(0).toUpperCase() + listing.status.slice(1)}
             </span>
-          )}
+          </div>
+          <div style={{ fontSize: "0.85rem", color: "#44403c", display: "flex", gap: "16px" }}>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect width="8" height="20" x="8" y="2" rx="4" ry="4"/><line x1="16" y1="14" x2="22" y2="14"/><line x1="2" y1="14" x2="8" y2="14"/><line x1="4" y1="18" x2="8" y2="18"/><line x1="16" y1="18" x2="20" y2="18"/></svg>
+              Available: <strong style={{ color: "#1c1917" }}>{listing.quantity} {listing.unit}</strong>
+            </span>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Harvest: {harvestLabel}
+            </span>
+          </div>
+        </div>
 
-          {showPopup && (
-            <div
-              ref={popupRef}
-              className="absolute right-0 top-full mt-2 w-[280px] z-[50] rounded-xl border bg-background p-4 shadow-md md:right-0"
+        {/* Action Buttons */}
+        <div style={{ display: "flex", gap: "8px" }}>
+          {onEdit && <button onClick={onEdit} className="agri-btn-outline" style={{ padding: "6px 14px", fontSize: "0.8rem" }}>Edit</button>}
+          {onDelete && <button onClick={onDelete} className="agri-btn-danger" style={{ padding: "6px 14px", fontSize: "0.8rem" }}>Delete</button>}
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <div style={{ display: "flex", flexDirection: "column", gap: "20px", borderTop: "1px solid #f5f5f4", paddingTop: "16px" }}>
+        
+        {/* Inventory Stats Row */}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
+          <div style={{ background: "#f5f5f4", padding: "10px 14px", borderRadius: "10px", flex: 1, minWidth: "120px" }}>
+            <div style={{ fontSize: "0.7rem", color: "#78716c", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em" }}>Initial</div>
+            <div style={{ fontSize: "1rem", fontWeight: 700, color: "#1c1917", marginTop: "2px" }}>{initial} <span style={{ fontSize: "0.8rem", color: "#78716c", fontWeight: 500 }}>{listing.unit}</span></div>
+          </div>
+          <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", padding: "10px 14px", borderRadius: "10px", flex: 1, minWidth: "120px" }}>
+            <div style={{ fontSize: "0.7rem", color: "#16a34a", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em" }}>Sold</div>
+            <div style={{ fontSize: "1rem", fontWeight: 700, color: "#14532d", marginTop: "2px" }}>{sold} <span style={{ fontSize: "0.8rem", color: "#16a34a", fontWeight: 500 }}>{listing.unit}</span></div>
+          </div>
+          <div style={{ background: "#fffbeb", border: "1px solid #fde68a", padding: "10px 14px", borderRadius: "10px", flex: 1, minWidth: "120px" }}>
+            <div style={{ fontSize: "0.7rem", color: "#d97706", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em" }}>Reserved</div>
+            <div style={{ fontSize: "1rem", fontWeight: 700, color: "#92400e", marginTop: "2px" }}>{reserved} <span style={{ fontSize: "0.8rem", color: "#d97706", fontWeight: 500 }}>{listing.unit}</span></div>
+          </div>
+          
+          {/* Update Inventory Control */}
+          <div style={{ position: "relative", alignSelf: "flex-end" }}>
+            <button
+              className={`agri-btn-outline inventory-update-btn-${listing._id}`}
+              onClick={() => {
+                if (canUpdateInventory) {
+                  setShowPopup((v) => !v);
+                  setError(""); setAmount(""); setType("sold");
+                }
+              }}
+              disabled={!canUpdateInventory}
+              style={{ height: "100%", minHeight: "56px" }}
             >
-              <div className="text-sm font-semibold mb-3">Update Inventory</div>
-              <div className="space-y-3">
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground mb-1 block">
-                    Amount
-                  </label>
-                  <Input
-                    type="number"
-                    placeholder="Enter amount"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    className="h-8 text-sm"
-                  />
+              Update Stock
+            </button>
+
+            {showPopup && (
+              <div ref={popupRef} style={{ position: "absolute", bottom: "calc(100% + 12px)", right: 0, width: "280px", zIndex: 50, background: "#fff", borderRadius: "16px", border: "1.5px solid #dcfce7", padding: "20px", boxShadow: "0 12px 32px rgba(22,163,74,0.12)" }}>
+                <div style={{ fontSize: "0.95rem", fontWeight: 700, color: "#14532d", marginBottom: "16px" }}>Adjust Inventory</div>
+                
+                <div className="agri-field" style={{ marginBottom: "12px" }}>
+                  <label className="agri-label">Quantity</label>
+                  <input type="number" placeholder={`Amount in ${listing.unit}`} value={amount} onChange={(e) => setAmount(e.target.value)} style={{ height: "40px", borderRadius: "8px", border: "1px solid #bbf7d0", padding: "0 12px", width: "100%", outline: "none" }} />
                 </div>
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground mb-1 block">
-                    Type
-                  </label>
-                  <div className="flex gap-4 mt-1">
-                    <label className="flex items-center gap-1.5 text-sm cursor-pointer">
-                      <input
-                        type="radio"
-                        name={`inventoryType-${listing._id}`}
-                        value="sold"
-                        checked={type === "sold"}
-                        onChange={() => setType("sold")}
-                        className="accent-primary"
-                      />
-                      Sold
+
+                <div className="agri-field" style={{ marginBottom: "16px" }}>
+                  <label className="agri-label">Action</label>
+                  <div style={{ display: "flex", gap: "16px", marginTop: "4px" }}>
+                    <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.85rem", cursor: "pointer", color: "#44403c", fontWeight: 500 }}>
+                      <input type="radio" name={`inv-${listing._id}`} value="sold" checked={type === "sold"} onChange={() => setType("sold")} style={{ accentColor: "#16a34a" }} /> Mark Sold
                     </label>
-                    <label className="flex items-center gap-1.5 text-sm cursor-pointer">
-                      <input
-                        type="radio"
-                        name={`inventoryType-${listing._id}`}
-                        value="reserved"
-                        checked={type === "reserved"}
-                        onChange={() => setType("reserved")}
-                        className="accent-primary"
-                      />
-                      Reserved
+                    <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.85rem", cursor: "pointer", color: "#44403c", fontWeight: 500 }}>
+                      <input type="radio" name={`inv-${listing._id}`} value="reserved" checked={type === "reserved"} onChange={() => setType("reserved")} style={{ accentColor: "#d97706" }} /> Mark Reserved
                     </label>
                   </div>
                 </div>
 
-                {error && <div className="text-xs text-red-600">{error}</div>}
+                {error && <div style={{ fontSize: "0.75rem", color: "#dc2626", marginBottom: "12px", padding: "8px", background: "#fef2f2", borderRadius: "6px" }}>{error}</div>}
 
-                <div className="flex items-center justify-end gap-2 mt-4">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowPopup(false)}
-                    disabled={loading}
-                  >
-                    Cancel
-                  </Button>
-                  <Button size="sm" onClick={handleUpdate} disabled={loading}>
-                    {loading ? "Updating..." : "Update"}
-                  </Button>
+                <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
+                  <button onClick={() => setShowPopup(false)} disabled={loading} style={{ padding: "6px 12px", borderRadius: "8px", background: "#f5f5f4", border: "none", color: "#44403c", fontSize: "0.8rem", fontWeight: 600, cursor: "pointer" }}>Cancel</button>
+                  <button onClick={handleUpdate} disabled={loading} className="agri-btn-primary" style={{ padding: "6px 14px", fontSize: "0.8rem" }}>{loading ? "Saving..." : "Save"}</button>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
+
+        {!canUpdateInventory && (
+          <div style={{ fontSize: "0.75rem", color: "#a8a29e", fontStyle: "italic", marginTop: "-12px" }}>
+            * Inventory adjustments available after listing approval
+          </div>
+        )}
+
+        {/* Photo Gallery Area */}
+        {listing.photos && listing.photos.length > 0 && (
+          <div style={{ marginTop: "8px" }}>
+            <PhotoGallery photos={listing.photos} />
+          </div>
+        )}
+
       </div>
-    </Card>
+    </div>
   );
 }
-
-

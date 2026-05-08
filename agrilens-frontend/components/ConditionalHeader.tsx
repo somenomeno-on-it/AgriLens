@@ -16,24 +16,18 @@ function shouldHideHeader(pathname: string) {
 
 export function ConditionalHeader() {
   const pathname = usePathname();
-
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  useEffect(() => { setMounted(true); }, []);
 
-  if (shouldHideHeader(pathname)) {
-    return null;
-  }
+  if (shouldHideHeader(pathname)) return null;
 
-  // Prevent hydration mismatch by returning a neutral shell until mounted.
   if (!mounted) {
     return (
-      <header className="sticky top-0 z-40 border-b bg-background">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
-          <nav className="flex flex-wrap items-center gap-4 text-sm" />
-          <div className="w-10 shrink-0" aria-hidden />
+      <header className="agri-nav">
+        <div style={{ maxWidth: "1100px", margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 24px", height: "60px" }}>
+          <nav style={{ display: "flex", alignItems: "center", gap: "4px" }} />
+          <div style={{ width: "40px" }} aria-hidden />
         </div>
       </header>
     );
@@ -45,36 +39,48 @@ export function ConditionalHeader() {
   const isAdmin = role === "admin";
   const isCustomer = role === "customer";
 
-  // Admin has its own sidebar — no top nav needed.
   if (isAdmin) return null;
 
-  // Returns className for a nav link: bold + full colour if active, muted otherwise.
-  function navClass(href: string, exact = false) {
+  function navLinkClass(href: string, exact = false) {
     const isActive = exact ? pathname === href : pathname.startsWith(href);
-    return isActive
-      ? "font-bold text-foreground"
-      : "text-muted-foreground hover:text-foreground";
+    return isActive ? "agri-nav-link agri-nav-link-active" : "agri-nav-link";
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b bg-background">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
-        <nav className="flex flex-wrap items-center gap-4 text-sm">
+    <header className="agri-nav">
+      <div
+        style={{
+          maxWidth: "1100px",
+          margin: "0 auto",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "0 24px",
+          height: "60px",
+        }}
+      >
+        <nav style={{ display: "flex", alignItems: "center", gap: "4px", flexWrap: "wrap" }}>
           {isFarmer && (
             <>
-              <Link className="font-semibold" href="/farmer">
+              <Link href="/farmer" className="agri-nav-brand" style={{ marginRight: "12px" }}>
                 AgriLens
               </Link>
-              <Link className={navClass("/farmer", true)} href="/farmer">
-                Farmer
+              <Link href="/farmer" className={navLinkClass("/farmer", true)}>
+                Dashboard
               </Link>
-              <Link className={navClass("/produce")} href="/produce">
-                Produce
+              <Link href="/produce" className={navLinkClass("/produce")}>
+                My Listings
               </Link>
-              <Link className={navClass("/farmer/analytics")} href="/farmer/analytics">
+              <Link href="/farmer/orders" className={navLinkClass("/farmer/orders")}>
+                Order Inbox
+              </Link>
+              <Link href="/farmer/analytics" className={navLinkClass("/farmer/analytics")}>
                 Analytics
               </Link>
-              <Link className={navClass("/notifications")} href="/notifications">
+              <Link href="/farmer/complaints" className={navLinkClass("/farmer/complaints")}>
+                Complaints
+              </Link>
+              <Link href="/notifications" className={navLinkClass("/notifications")}>
                 Notifications
               </Link>
             </>
@@ -82,44 +88,30 @@ export function ConditionalHeader() {
 
           {isAgent && (
             <>
-              <Link className="font-semibold" href="/agent/dashboard">
+              <Link href="/agent/dashboard" className="agri-nav-brand" style={{ marginRight: "12px" }}>
                 AgriLens
               </Link>
-              <Link className={navClass("/agent/queue")} href="/agent/queue">
-                Agent Queue
-              </Link>
-              <Link className={navClass("/agent/dashboard", true)} href="/agent/dashboard">
-                Agent Dashboard
-              </Link>
-            </>
-          )}
-
-          {isAdmin && (
-            <>
-              <Link className="font-semibold" href="/admin/dashboard">
-                AgriLens
-              </Link>
-              <Link className={navClass("/admin/dashboard", true)} href="/admin/dashboard">
+              <Link href="/agent/dashboard" className={navLinkClass("/agent/dashboard", true)}>
                 Dashboard
               </Link>
-              <Link className={navClass("/admin/users")} href="/admin/users">
-                Users
+              <Link href="/agent/queue" className={navLinkClass("/agent/queue")}>
+                Produce Queue
               </Link>
             </>
           )}
 
           {isCustomer && (
             <>
-              <Link className="font-semibold" href="/customer/profile">
+              <Link href="/customer/profile" className="agri-nav-brand" style={{ marginRight: "12px" }}>
                 AgriLens
               </Link>
-              <Link className={navClass("/customer/profile")} href="/customer/profile">
+              <Link href="/customer/profile" className={navLinkClass("/customer/profile")}>
                 My Profile
               </Link>
-              <Link className={navClass("/customer/marketplace")} href="/customer/marketplace">
+              <Link href="/customer/marketplace" className={navLinkClass("/customer/marketplace")}>
                 Marketplace
               </Link>
-              <Link className={navClass("/customer/orders")} href="/customer/orders">
+              <Link href="/customer/orders" className={navLinkClass("/customer/orders")}>
                 My Orders
               </Link>
             </>
@@ -127,19 +119,27 @@ export function ConditionalHeader() {
 
           {!isFarmer && !isAgent && !isAdmin && !isCustomer && (
             <>
-              <Link className="font-semibold" href="/guest/map">
+              <Link href="/guest/map" className="agri-nav-brand" style={{ marginRight: "12px" }}>
                 AgriLens
               </Link>
-              <Link className={navClass("/guest/map")} href="/guest/map">
+              <Link href="/guest/map" className={navLinkClass("/guest/map")}>
                 Public Map
               </Link>
-              <Link className={navClass("/login", true)} href="/login">
+              <Link href="/login" className={navLinkClass("/login", true)}>
                 Login
               </Link>
             </>
           )}
         </nav>
-        {isFarmer ? <NotificationBell /> : <div className="w-10 shrink-0" aria-hidden />}
+
+        {/* Right side */}
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          {isFarmer ? (
+            <NotificationBell />
+          ) : (
+            <div style={{ width: "40px" }} aria-hidden />
+          )}
+        </div>
       </div>
     </header>
   );
