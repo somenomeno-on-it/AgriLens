@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,8 +12,14 @@ import { clearAuthSession, getCurrentUserRole } from "@/lib/auth";
  */
 export default function AdminRoute({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
 
-  if (typeof window === "undefined") return null; // Prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Return null on both server AND first client render so the HTML always matches.
+  if (!mounted) return null;
 
   const role = getCurrentUserRole();
 
