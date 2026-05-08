@@ -42,6 +42,15 @@ function getAgentContext() {
   return { id, assignedRegions };
 }
 
+function getPhotoUrl(photoPath: string | null | undefined): string {
+  if (!photoPath) return "";
+  if (photoPath.startsWith("http")) return photoPath;
+  const normalizedPath = photoPath.replace(/\\/g, "/");
+  const cleanPath = normalizedPath.startsWith("/") ? normalizedPath.slice(1) : normalizedPath;
+  const cleanBase = API_BASE.endsWith("/") ? API_BASE.slice(0, -1) : API_BASE;
+  return `${cleanBase}/${cleanPath}`;
+}
+
 function statusBadgeClass(status: DashboardListing["status"]) {
   if (status === "approved") return "agri-badge agri-badge-approved";
   if (status === "rejected") return "agri-badge agri-badge-rejected";
@@ -255,9 +264,9 @@ export default function AgentDashboardPage() {
                       <td>
                         {item.imageUrl ? (
                           <img
-                            src={`${API_BASE}/${item.imageUrl}`}
+                            src={getPhotoUrl(item.imageUrl)}
                             alt={item.produceName}
-                            className="h-10 w-10 rounded-md object-cover border border-border"
+                            className="h-10 w-10 rounded object-cover border border-border"
                           />
                         ) : (
                           <div className="h-10 w-10 rounded-md bg-muted border border-border flex items-center justify-center text-xs text-muted-foreground">

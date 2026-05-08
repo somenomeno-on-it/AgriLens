@@ -253,7 +253,7 @@ export default function MyComplaintsPage() {
 
               {c.adminResponse && !isEditing && (
                 <div style={{ background: "#f0f9ff", border: "1px solid #bae6fd", borderRadius: "10px", padding: "12px 16px", marginTop: "12px" }}>
-                  <p style={{ fontSize: "0.75rem", fontWeight: 700, color: "#0369a1", marginBottom: "4px", textTransform: "uppercase", letterSpacing: "0.04em" }}>Agent Response</p>
+                  <p style={{ fontSize: "0.75rem", fontWeight: 700, color: "#0369a1", marginBottom: "4px", textTransform: "uppercase", letterSpacing: "0.04em" }}>Admin Response</p>
                   <p style={{ fontSize: "0.85rem", color: "#075985", margin: 0 }}>{c.adminResponse}</p>
                 </div>
               )}

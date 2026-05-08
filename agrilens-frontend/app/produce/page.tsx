@@ -24,9 +24,9 @@ export default function ProduceListingsPage() {
           headers: getAuthHeaders(),
         });
 
-        if (res.status === 401) {
+        if (res.status === 401 || res.status === 403) {
           console.warn("Session expired or unauthorized");
-          alert("Your session has expired. Please log in again.");
+          alert(res.status === 403 ? "You do not have permission to view this page. This page is for farmers only." : "Your session has expired. Please log in again.");
           window.location.href = "/login";
           return;
         }

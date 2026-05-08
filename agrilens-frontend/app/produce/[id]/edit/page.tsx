@@ -34,6 +34,17 @@ export default function EditProducePage() {
   const [photoFiles, setPhotoFiles] = useState<FileList | null>(null);
   const [photoUploading, setPhotoUploading] = useState(false);
   const [photoError, setPhotoError] = useState<string | null>(null);
+  const [existingPhotos, setExistingPhotos] = useState<string[]>([]);
+  const [photoRemoving, setPhotoRemoving] = useState<string | null>(null);
+
+  function getPhotoUrl(photoPath: string | null | undefined): string {
+    if (!photoPath) return "";
+    if (photoPath.startsWith("http")) return photoPath;
+    const normalizedPath = photoPath.replace(/\\/g, "/");
+    const cleanPath = normalizedPath.startsWith("/") ? normalizedPath.slice(1) : normalizedPath;
+    const cleanBase = API_BASE.endsWith("/") ? API_BASE.slice(0, -1) : API_BASE;
+    return `${cleanBase}/${cleanPath}`;
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,7 +62,7 @@ export default function EditProducePage() {
         if (listingRes.ok) {
           const listing = await listingRes.json();
           setForm({
-            farmId: listing.farmId?._id || "",
+            farmId: typeof listing.farmId === "string" ? listing.farmId : (listing.farmId?._id || ""),
             cropType: listing.cropType || "",
             description: listing.description || "",
             expectedHarvestDate: listing.expectedHarvestDate ? listing.expectedHarvestDate.slice(0, 10) : "",
@@ -61,6 +72,7 @@ export default function EditProducePage() {
             unit: listing.unit || "kg",
             pricePerUnit: String(listing.pricePerUnit ?? ""),
           });
+          setExistingPhotos(listing.photos || []);
         } else {
           alert("Failed to load listing");
           router.push("/produce");
@@ -102,6 +114,31 @@ export default function EditProducePage() {
       setPhotoError(errText || "Failed to upload photos. Check file type and size.");
     }
     setPhotoUploading(false);
+  };
+
+  const handleRemovePhoto = async (photoUrl: string) => {
+    if (!confirm("Are you sure you want to remove this photo?")) return;
+    setPhotoRemoving(photoUrl);
+
+    try {
+      const res = await fetch(`${API_BASE}/api/produce/${id}/photos`, {
+        method: "DELETE",
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ photoUrl }),
+      });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        alert(`Failed to remove photo: ${errText}`);
+      } else {
+        setExistingPhotos((prev) => prev.filter((p) => p !== photoUrl));
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Failed to remove photo due to network error.");
+    } finally {
+      setPhotoRemoving(null);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -267,17 +304,60 @@ export default function EditProducePage() {
           </div>
 
           <div className="agri-field">
-            <label className="agri-label">Add / replace photos (up to 5)</label>
-            <div style={{ position: "relative" }}>
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={(e) => setPhotoFiles(e.target.files)}
-                style={{ width: "100%", padding: "10px", background: "#fafaf9", border: "1.5px dashed #bbf7d0", borderRadius: "10px", cursor: "pointer", color: "#44403c" }}
-              />
-            </div>
-            {photoError && <p style={{ color: "#dc2626", fontSize: "0.85rem", marginTop: "4px" }}>{photoError}</p>}
+            <label className="agri-label">Existing Photos</label>
+            {existingPhotos.length > 0 ? (
+              <div className="flex flex-wrap gap-4 mb-4">
+                {existingPhotos.map((photoUrl, idx) => (
+                  <div key={idx} className="relative group rounded-lg overflow-hidden border border-border h-24 w-24">
+                    <img src={getPhotoUrl(photoUrl)} alt="Existing listing photo" className="object-cover w-full h-full" />
+                    <button
+                      type="button"
+                      disabled={photoRemoving === photoUrl}
+                      onClick={() => handleRemovePhoto(photoUrl)}
+                      className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-100"
+                    >
+                      {photoRemoving === photoUrl ? (
+                        <div className="h-5 w-5 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                      ) : (
+                        <svg className="h-6 w-6 text-white hover:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground mb-4">No photos added yet.</p>
+            )}
+
+            {existingPhotos.length < 5 && (
+              <>
+                <label className="agri-label">Add photos (up to {5 - existingPhotos.length} more)</label>
+                <div style={{ position: "relative" }}>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={(e) => {
+                      const files = e.target.files;
+                      if (files && files.length > (5 - existingPhotos.length)) {
+                        alert(`You can only add ${5 - existingPhotos.length} more photo(s).`);
+                        e.target.value = "";
+                        setPhotoFiles(null);
+                      } else {
+                        setPhotoFiles(files);
+                      }
+                    }}
+                    style={{ width: "100%", padding: "10px", background: "#fafaf9", border: "1.5px dashed #bbf7d0", borderRadius: "10px", cursor: "pointer", color: "#44403c" }}
+                  />
+                </div>
+                {photoError && <p style={{ color: "#dc2626", fontSize: "0.85rem", marginTop: "4px" }}>{photoError}</p>}
+              </>
+            )}
+            {existingPhotos.length >= 5 && (
+              <p className="text-sm text-amber-600 bg-amber-50 p-2 rounded border border-amber-200">You have reached the maximum limit of 5 photos. Remove an existing photo to add a new one.</p>
+            )}
           </div>
 
           <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px", paddingTop: "12px", borderTop: "1px solid #f5f5f4" }}>
