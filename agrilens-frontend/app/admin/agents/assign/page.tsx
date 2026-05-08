@@ -210,14 +210,14 @@ export default function AdminAgentAssignPage() {
   return (
     <div className="space-y-8 max-w-5xl">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Agent region assignment</h1>
-        <p className="text-sm text-muted-foreground mt-1">
+        <h1 className="agri-page-title">Agent region assignment</h1>
+        <p className="agri-page-subtitle">
           Assign districts and upazilas to verification agents. Current workload is listed
           below (red when above threshold).
         </p>
       </div>
 
-      <Card className="p-6 space-y-4">
+      <Card className="agri-card p-6 space-y-4">
         <h2 className="text-sm font-semibold">Assign regions</h2>
         {loading && <p className="text-sm text-muted-foreground">Loading agents…</p>}
         {error && <p className="text-sm text-red-600">{error}</p>}
@@ -225,9 +225,9 @@ export default function AdminAgentAssignPage() {
         {!loading && (
           <>
             <div>
-              <label className="text-xs font-medium text-muted-foreground">Agent</label>
+              <label className="agri-label">Agent</label>
               <select
-                className="mt-1 flex h-10 w-full max-w-md rounded-md border border-input bg-background px-3 text-sm"
+                className="agri-select mt-1 max-w-md"
                 value={agentId}
                 onChange={(e) => setAgentId(e.target.value)}
               >
@@ -273,9 +273,9 @@ export default function AdminAgentAssignPage() {
 
             <div className="grid gap-4 sm:grid-cols-2 max-w-xl">
               <div>
-                <label className="text-xs font-medium text-muted-foreground">District</label>
+                <label className="agri-label">District</label>
                 <select
-                  className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  className="agri-select mt-1"
                   value={district}
                   onChange={(e) => setDistrict(e.target.value)}
                 >
@@ -288,9 +288,9 @@ export default function AdminAgentAssignPage() {
                 </select>
               </div>
               <div>
-                <label className="text-xs font-medium text-muted-foreground">Upazila</label>
+                <label className="agri-label">Upazila</label>
                 <select
-                  className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  className="agri-select mt-1"
                   value={upazila}
                   onChange={(e) => setUpazila(e.target.value)}
                   disabled={!district}
@@ -316,7 +316,7 @@ export default function AdminAgentAssignPage() {
         )}
       </Card>
 
-      <Card className="p-6">
+      <Card className="agri-card p-6">
         <div className="flex items-center justify-between gap-4 mb-4">
           <h2 className="text-sm font-semibold">Agent workload</h2>
           <span className="text-xs text-muted-foreground">
@@ -325,10 +325,10 @@ export default function AdminAgentAssignPage() {
         </div>
         {workloadLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
         {!workloadLoading && (
-          <div className="overflow-x-auto rounded-md border">
-            <table className="w-full text-sm">
+          <div className="agri-table-wrapper">
+            <table className="agri-table text-sm">
               <thead>
-                <tr className="border-b bg-muted/40 text-left">
+                <tr className="text-left">
                   <th className="p-3 font-medium">Agent</th>
                   <th className="p-3 font-medium">Email</th>
                   <th className="p-3 font-medium text-right">Pending queue</th>
@@ -338,11 +338,7 @@ export default function AdminAgentAssignPage() {
                 {workload.map((w) => (
                   <tr
                     key={w.userId}
-                    className={
-                      w.overThreshold
-                        ? "bg-red-50 dark:bg-red-950/30 border-b border-red-100 dark:border-red-900"
-                        : "border-b"
-                    }
+                    className={w.overThreshold ? "bg-red-50" : ""}
                   >
                     <td className="p-3">{w.fullName || w.userId}</td>
                     <td className="p-3 text-muted-foreground">{w.email || "—"}</td>

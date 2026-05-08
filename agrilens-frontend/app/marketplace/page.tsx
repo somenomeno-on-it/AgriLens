@@ -78,14 +78,16 @@ export default function MarketplacePage() {
   );
 
   return (
-    <div className="p-6">
-      <div className="mb-6 w-full rounded-xl border bg-white p-4 shadow-sm">
-        <h1 className="mb-4 text-2xl font-semibold">Marketplace</h1>
+    <div className="agri-customer-shell">
+      <div className="agri-page">
+      <div className="agri-hero mb-6 w-full">
+        <h1 className="agri-page-title">Marketplace</h1>
+        <p className="agri-page-subtitle">Discover verified fresh produce across Bangladesh.</p>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-1">
-            <label className="text-sm font-medium">Crop</label>
+            <label className="agri-label">Crop</label>
             <select
-              className="h-10 w-full rounded-md border px-3 text-sm"
+              className="agri-select"
               value={crop}
               onChange={(e) => setCrop(e.target.value)}
             >
@@ -99,9 +101,9 @@ export default function MarketplacePage() {
           </div>
 
           <div className="space-y-1">
-            <label className="text-sm font-medium">District</label>
+            <label className="agri-label">District</label>
             <select
-              className="h-10 w-full rounded-md border px-3 text-sm"
+              className="agri-select"
               value={district}
               onChange={(e) => setDistrict(e.target.value)}
             >
@@ -115,7 +117,7 @@ export default function MarketplacePage() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">
+            <label className="agri-label">
               Price Range: {minPrice} - {maxPrice} BDT
             </label>
             <input
@@ -124,7 +126,7 @@ export default function MarketplacePage() {
               max={10000}
               value={minPrice}
               onChange={(e) => setMinPrice(Math.min(Number(e.target.value), maxPrice))}
-              className="w-full"
+              className="agri-range"
             />
             <input
               type="range"
@@ -132,12 +134,12 @@ export default function MarketplacePage() {
               max={10000}
               value={maxPrice}
               onChange={(e) => setMaxPrice(Math.max(Number(e.target.value), minPrice))}
-              className="w-full"
+              className="agri-range"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">
+            <label className="agri-label">
               Grade Range: {minGrade} - {maxGrade}
             </label>
             <input
@@ -146,7 +148,7 @@ export default function MarketplacePage() {
               max={100}
               value={minGrade}
               onChange={(e) => setMinGrade(Math.min(Number(e.target.value), maxGrade))}
-              className="w-full"
+              className="agri-range"
             />
             <input
               type="range"
@@ -154,26 +156,31 @@ export default function MarketplacePage() {
               max={100}
               value={maxGrade}
               onChange={(e) => setMaxGrade(Math.max(Number(e.target.value), minGrade))}
-              className="w-full"
+              className="agri-range"
             />
           </div>
         </div>
       </div>
 
       {loading ? (
-        <p>Loading listings...</p>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {[1, 2, 3].map((idx) => (
+            <div key={idx} className="agri-skeleton" style={{ height: "290px", borderRadius: "16px" }} />
+          ))}
+        </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {listings.map((listing) => (
             <ListingCard key={listing.id} listing={listing} />
           ))}
           {!listings.length && (
-            <div className="col-span-full rounded-md border border-dashed p-8 text-center text-sm text-muted-foreground">
+            <div className="agri-empty col-span-full">
               No listings match your filters.
             </div>
           )}
         </div>
       )}
+      </div>
     </div>
   );
 }

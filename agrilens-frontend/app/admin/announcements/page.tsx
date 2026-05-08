@@ -161,7 +161,7 @@ export default function AnnouncementsPage() {
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       {/* Header */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="agri-hero flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <Megaphone className="h-6 w-6 text-primary" />
@@ -190,7 +190,7 @@ export default function AnnouncementsPage() {
 
       {/* Create Form */}
       {showForm && (
-        <Card className="p-6 space-y-4 border-primary/30 border-2">
+        <Card className="agri-card p-6 space-y-4 border-primary/30 border-2">
           <h2 className="text-base font-semibold">Create Announcement</h2>
 
           {formError && (
@@ -209,6 +209,7 @@ export default function AnnouncementsPage() {
               value={formTitle}
               onChange={(e) => setFormTitle(e.target.value)}
               maxLength={200}
+              className="agri-input"
             />
           </div>
 
@@ -218,7 +219,7 @@ export default function AnnouncementsPage() {
             </label>
             <textarea
               id="announcement-body"
-              className="w-full min-h-[120px] rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+              className="w-full min-h-[120px] rounded-md border border-[var(--agri-green-200)] bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--agri-green-500)] resize-none"
               placeholder="Write the full announcement message here..."
               value={formBody}
               onChange={(e) => setFormBody(e.target.value)}
@@ -263,6 +264,7 @@ export default function AnnouncementsPage() {
                   placeholder="e.g. dhaka"
                   value={formDistrict}
                   onChange={(e) => setFormDistrict(e.target.value)}
+                  className="agri-input"
                 />
               </div>
               <div className="space-y-1">
@@ -272,6 +274,7 @@ export default function AnnouncementsPage() {
                   placeholder="e.g. savar"
                   value={formUpazila}
                   onChange={(e) => setFormUpazila(e.target.value)}
+                  className="agri-input"
                 />
               </div>
             </div>
@@ -309,7 +312,7 @@ export default function AnnouncementsPage() {
             ))}
           </div>
         ) : announcements.length === 0 ? (
-          <Card className="p-8 text-center text-muted-foreground text-sm">
+          <Card className="agri-card p-8 text-center text-muted-foreground text-sm">
             No announcements yet. Create the first one above.
           </Card>
         ) : (
@@ -317,7 +320,7 @@ export default function AnnouncementsPage() {
             {announcements.map((ann) => (
               <Card
                 key={ann._id}
-                className={`p-4 transition-opacity ${ann.isActive ? "" : "opacity-50"}`}
+                className={`agri-card p-4 transition-opacity ${ann.isActive ? "" : "opacity-50"}`}
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0 space-y-1.5">

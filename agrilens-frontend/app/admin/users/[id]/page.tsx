@@ -203,7 +203,7 @@ function AdminUserDetailInner() {
   };
 
   if (loading) {
-    return <div className="text-muted-foreground">Loading profile…</div>;
+    return <div className="text-muted-foreground">Loading profile...</div>;
   }
 
   if (error || !detail) {
@@ -233,8 +233,8 @@ function AdminUserDetailInner() {
           <Button asChild variant="ghost" size="sm" className="mb-2 -ml-2">
             <Link href="/admin/users">← Users</Link>
           </Button>
-          <h1 className="text-2xl font-semibold">{detail.profile.name}</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="agri-page-title">{detail.profile.name}</h1>
+          <p className="agri-page-subtitle">
             {detail.role === "farmer" ? "Farmer" : "Agent"} · {detail.profile.id}
           </p>
         </div>
@@ -257,7 +257,7 @@ function AdminUserDetailInner() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="p-4 space-y-2">
+        <Card className="agri-card p-4 space-y-2">
           <h2 className="text-lg font-semibold">Profile</h2>
           <dl className="text-sm space-y-1">
             <div>
@@ -332,7 +332,7 @@ function AdminUserDetailInner() {
         </Card>
 
         {detail.role === "farmer" && (
-          <Card className="p-4 space-y-2">
+          <Card className="agri-card p-4 space-y-2">
             <h2 className="text-lg font-semibold">Listing & approval stats</h2>
             <p className="text-sm text-muted-foreground">
               Total listings:{" "}
@@ -354,7 +354,7 @@ function AdminUserDetailInner() {
         )}
 
         {detail.role === "agent" && (
-          <Card className="p-4 space-y-2">
+          <Card className="agri-card p-4 space-y-2">
             <h2 className="text-lg font-semibold">Review stats</h2>
             <p className="text-sm">
               Total reviews: {(detail as AgentDetail).reviewStats.totalReviews} · Avg grade:{" "}
@@ -394,7 +394,7 @@ function AdminUserDetailInner() {
       </div>
 
       {detail.role === "farmer" && listings && (
-        <Card className="p-4 space-y-3">
+        <Card className="agri-card p-4 space-y-3">
           <h2 className="text-lg font-semibold">Listings</h2>
           <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
             {Object.entries(listings.breakdown).map(([k, v]) => (
@@ -404,9 +404,9 @@ function AdminUserDetailInner() {
             ))}
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="agri-table text-sm">
               <thead>
-                <tr className="border-b bg-muted/40 text-left">
+                <tr className="text-left">
                   <th className="p-2">Crop</th>
                   <th className="p-2">Status</th>
                   <th className="p-2">Qty</th>
@@ -416,7 +416,7 @@ function AdminUserDetailInner() {
               </thead>
               <tbody>
                 {listings.listings.map((l) => (
-                  <tr key={l.id} className="border-b last:border-0">
+                  <tr key={l.id}>
                     <td className="p-2">{l.cropType}</td>
                     <td className="p-2 capitalize">{l.status}</td>
                     <td className="p-2">
@@ -435,14 +435,14 @@ function AdminUserDetailInner() {
       )}
 
       {detail.role === "farmer" && (
-        <Card className="p-4 space-y-3">
+        <Card className="agri-card p-4 space-y-3">
           <h2 className="text-lg font-semibold">Complaint history</h2>
           {(detail as FarmerDetail).complaints.length === 0 ? (
             <p className="text-sm text-muted-foreground">No complaints on file.</p>
           ) : (
             <ul className="space-y-2 text-sm">
               {(detail as FarmerDetail).complaints.map((c) => (
-                <li key={c.id} className="border rounded-md p-3">
+                <li key={c.id} className="border border-[var(--agri-green-100)] rounded-md p-3 bg-white">
                   <div className="font-medium">{c.subject || "Complaint"}</div>
                   <div className="text-muted-foreground">{c.body}</div>
                   <div className="text-xs mt-1">
@@ -456,12 +456,12 @@ function AdminUserDetailInner() {
       )}
 
       {detail.role === "agent" && (
-        <Card className="p-4 space-y-3">
+        <Card className="agri-card p-4 space-y-3">
           <h2 className="text-lg font-semibold">Recent reviews</h2>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="agri-table text-sm">
               <thead>
-                <tr className="border-b bg-muted/40 text-left">
+                <tr className="text-left">
                   <th className="p-2">When</th>
                   <th className="p-2">Action</th>
                   <th className="p-2">Grade</th>
@@ -470,7 +470,7 @@ function AdminUserDetailInner() {
               </thead>
               <tbody>
                 {(detail as AgentDetail).reviews.map((r) => (
-                  <tr key={r.id} className="border-b last:border-0">
+                  <tr key={r.id}>
                     <td className="p-2 whitespace-nowrap">
                       {r.timestamp ? new Date(r.timestamp).toLocaleString() : "—"}
                     </td>
@@ -574,7 +574,7 @@ function Stat({ label, value }: { label: string; value: number }) {
 
 export default function AdminUserDetailPage() {
   return (
-    <Suspense fallback={<div className="text-muted-foreground p-6">Loading…</div>}>
+    <Suspense fallback={<div className="text-muted-foreground p-6">Loading...</div>}>
       <AdminUserDetailInner />
     </Suspense>
   );

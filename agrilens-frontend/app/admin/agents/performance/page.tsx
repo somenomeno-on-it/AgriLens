@@ -133,16 +133,16 @@ export default function AgentPerformancePage() {
   return (
     <div className="space-y-8 max-w-5xl">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Agent performance</h1>
-        <p className="text-sm text-muted-foreground mt-1">
+        <h1 className="agri-page-title">Agent performance</h1>
+        <p className="agri-page-subtitle">
           Review volume, grades, and approval rates for the selected agent.
         </p>
       </div>
 
       <div>
-        <label className="text-xs font-medium text-muted-foreground">Agent</label>
+        <label className="agri-label">Agent</label>
         <select
-          className="mt-1 flex h-10 w-full max-w-md rounded-md border border-input bg-background px-3 text-sm"
+          className="agri-select mt-1 max-w-md"
           value={agentId}
           onChange={(e) => setAgentId(e.target.value)}
         >
@@ -160,7 +160,7 @@ export default function AgentPerformancePage() {
 
       {data && !loading && (
         <>
-          <Card className="p-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <Card className="agri-card p-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div className="text-sm font-semibold">Agent complaint summary</div>
             <div className="flex items-center gap-2">
               {complaintsBadge}
@@ -174,27 +174,27 @@ export default function AgentPerformancePage() {
           </Card>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Card className="p-4">
+            <Card className="agri-card p-4">
               <p className="text-xs font-medium text-muted-foreground">Total reviews</p>
               <p className="mt-1 text-2xl font-semibold tabular-nums">{data.totalReviews}</p>
             </Card>
-            <Card className="p-4">
+            <Card className="agri-card p-4">
               <p className="text-xs font-medium text-muted-foreground">Avg grade</p>
               <p className="mt-1 text-2xl font-semibold tabular-nums">
                 {data.avgGrade != null ? data.avgGrade : "—"}
               </p>
             </Card>
-            <Card className="p-4">
+            <Card className="agri-card p-4">
               <p className="text-xs font-medium text-muted-foreground">Approval rate</p>
               <p className="mt-1 text-2xl font-semibold tabular-nums">{data.approvalRate}%</p>
             </Card>
-            <Card className="p-4">
+            <Card className="agri-card p-4">
               <p className="text-xs font-medium text-muted-foreground">Pending queue</p>
               <p className="mt-1 text-2xl font-semibold tabular-nums">{data.pendingQueueSize}</p>
             </Card>
           </div>
 
-          <Card className="p-4">
+          <Card className="agri-card p-4">
             <p className="text-xs font-medium text-muted-foreground">Rejection rate</p>
             <p className="mt-1 text-2xl font-semibold tabular-nums">{data.rejectionRate}%</p>
           </Card>
