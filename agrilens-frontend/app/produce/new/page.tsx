@@ -2,13 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { getAuthHeaders } from "@/lib/auth";
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
 
 type Farm = {
   _id: string;
@@ -81,9 +77,7 @@ export default function AddProducePage() {
 
     if (!res.ok) {
       const errText = await res.text();
-      setPhotoError(
-        errText || "Failed to upload photos. Check file type and size."
-      );
+      setPhotoError(errText || "Failed to upload photos. Check file type and size.");
     }
 
     setPhotoUploading(false);
@@ -124,13 +118,14 @@ export default function AddProducePage() {
   };
 
   if (loading) {
-    return <div className="p-6">Loading farms...</div>;
+    return (
+      <div className="agri-page" style={{ maxWidth: "700px" }}>
+        <div className="agri-skeleton" style={{ height: "400px" }} />
+      </div>
+    );
   }
 
-  const handleNumericChange = (
-    field: "quantity" | "pricePerUnit",
-    value: string
-  ) => {
+  const handleNumericChange = (field: "quantity" | "pricePerUnit", value: string) => {
     if (value === "") {
       setForm((prev) => ({ ...prev, [field]: "" }));
       return;
@@ -138,30 +133,28 @@ export default function AddProducePage() {
 
     const cleaned = value.replace(/[^0-9.]/g, "");
     const parts = cleaned.split(".");
-    const normalized =
-      parts.length > 2 ? `${parts[0]}.${parts.slice(1).join("")}` : cleaned;
-
+    const normalized = parts.length > 2 ? `${parts[0]}.${parts.slice(1).join("")}` : cleaned;
     const num = Number(normalized);
-    if (Number.isNaN(num) || num < 0) {
-      return;
-    }
+    if (Number.isNaN(num) || num < 0) return;
 
     setForm((prev) => ({ ...prev, [field]: normalized }));
   };
 
   return (
-    <div className="max-w-xl mx-auto p-6">
-      <Card className="p-6 space-y-4">
-        <h1 className="text-2xl font-semibold mb-2">Add Produce Listing</h1>
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          <div className="space-y-1">
-            <label className="text-sm font-medium">Farm</label>
+    <div className="agri-page" style={{ maxWidth: "700px" }}>
+      <div className="agri-page-header">
+        <h1 className="agri-page-title">Add Produce Listing</h1>
+        <p className="agri-page-subtitle">List a new crop or agricultural product for sale</p>
+      </div>
+
+      <div className="agri-section">
+        <form className="space-y-5" onSubmit={handleSubmit}>
+          <div className="agri-field">
+            <label className="agri-label">Farm Origin</label>
             <select
-              className="border rounded px-3 py-2 w-full text-sm"
+              className="agri-select"
               value={form.farmId}
-              onChange={(e) =>
-                setForm((prev) => ({ ...prev, farmId: e.target.value }))
-              }
+              onChange={(e) => setForm((prev) => ({ ...prev, farmId: e.target.value }))}
             >
               <option value="">Select a farm (optional)</option>
               {farms.map((farm) => (
@@ -172,140 +165,132 @@ export default function AddProducePage() {
             </select>
           </div>
 
-          <div className="space-y-1">
-            <label className="text-sm font-medium">Crop Type</label>
-            <Input
+          <div className="agri-field">
+            <label className="agri-label">Crop Type</label>
+            <input
+              className="agri-input"
+              style={{ height: "44px", borderRadius: "10px", border: "1.5px solid #bbf7d0", padding: "0 14px" }}
               value={form.cropType}
-              onChange={(e) =>
-                setForm((prev) => ({ ...prev, cropType: e.target.value }))
-              }
+              onChange={(e) => setForm((prev) => ({ ...prev, cropType: e.target.value }))}
               required
+              placeholder="e.g. Boro Rice, Potatoes"
             />
           </div>
 
-          <div className="space-y-1">
-            <label className="text-sm font-medium">Description</label>
-            <Input
+          <div className="agri-field">
+            <label className="agri-label">Description</label>
+            <textarea
+              style={{ borderRadius: "10px", border: "1.5px solid #bbf7d0", padding: "12px 14px", minHeight: "100px", resize: "vertical", width: "100%" }}
               value={form.description}
-              onChange={(e) =>
-                setForm((prev) => ({ ...prev, description: e.target.value }))
-              }
+              onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
+              placeholder="Describe the quality and variety..."
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="text-sm font-medium">
-                Expected Harvest Date
-              </label>
-              <Input
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" }}>
+            <div className="agri-field">
+              <label className="agri-label">Expected Harvest Date</label>
+              <input
                 type="date"
+                style={{ height: "44px", borderRadius: "10px", border: "1.5px solid #bbf7d0", padding: "0 14px", width: "100%" }}
                 value={form.expectedHarvestDate}
-                onChange={(e) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    expectedHarvestDate: e.target.value,
-                  }))
-                }
+                onChange={(e) => setForm((prev) => ({ ...prev, expectedHarvestDate: e.target.value }))}
               />
             </div>
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Availability Start</label>
-              <Input
+            <div className="agri-field">
+              <label className="agri-label">Availability Start</label>
+              <input
                 type="date"
+                style={{ height: "44px", borderRadius: "10px", border: "1.5px solid #bbf7d0", padding: "0 14px", width: "100%" }}
                 value={form.availabilityStart}
-                onChange={(e) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    availabilityStart: e.target.value,
-                  }))
-                }
+                onChange={(e) => setForm((prev) => ({ ...prev, availabilityStart: e.target.value }))}
               />
             </div>
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Availability End</label>
-              <Input
+            <div className="agri-field">
+              <label className="agri-label">Availability End</label>
+              <input
                 type="date"
+                style={{ height: "44px", borderRadius: "10px", border: "1.5px solid #bbf7d0", padding: "0 14px", width: "100%" }}
                 value={form.availabilityEnd}
-                onChange={(e) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    availabilityEnd: e.target.value,
-                  }))
-                }
+                onChange={(e) => setForm((prev) => ({ ...prev, availabilityEnd: e.target.value }))}
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Quantity</label>
-              <Input
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "16px", background: "#f0fdf4", padding: "20px", borderRadius: "12px", border: "1.5px solid #dcfce7" }}>
+            <div className="agri-field">
+              <label className="agri-label">Quantity</label>
+              <input
                 type="text"
+                style={{ height: "44px", borderRadius: "10px", border: "1.5px solid #bbf7d0", padding: "0 14px", width: "100%" }}
                 value={form.quantity}
                 onChange={(e) => handleNumericChange("quantity", e.target.value)}
                 required
+                placeholder="0.00"
               />
             </div>
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Unit</label>
+            <div className="agri-field">
+              <label className="agri-label">Unit</label>
               <select
-                className="border rounded px-3 py-2 w-full text-sm"
+                className="agri-select"
                 value={form.unit}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, unit: e.target.value }))
-                }
+                onChange={(e) => setForm((prev) => ({ ...prev, unit: e.target.value }))}
               >
                 <option value="kg">kg</option>
                 <option value="ton">ton</option>
                 <option value="quintal">quintal</option>
               </select>
             </div>
-            <div className="space-y-1">
-              <label className="text-sm font-medium">Price per unit</label>
-              <Input
+            <div className="agri-field">
+              <label className="agri-label">Price per unit (BDT)</label>
+              <input
                 type="text"
+                style={{ height: "44px", borderRadius: "10px", border: "1.5px solid #bbf7d0", padding: "0 14px", width: "100%" }}
                 value={form.pricePerUnit}
-                onChange={(e) =>
-                  handleNumericChange("pricePerUnit", e.target.value)
-                }
+                onChange={(e) => handleNumericChange("pricePerUnit", e.target.value)}
                 required
+                placeholder="0.00"
               />
             </div>
           </div>
 
-          <div className="space-y-1">
-            <label className="text-sm font-medium">
-              Photos (optional, up to 5)
-            </label>
-            <Input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={(e) => setPhotoFiles(e.target.files)}
-            />
-            {photoError && (
-              <p className="text-sm text-red-600">{photoError}</p>
-            )}
+          <div className="agri-field">
+            <label className="agri-label">Photos (optional, up to 5)</label>
+            <div style={{ position: "relative" }}>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={(e) => setPhotoFiles(e.target.files)}
+                style={{ 
+                  width: "100%", 
+                  padding: "10px", 
+                  background: "#fafaf9", 
+                  border: "1.5px dashed #bbf7d0", 
+                  borderRadius: "10px",
+                  cursor: "pointer",
+                  color: "#44403c"
+                }}
+              />
+            </div>
+            {photoError && <p style={{ color: "#dc2626", fontSize: "0.85rem", marginTop: "4px" }}>{photoError}</p>}
           </div>
 
-          <div className="flex justify-end gap-2 pt-4">
-            <Button
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px", paddingTop: "12px", borderTop: "1px solid #f5f5f4" }}>
+            <button
               type="button"
-              variant="outline"
+              className="agri-btn-outline"
               onClick={() => router.push("/produce")}
               disabled={photoUploading}
             >
               Cancel
-            </Button>
-            <Button type="submit" disabled={photoUploading}>
+            </button>
+            <button type="submit" className="agri-btn-primary" disabled={photoUploading}>
               {photoUploading ? "Saving & uploading photos..." : "Save Listing"}
-            </Button>
+            </button>
           </div>
         </form>
-      </Card>
+      </div>
     </div>
   );
 }
-
-

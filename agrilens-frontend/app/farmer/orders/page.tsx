@@ -9,12 +9,12 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001"
 
 const STATUS_FILTER_OPTIONS = [
   { value: "",                 label: "All Statuses" },
-  { value: "pending",          label: "⏳ Pending" },
-  { value: "confirmed",        label: "✅ Confirmed" },
-  { value: "packaging",        label: "📦 Packaging" },
-  { value: "out_for_delivery", label: "🚚 Out for Delivery" },
-  { value: "delivered",        label: "🎉 Delivered" },
-  { value: "rejected",         label: "❌ Rejected" },
+  { value: "pending",          label: "Pending" },
+  { value: "confirmed",        label: "Confirmed" },
+  { value: "packaging",        label: "Packaging" },
+  { value: "out_for_delivery", label: "Out for Delivery" },
+  { value: "delivered",        label: "Delivered" },
+  { value: "rejected",         label: "Rejected" },
 ];
 
 type Toast = { message: string; type: "success" | "error" };
@@ -29,8 +29,6 @@ function FarmerOrdersInner() {
   const [sortDesc, setSortDesc] = useState(true);
   const [toast, setToast] = useState<Toast | null>(null);
 
-  // ✅ Fix: read user ID once into a ref so it never changes reference
-  // and never ends up in useCallback/useEffect deps as a volatile object.
   const userIdRef = useRef<string | null>(null);
   if (userIdRef.current === null) {
     userIdRef.current = getAuthUser()?.id ?? null;
@@ -65,14 +63,12 @@ function FarmerOrdersInner() {
     } finally {
       setLoading(false);
     }
-  // ✅ Fix: userIdRef.current is stable — only page/statusFilter/showToast drive re-fetches
   }, [page, statusFilter, showToast]);
 
   useEffect(() => {
     fetchOrders();
   }, [fetchOrders]);
 
-  // Optimistic update
   const handleStatusChange = useCallback((orderId: string, newStatus: string, farmerNote?: string) => {
     setOrders((prev) =>
       prev.map((o) => {
@@ -92,228 +88,105 @@ function FarmerOrdersInner() {
   }, [showToast]);
 
   const handleStatusError = useCallback((msg: string) => {
-    fetchOrders(); // revert optimistic update
+    fetchOrders(); 
     showToast(msg, "error");
   }, [fetchOrders, showToast]);
 
-  // Client-side sort
   const sortedOrders = [...orders].sort((a, b) => {
     const diff = new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     return sortDesc ? diff : -diff;
   });
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "linear-gradient(135deg,#f0fdf4 0%,#f8fafc 60%,#f0f9ff 100%)",
-        padding: "24px 16px 48px",
-      }}
-    >
-      <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-
-        {/* Header */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: "12px",
-            marginBottom: "28px",
-          }}
-        >
-          <div>
-            <h1 style={{ fontSize: "1.7rem", fontWeight: 800, color: "#0f172a", margin: 0 }}>
-              📬 Order Inbox
-            </h1>
-            <p style={{ margin: "4px 0 0", fontSize: "0.82rem", color: "#64748b" }}>
-              Manage and update orders from your customers.
-            </p>
-          </div>
-          <Link
-            href="/farmer"
-            style={{
-              padding: "8px 18px",
-              borderRadius: "10px",
-              background: "#f1f5f9",
-              color: "#475569",
-              border: "1.5px solid #e2e8f0",
-              fontSize: "0.82rem",
-              fontWeight: 700,
-              textDecoration: "none",
-            }}
-          >
-            ← Back to Dashboard
-          </Link>
+    <div className="agri-page">
+      <div className="agri-page-header flex items-center justify-between flex-wrap gap-4 mb-4">
+        <div>
+          <h1 className="agri-page-title">Order Inbox</h1>
+          <p className="agri-page-subtitle">Manage and fulfill orders from customers</p>
         </div>
-
-        {/* Toolbar */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "12px",
-            flexWrap: "wrap",
-            marginBottom: "18px",
-            padding: "12px 16px",
-            borderRadius: "12px",
-            background: "#fff",
-            border: "1.5px solid #e2e8f0",
-          }}
-        >
-          {/* Status filter */}
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <label htmlFor="farmer-orders-status-filter" style={{ fontSize: "0.75rem", fontWeight: 700, color: "#64748b" }}>
-              Filter:
-            </label>
-            <select
-              id="farmer-orders-status-filter"
-              value={statusFilter}
-              onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-              style={{
-                padding: "6px 12px",
-                borderRadius: "8px",
-                border: "1.5px solid #e2e8f0",
-                fontSize: "0.8rem",
-                fontWeight: 600,
-                color: "#1e293b",
-                background: "#f8fafc",
-                cursor: "pointer",
-                outline: "none",
-              }}
-            >
-              {STATUS_FILTER_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Sort toggle */}
-          <button
-            onClick={() => setSortDesc((p) => !p)}
-            style={{
-              padding: "6px 14px",
-              borderRadius: "8px",
-              background: "#f1f5f9",
-              border: "1.5px solid #e2e8f0",
-              fontSize: "0.78rem",
-              fontWeight: 700,
-              color: "#475569",
-              cursor: "pointer",
-            }}
-          >
-            {sortDesc ? "↓ Newest First" : "↑ Oldest First"}
-          </button>
-
-          {/* Refresh */}
-          <button
-            onClick={fetchOrders}
-            disabled={loading}
-            style={{
-              padding: "6px 14px",
-              borderRadius: "8px",
-              background: "linear-gradient(135deg,#16a34a,#15803d)",
-              color: "#fff",
-              border: "none",
-              fontSize: "0.78rem",
-              fontWeight: 700,
-              cursor: loading ? "default" : "pointer",
-              opacity: loading ? 0.7 : 1,
-            }}
-          >
-            🔄 Refresh
-          </button>
-
-          <div style={{ marginLeft: "auto", fontSize: "0.75rem", color: "#94a3b8" }}>
-            {total} order{total !== 1 ? "s" : ""}
-          </div>
-        </div>
-
-        {/* Table / loading skeleton */}
-        {loading ? (
-          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-            <style>{`@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }`}</style>
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                style={{
-                  height: "52px",
-                  borderRadius: "10px",
-                  background: "linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%)",
-                  backgroundSize: "200% 100%",
-                  animation: "shimmer 1.5s infinite",
-                }}
-              />
-            ))}
-          </div>
-        ) : (
-          <OrderInboxTable
-            orders={sortedOrders}
-            onStatusChange={handleStatusChange}
-            onStatusError={handleStatusError}
-          />
-        )}
-
-        {/* Pagination */}
-        {!loading && pages > 1 && (
-          <div style={{ display: "flex", justifyContent: "center", gap: "8px", marginTop: "24px" }}>
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page <= 1}
-              style={{
-                padding: "7px 16px", borderRadius: "8px",
-                background: page <= 1 ? "#f1f5f9" : "#fff",
-                border: "1.5px solid #e2e8f0",
-                color: page <= 1 ? "#cbd5e1" : "#475569",
-                fontWeight: 700, fontSize: "0.82rem", cursor: page <= 1 ? "default" : "pointer",
-              }}
-            >
-              ← Prev
-            </button>
-            <span style={{ padding: "7px 14px", fontSize: "0.82rem", color: "#64748b", fontWeight: 600 }}>
-              Page {page} of {pages}
-            </span>
-            <button
-              onClick={() => setPage((p) => Math.min(pages, p + 1))}
-              disabled={page >= pages}
-              style={{
-                padding: "7px 16px", borderRadius: "8px",
-                background: page >= pages ? "#f1f5f9" : "#fff",
-                border: "1.5px solid #e2e8f0",
-                color: page >= pages ? "#cbd5e1" : "#475569",
-                fontWeight: 700, fontSize: "0.82rem", cursor: page >= pages ? "default" : "pointer",
-              }}
-            >
-              Next →
-            </button>
-          </div>
-        )}
+        <Link href="/farmer" className="agri-btn-outline" style={{ textDecoration: "none" }}>
+          Back to Dashboard
+        </Link>
       </div>
 
-      {/* Toast */}
-      {toast && (
-        <div
-          style={{
-            position: "fixed",
-            bottom: "24px",
-            right: "24px",
-            padding: "12px 20px",
-            borderRadius: "12px",
-            background: toast.type === "success"
-              ? "linear-gradient(135deg,#16a34a,#15803d)"
-              : "linear-gradient(135deg,#dc2626,#b91c1c)",
-            color: "#fff",
-            fontSize: "0.85rem",
-            fontWeight: 700,
-            boxShadow: "0 8px 24px rgba(0,0,0,0.18)",
-            zIndex: 10000,
-            maxWidth: "340px",
-          }}
+      <div className="agri-section" style={{ padding: "16px 24px", marginBottom: "24px", display: "flex", alignItems: "center", gap: "16px", flexWrap: "wrap", background: "#f0fdf4", border: "1.5px solid #dcfce7" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <label htmlFor="status-filter" style={{ fontSize: "0.85rem", fontWeight: 700, color: "#14532d" }}>Filter:</label>
+          <select
+            id="status-filter"
+            value={statusFilter}
+            onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+            style={{ padding: "8px 14px", borderRadius: "8px", border: "1px solid #bbf7d0", fontSize: "0.85rem", fontWeight: 600, color: "#1c1917", outline: "none", background: "#fff", cursor: "pointer" }}
+          >
+            {STATUS_FILTER_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+        </div>
+
+        <button
+          onClick={() => setSortDesc((p) => !p)}
+          className="agri-btn-outline"
+          style={{ padding: "8px 16px", border: "1px solid #bbf7d0", background: "#fff" }}
         >
-          {toast.type === "success" ? "✅ " : "❌ "}{toast.message}
+          {sortDesc ? "Newest First" : "Oldest First"}
+        </button>
+
+        <button
+          onClick={fetchOrders}
+          disabled={loading}
+          className="agri-btn-primary"
+          style={{ padding: "8px 16px" }}
+        >
+          Refresh
+        </button>
+
+        <div style={{ marginLeft: "auto", fontSize: "0.85rem", color: "#15803d", fontWeight: 600 }}>
+          {total} order{total !== 1 ? "s" : ""}
+        </div>
+      </div>
+
+      {loading ? (
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="agri-skeleton" style={{ height: "64px", borderRadius: "12px" }} />
+          ))}
+        </div>
+      ) : (
+        <OrderInboxTable
+          orders={sortedOrders}
+          onStatusChange={handleStatusChange}
+          onStatusError={handleStatusError}
+        />
+      )}
+
+      {!loading && pages > 1 && (
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "16px", marginTop: "32px" }}>
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page <= 1}
+            className="agri-btn-outline"
+            style={{ padding: "8px 20px" }}
+          >
+            Previous
+          </button>
+          <span style={{ fontSize: "0.9rem", color: "#44403c", fontWeight: 600 }}>
+            Page {page} of {pages}
+          </span>
+          <button
+            onClick={() => setPage((p) => Math.min(pages, p + 1))}
+            disabled={page >= pages}
+            className="agri-btn-outline"
+            style={{ padding: "8px 20px" }}
+          >
+            Next
+          </button>
+        </div>
+      )}
+
+      {toast && (
+        <div className={`agri-toast ${toast.type === "success" ? "agri-toast-success" : "agri-toast-error"}`}>
+          {toast.message}
         </div>
       )}
     </div>

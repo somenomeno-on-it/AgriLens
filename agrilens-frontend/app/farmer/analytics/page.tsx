@@ -1,9 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   ResponsiveContainer,
   LineChart,
@@ -20,7 +17,7 @@ import { fetchFarmerAnalytics } from "@/lib/analytics";
 import { getAuthHeaders } from "@/lib/auth";
 import LogoutButton from "@/components/LogoutButton";
 
-type ProduceListing = { //produce listing object type
+type ProduceListing = {
   _id: string;
   cropType: string;
   status: "pending" | "approved" | "rejected";
@@ -29,7 +26,7 @@ type ProduceListing = { //produce listing object type
 const API_BASE = 
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
 
-function toISOStart(dateStr: string) { //The function converts the date string to ISO format
+function toISOStart(dateStr: string) {
   const [y, m, d] = dateStr.split("-").map((x) => Number(x));
   const dt = new Date(y, (m || 1) - 1, d || 1, 0, 0, 0, 0);
   return dt.toISOString();
@@ -41,46 +38,42 @@ function toISOEnd(dateStr: string) {
   return dt.toISOString();
 }
 
-function formatDateInput(d: Date) { //The function formats the date input
+function formatDateInput(d: Date) {
   const yyyy = d.getFullYear();
   const mm = String(d.getMonth() + 1).padStart(2, "0");
   const dd = String(d.getDate()).padStart(2, "0");
   return `${yyyy}-${mm}-${dd}`;
 }
 
-export default function FarmerAnalyticsPage() { //The function renders the page
-
-  const defaultEnd = useMemo(() => formatDateInput(new Date()), []); //The function formats the default end date
-  const defaultStart = useMemo(() => { //The function formats the default start date
+export default function FarmerAnalyticsPage() {
+  const defaultEnd = useMemo(() => formatDateInput(new Date()), []);
+  const defaultStart = useMemo(() => {
     const d = new Date(); 
-    d.setDate(d.getDate() - 30); //set the date to 30 days ago
+    d.setDate(d.getDate() - 30);
     return formatDateInput(d);
   }, []);
-//Memory states
+
   const [cropTypes, setCropTypes] = useState<string[]>([]);
   const [cropType, setCropType] = useState<string>("all");
   const [startDate, setStartDate] = useState<string>(defaultStart);
   const [endDate, setEndDate] = useState<string>(defaultEnd);
 
-  const [analytics, setAnalytics] = useState<FarmerAnalyticsResponse | null>(
-    null
-  );
+  const [analytics, setAnalytics] = useState<FarmerAnalyticsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() =>  { //The function loads the crop types and initial analytics
+  useEffect(() =>  {
     const loadCropTypesAndInitialAnalytics = async () => {
       setLoading(true);
       setError(null);
 
       let effectiveCropType = cropType;
       try {
-        const res = await fetch(`${API_BASE}/api/produce`, { //fetch the crop types from the backend
+        const res = await fetch(`${API_BASE}/api/produce`, {
           headers: getAuthHeaders(),
           cache: "no-store", 
         });
-        //set the crop type dropdown
         if (res.ok) {
           const listings: ProduceListing[] = await res.json(); 
           const unique = Array.from(
@@ -98,16 +91,16 @@ export default function FarmerAnalyticsPage() { //The function renders the page
           }
         }
       } catch {
-        // Crop type dropdown will still work with "all".
+        // silently handle
       }
 
       try {
-        const data = await fetchFarmerAnalytics({ //fetch the analytics from the backend
+        const data = await fetchFarmerAnalytics({
           startDate: toISOStart(startDate),
           endDate: toISOEnd(endDate),
           cropType: effectiveCropType,
         });
-        setAnalytics(data); //chart render
+        setAnalytics(data);
       } catch (e) {
         setError(e instanceof Error ? e.message : "Failed to load analytics");
       } finally {
@@ -116,11 +109,10 @@ export default function FarmerAnalyticsPage() { //The function renders the page
     };
 
     loadCropTypesAndInitialAnalytics();
-    // Intentionally only run once for initial defaults.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onUpdate = async () => { //The function updates the analytics
+  const onUpdate = async () => {
     setSubmitting(true); 
     setError(null);
     try {
@@ -137,124 +129,134 @@ export default function FarmerAnalyticsPage() { //The function renders the page
     }
   };
 
-  const priceSeries = analytics?.priceSeries ?? []; //price series data
-  const quantityByCrop = analytics?.quantityByCrop ?? []; //quantity by crop data
+  const priceSeries = analytics?.priceSeries ?? [];
+  const quantityByCrop = analytics?.quantityByCrop ?? [];
 
   return (
-    <div className="max-w-5xl mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between gap-4 flex-wrap">
+    <div className="agri-page space-y-6">
+      <div className="agri-page-header flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-semibold">Produce History & Analytics</h1>
-          <div className="text-sm text-zinc-500">
-            Price trends and quantity summaries based on status changes.
-          </div>
+          <h1 className="agri-page-title">Produce History & Analytics</h1>
+          <p className="agri-page-subtitle">Track price trends and listing quantities over time</p>
         </div>
         <LogoutButton />
       </div>
 
-      <Card className="p-4 space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-          <div className="space-y-1">
-            <label className="text-sm font-medium">Start date</label>
-            <Input
+      <div className="agri-section" style={{ padding: "20px 24px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px", alignItems: "flex-end" }}>
+          <div className="agri-field">
+            <label className="agri-label">Start date</label>
+            <input
               type="date"
+              style={{ height: "42px", borderRadius: "10px", border: "1.5px solid #bbf7d0", padding: "0 12px" }}
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
             />
           </div>
 
-          <div className="space-y-1">
-            <label className="text-sm font-medium">End date</label>
-            <Input
+          <div className="agri-field">
+            <label className="agri-label">End date</label>
+            <input
               type="date"
+              style={{ height: "42px", borderRadius: "10px", border: "1.5px solid #bbf7d0", padding: "0 12px" }}
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
             />
           </div>
 
-          <div className="space-y-1">
-            <label className="text-sm font-medium">Crop type</label>
+          <div className="agri-field">
+            <label className="agri-label">Crop type</label>
             <select
-              className="border rounded px-3 py-2 w-full text-sm"
+              className="agri-select"
+              style={{ height: "42px" }}
               value={cropType}
               onChange={(e) => setCropType(e.target.value)}
             >
               <option value="all">All crops</option>
               {cropTypes.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
+                <option key={c} value={c}>{c}</option>
               ))}
             </select>
           </div>
 
-          <div className="space-y-2">
-            <Button onClick={onUpdate} disabled={submitting}>
-              {submitting ? "Updating..." : "Update analytics"}
-            </Button>
+          <div>
+            <button 
+              className="agri-btn-primary" 
+              style={{ width: "100%", height: "42px", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}
+              onClick={onUpdate} 
+              disabled={submitting}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              {submitting ? "Updating..." : "Update Chart"}
+            </button>
           </div>
         </div>
 
-        {error && <div className="text-sm text-red-600">{error}</div>}
-      </Card>
+        {error && <div style={{ marginTop: "16px", padding: "10px 14px", borderRadius: "10px", background: "#fef2f2", color: "#dc2626", fontSize: "0.85rem", border: "1px solid #fecaca" }}>{error}</div>}
+      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="p-4">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-lg font-semibold">Price over time</h2>
-            <div className="text-sm text-zinc-500">
-              {cropType === "all" ? "All crops" : cropType}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))", gap: "24px" }}>
+        <div className="agri-card" style={{ padding: "24px" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px" }}>
+            <div>
+              <h2 style={{ fontSize: "1.05rem", fontWeight: 700, color: "#1c1917" }}>Price Trend</h2>
+              <p style={{ fontSize: "0.8rem", color: "#78716c", marginTop: "2px" }}>{cropType === "all" ? "Averaged across all crops" : `Historical price for ${cropType}`}</p>
+            </div>
+            <div style={{ padding: "6px 12px", background: "#f0fdf4", borderRadius: "8px", color: "#16a34a", fontSize: "0.75rem", fontWeight: 700 }}>
+              BDT / unit
             </div>
           </div>
           {loading ? (
-            <div className="text-sm text-zinc-500">Loading chart...</div>
+            <div className="agri-skeleton" style={{ height: "300px", borderRadius: "12px" }} />
           ) : priceSeries.length === 0 ? (
-            <div className="text-sm text-zinc-500">
-              No status-change snapshots in the selected range.
+            <div className="agri-empty" style={{ height: "300px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+              <p className="agri-empty-text">No price data available for this range.</p>
             </div>
           ) : (
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={priceSeries} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Line type="monotone" dataKey="price" stroke="#16a34a" dot={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e7e5e4" vertical={false} />
+                <XAxis dataKey="date" stroke="#a8a29e" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="#a8a29e" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(val) => `৳${val}`} />
+                <Tooltip 
+                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}
+                  itemStyle={{ color: '#16a34a', fontWeight: 600 }}
+                />
+                <Line type="monotone" dataKey="price" stroke="#16a34a" strokeWidth={3} dot={{ r: 4, fill: "#16a34a", strokeWidth: 2, stroke: "#fff" }} activeDot={{ r: 6, strokeWidth: 0 }} />
               </LineChart>
             </ResponsiveContainer>
           )}
-        </Card>
+        </div>
 
-        <Card className="p-4">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-lg font-semibold">Quantity per crop</h2>
-            <div className="text-sm text-zinc-500">
-              Based on the latest listing snapshot per crop within the range.
+        <div className="agri-card" style={{ padding: "24px" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyItems: "space-between", marginBottom: "20px" }}>
+            <div>
+              <h2 style={{ fontSize: "1.05rem", fontWeight: 700, color: "#1c1917" }}>Inventory Distribution</h2>
+              <p style={{ fontSize: "0.8rem", color: "#78716c", marginTop: "2px" }}>Current quantity per crop type</p>
             </div>
           </div>
           {loading ? (
-            <div className="text-sm text-zinc-500">Loading chart...</div>
+            <div className="agri-skeleton" style={{ height: "300px", borderRadius: "12px" }} />
           ) : quantityByCrop.length === 0 ? (
-            <div className="text-sm text-zinc-500">
-              No quantity summaries available in the selected range.
+            <div className="agri-empty" style={{ height: "300px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+              <p className="agri-empty-text">No inventory data available for this range.</p>
             </div>
           ) : (
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart
-                data={quantityByCrop}
-                margin={{ top: 5, right: 10, bottom: 30, left: 0 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="cropType" interval={0} angle={-30} textAnchor="end" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="quantity" fill="#f97316" />
+              <BarChart data={quantityByCrop} margin={{ top: 5, right: 10, bottom: 30, left: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e7e5e4" vertical={false} />
+                <XAxis dataKey="cropType" stroke="#a8a29e" fontSize={12} tickLine={false} axisLine={false} interval={0} angle={-30} textAnchor="end" />
+                <YAxis stroke="#a8a29e" fontSize={12} tickLine={false} axisLine={false} />
+                <Tooltip 
+                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}
+                  cursor={{ fill: '#f0fdf4' }}
+                />
+                <Bar dataKey="quantity" fill="#fbbf24" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           )}
-        </Card>
+        </div>
       </div>
     </div>
   );
 }
-

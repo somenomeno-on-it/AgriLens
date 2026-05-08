@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { ProduceCard, ProduceListing } from "@/components/ProduceCard";
 import { getAuthHeaders } from "@/lib/auth";
 import LogoutButton from "@/components/LogoutButton";
@@ -70,22 +69,35 @@ export default function ProduceListingsPage() {
   };
 
   if (loading) {
-    return <div className="p-6">Loading produce listings...</div>;
+    return (
+      <div className="agri-page space-y-6">
+        <div className="agri-page-header">
+          <div className="agri-skeleton" style={{ height: "40px", width: "240px", marginBottom: "8px" }} />
+        </div>
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="agri-skeleton" style={{ height: "160px", borderRadius: "16px" }} />
+          ))}
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-5xl mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">My Produce Listings</h1>
-        <div className="flex items-center gap-2">
-          <Button asChild>
-            <Link href="/produce/new">New Listing</Link>
-          </Button>
-          <LogoutButton />
+    <div className="agri-page space-y-6">
+      <div className="agri-page-header flex items-center justify-between">
+        <div>
+          <h1 className="agri-page-title">My Produce Listings</h1>
+          <p className="agri-page-subtitle">Manage the produce you are selling</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Link href="/produce/new" className="agri-btn-primary" style={{ textDecoration: "none" }}>
+            + New Listing
+          </Link>
         </div>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-4">
         {listings.map((listing) => (
           <ProduceCard
             key={listing._id}
@@ -95,13 +107,20 @@ export default function ProduceListingsPage() {
           />
         ))}
         {listings.length === 0 && (
-          <div className="text-sm text-zinc-500">
-            You have no produce listings yet.
+          <div className="agri-empty">
+            <div className="agri-empty-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+              </svg>
+            </div>
+            <h3 className="agri-empty-title">No produce listings yet</h3>
+            <p className="agri-empty-text">Start selling by adding your first agricultural product</p>
+            <Link href="/produce/new" className="agri-btn-outline" style={{ display: "inline-block", marginTop: "16px", textDecoration: "none" }}>
+              Add First Listing
+            </Link>
           </div>
         )}
       </div>
     </div>
   );
 }
-
-
