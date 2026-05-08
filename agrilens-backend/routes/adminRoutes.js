@@ -4,6 +4,7 @@ const requireAdmin = require("../middleware/requireAdmin");
 const trackActivity = require("../middleware/trackActivity");
 const { getAdminDashboard } = require("../controllers/adminDashboardController");
 const { getAdminMetrics } = require("../controllers/adminMetricsController");
+const { getAdminMapFarms } = require("../controllers/publicMapController");
 const {
   listUsers,
   getUserDetail,
@@ -22,6 +23,7 @@ router.get("/dashboard", getAdminDashboard);
 
 // GET /api/admin/metrics
 router.get("/metrics", getAdminMetrics);
+router.get("/map/farms", getAdminMapFarms);
 
 // User management
 router.get("/users", listUsers);

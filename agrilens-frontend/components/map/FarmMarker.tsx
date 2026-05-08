@@ -11,6 +11,8 @@ type ProduceListItem = {
 
 export type PublicFarm = {
   id: string;
+  farmName?: string;
+  address?: string;
   district: string;
   upazila: string;
   distance?: number;
@@ -44,7 +46,13 @@ function formatHarvestDate(value: string | null | undefined) {
   return d.toLocaleDateString();
 }
 
-export function FarmMarker({ farm }: { farm: PublicFarm }) {
+export function FarmMarker({
+  farm,
+  showFarmDetails = false,
+}: {
+  farm: PublicFarm;
+  showFarmDetails?: boolean;
+}) {
   const lat = farm.coordinates?.lat;
   const lng = farm.coordinates?.lng;
   if (typeof lat !== "number" || typeof lng !== "number") return null;
@@ -55,9 +63,12 @@ export function FarmMarker({ farm }: { farm: PublicFarm }) {
         <div className="space-y-2">
           <div>
             <div className="text-sm font-semibold leading-snug">Produce availability</div>
-            <div className="text-xs text-muted-foreground">
-              {farm.district}, {farm.upazila}
-            </div>
+            {showFarmDetails ? (
+              <div className="text-xs text-muted-foreground">
+                {farm.farmName ? <div>{farm.farmName}</div> : null}
+                {farm.address ? <div>{farm.address}</div> : null}
+              </div>
+            ) : null}
           </div>
           <div className="space-y-1">
             {farm.produceList.map((item, idx) => (

@@ -120,6 +120,9 @@ export default function GuestMapClient({
   mapCenter,
   setMapCenter,
   showFarms = true,
+  showFarmDetails = false,
+  farmsEndpoint = "/api/public/farms",
+  requestHeaders,
 }: {
   district: string;
   setDistrict: (v: string) => void;
@@ -130,6 +133,9 @@ export default function GuestMapClient({
   mapCenter: [number, number];
   setMapCenter: (v: [number, number]) => void;
   showFarms?: boolean;
+  showFarmDetails?: boolean;
+  farmsEndpoint?: string;
+  requestHeaders?: HeadersInit;
 }) {
   const [farms, setFarms] = useState<PublicFarm[]>([]);
   const [produceQuery, setProduceQuery] = useState("");
@@ -164,8 +170,9 @@ export default function GuestMapClient({
           query.append("radius", radius.toString());
         }
 
-        const res = await fetch(`${API_BASE}/api/public/farms?${query.toString()}`, {
+        const res = await fetch(`${API_BASE}${farmsEndpoint}?${query.toString()}`, {
           cache: "no-store",
+          headers: requestHeaders,
         });
         if (!res.ok) throw new Error("Failed to load farms");
         const data = (await res.json()) as PublicFarm[];
@@ -180,7 +187,7 @@ export default function GuestMapClient({
       cancelled = true;
       clearTimeout(timeout);
     };
-  }, [district, upazila, radius, mapCenter, produceQuery, showFarms]);
+  }, [district, upazila, radius, mapCenter, produceQuery, showFarms, farmsEndpoint, requestHeaders]);
 
   const fitTriggerKey = useMemo(
     () => JSON.stringify({ district, upazila, produce: produceQuery.trim() }),
@@ -327,7 +334,11 @@ export default function GuestMapClient({
           )}
 
           {showFarms && farms.map((farm) => (
-            <FarmMarker key={farm.id} farm={farm} />
+            <FarmMarker
+              key={farm.id}
+              farm={farm}
+              showFarmDetails={showFarmDetails}
+            />
           ))}
         </MapContainer>
       </div>
