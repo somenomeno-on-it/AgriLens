@@ -85,14 +85,14 @@ export default function ModerationQueue() {
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
-      <h1 className="text-2xl font-bold">Moderation Queue</h1>
-      <p className="text-muted-foreground text-sm">Listings flagged by agents for admin review.</p>
+      <h1 className="agri-page-title">Moderation Queue</h1>
+      <p className="agri-page-subtitle">Listings flagged by agents for admin review.</p>
 
-      {error && <div className="text-red-600 bg-red-100 p-3 rounded">{error}</div>}
+      {error && <div className="agri-alert agri-alert-error">{error}</div>}
 
-      <Card className="overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-muted/50 border-b">
+      <Card className="agri-card overflow-hidden">
+        <table className="agri-table text-sm">
+          <thead>
             <tr>
               <th className="p-4 text-left font-medium">Crop</th>
               <th className="p-4 text-left font-medium">Farmer</th>
@@ -112,7 +112,7 @@ export default function ModerationQueue() {
               </tr>
             ) : (
               listings.map((l) => (
-                <tr key={l.id} className="border-b last:border-0 hover:bg-muted/30">
+                <tr key={l.id}>
                   <td className="p-4">{l.cropType}</td>
                   <td className="p-4">{l.farmerId?.fullName || "Unknown"}</td>
                   <td className="p-4">{l.flaggedAt ? new Date(l.flaggedAt).toLocaleDateString() : ""}</td>
@@ -134,13 +134,13 @@ export default function ModerationQueue() {
 
       {isRemoveDialogOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-background border rounded-lg shadow-xl max-w-md w-full p-6 animate-in fade-in zoom-in-95">
+          <div className="bg-background border border-[var(--agri-green-200)] rounded-lg shadow-xl max-w-md w-full p-6 animate-in fade-in zoom-in-95">
             <h2 className="text-lg font-bold mb-4">Remove Listing</h2>
             <p className="text-sm text-muted-foreground mb-4">
               Please provide a reason for removing this listing. This will be logged.
             </p>
             <textarea
-              className="w-full min-h-[100px] p-3 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full min-h-[100px] p-3 text-sm border border-[var(--agri-green-200)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--agri-green-500)]"
               placeholder="Reason for removal..."
               value={removeReason}
               onChange={(e) => setRemoveReason(e.target.value)}

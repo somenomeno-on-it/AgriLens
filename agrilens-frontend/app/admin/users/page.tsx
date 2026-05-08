@@ -84,8 +84,8 @@ function AdminUsersPageInner() {
   return (
     <div className="space-y-6 max-w-6xl">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">User management</h1>
-        <p className="text-sm text-muted-foreground mt-1">
+        <h1 className="agri-page-title">User management</h1>
+        <p className="agri-page-subtitle">
           Search farmers and agents, view activity summary, and open profiles.
         </p>
       </div>
@@ -107,22 +107,22 @@ function AdminUsersPageInner() {
         </Button>
       </div>
 
-      <Card className="p-4 flex flex-col sm:flex-row gap-3 sm:items-center">
+      <Card className="agri-card p-4 flex flex-col sm:flex-row gap-3 sm:items-center">
         <Input
           placeholder="Search name, email, or user id…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="max-w-md"
+          className="max-w-md agri-input"
         />
         <span className="text-sm text-muted-foreground">
           {total} total · page {page} of {Math.max(totalPages, 1)}
         </span>
       </Card>
 
-      <Card className="overflow-x-auto">
-        <table className="w-full text-sm">
+      <Card className="agri-card overflow-x-auto">
+        <table className="agri-table text-sm">
           <thead>
-            <tr className="border-b bg-muted/50 text-left">
+            <tr className="text-left">
               <th className="p-3 font-medium">Name</th>
               <th className="p-3 font-medium">Email</th>
               <th className="p-3 font-medium">Role</th>
@@ -149,7 +149,7 @@ function AdminUsersPageInner() {
               </tr>
             ) : (
               rows.map((u) => (
-                <tr key={u.id} className="border-b last:border-0 hover:bg-muted/30">
+                <tr key={u.id}>
                   <td className="p-3 font-medium">{u.name || "—"}</td>
                   <td className="p-3 text-muted-foreground">{u.email || "—"}</td>
                   <td className="p-3">

@@ -160,10 +160,10 @@ export default function AdminDashboardPage() {
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="agri-hero flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">System Dashboard</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <h1 className="agri-page-title">System Dashboard</h1>
+          <p className="agri-page-subtitle">
             Platform-wide overview — auto-refreshes every 60 seconds.
           </p>
         </div>
@@ -176,7 +176,7 @@ export default function AdminDashboardPage() {
           )}
           <button
             onClick={fetchAll}
-            className="mt-1 text-xs underline underline-offset-2 text-muted-foreground hover:text-foreground transition-colors"
+            className="mt-1 text-xs underline underline-offset-2 text-[var(--agri-green-700)] hover:text-[var(--agri-green-900)] transition-colors"
           >
             Refresh now
           </button>
@@ -187,7 +187,7 @@ export default function AdminDashboardPage() {
       {error && (
         <div
           role="alert"
-          className="rounded-md border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+          className="agri-alert agri-alert-error"
         >
           {error}
         </div>
@@ -274,7 +274,7 @@ export default function AdminDashboardPage() {
           <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             Latest Approved Listings
           </h2>
-          <Card className="overflow-hidden">
+          <Card className="agri-card overflow-hidden">
             {loading ? (
               <div className="p-4 space-y-3">
                 {Array.from({ length: 5 }).map((_, i) => (
@@ -286,8 +286,8 @@ export default function AdminDashboardPage() {
                 ))}
               </div>
             ) : (
-              <table className="w-full text-sm">
-                <thead className="bg-muted/50">
+              <table className="agri-table text-sm">
+                <thead>
                   <tr>
                     <th className="p-3 text-left font-medium">Produce</th>
                     <th className="p-3 text-left font-medium">Farmer</th>
@@ -303,7 +303,7 @@ export default function AdminDashboardPage() {
                     </tr>
                   )}
                   {dashboard?.latestApprovedListings.map((listing) => (
-                    <tr key={listing.id} className="border-t">
+                    <tr key={listing.id}>
                       <td className="p-3 font-medium">{listing.produceName}</td>
                       <td className="p-3 text-muted-foreground">{listing.farmerName}</td>
                       <td className="p-3 text-muted-foreground whitespace-nowrap">
@@ -324,7 +324,7 @@ export default function AdminDashboardPage() {
           <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             Latest Agents
           </h2>
-          <Card className="overflow-hidden">
+          <Card className="agri-card overflow-hidden">
             {loading ? (
               <div className="p-4 space-y-3">
                 {Array.from({ length: 5 }).map((_, i) => (
@@ -337,8 +337,8 @@ export default function AdminDashboardPage() {
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-sm min-w-[520px]">
-                  <thead className="bg-muted/50">
+                <table className="agri-table text-sm min-w-[520px]">
+                  <thead>
                     <tr>
                       <th className="p-3 text-left font-medium">Name</th>
                       <th className="p-3 text-left font-medium">Email</th>
@@ -355,7 +355,7 @@ export default function AdminDashboardPage() {
                       </tr>
                     )}
                     {dashboard?.latestAgents.map((agent, idx) => (
-                      <tr key={idx} className="border-t">
+                      <tr key={idx}>
                         <td className="p-3 font-medium">
                           {agent.name || <span className="text-muted-foreground italic">—</span>}
                         </td>
@@ -392,7 +392,7 @@ export default function AdminDashboardPage() {
       {/* Active Users Summary Card */}
       {!loading && dashboard && (
         <section aria-label="Active users summary">
-          <Card className="p-5 flex items-center gap-4">
+          <Card className="agri-card p-5 flex items-center gap-4">
             <div className="rounded-lg bg-indigo-100 p-3 text-indigo-700 shrink-0">
               <UserCheck className="h-6 w-6" />
             </div>

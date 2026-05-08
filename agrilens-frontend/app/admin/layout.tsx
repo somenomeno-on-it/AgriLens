@@ -32,14 +32,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <AdminRoute>
-      <div className="flex min-h-screen">
+      <div className="agri-admin-shell flex min-h-screen">
         {/* ── Sidebar ── */}
-        <aside className="w-60 shrink-0 border-r bg-card flex flex-col">
-          <div className="px-6 py-5 border-b">
-            <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+        <aside className="agri-admin-sidebar w-64 shrink-0 flex flex-col">
+          <div className="px-6 py-5 border-b border-white/10">
+            <span className="text-xs font-semibold uppercase tracking-widest text-emerald-100/80">
               Admin Panel
             </span>
-            <p className="mt-0.5 text-lg font-bold text-foreground leading-tight">
+            <p className="mt-0.5 text-lg font-bold text-white leading-tight">
               AgriLens
             </p>
           </div>
@@ -51,12 +51,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <Link
                   key={href}
                   href={href}
-                  className={`flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors
-                    ${
-                      isActive
-                        ? "bg-primary text-primary-foreground"
-                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                    }`}
+                  className={`agri-admin-nav-link ${isActive ? "agri-admin-nav-link-active" : ""}`}
                 >
                   <Icon className="h-4 w-4 shrink-0" />
                   {label}
@@ -65,14 +60,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             })}
           </nav>
 
-          <div className="px-6 py-4 border-t">
-            <p className="text-xs text-muted-foreground">AgriLens Admin v1.0</p>
+          <div className="px-6 py-4 border-t border-white/10">
+            <p className="text-xs text-emerald-100/70">AgriLens Admin v1.0</p>
           </div>
         </aside>
 
         {/* ── Main content ── */}
         <div className="flex-1 flex flex-col min-w-0">
-          <header className="sticky top-0 z-10 border-b bg-background px-8 py-4 flex items-center justify-between">
+          <header className="agri-admin-topbar px-8 py-4 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
               {navItems.find((n) => pathname === n.href)?.label ?? "Admin"}
             </h2>
@@ -84,7 +79,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <LogoutButton />
             </div>
           </header>
-          <main className="flex-1 p-8">{children}</main>
+          <main className="flex-1 p-8">
+            <div className="agri-admin-page">{children}</div>
+          </main>
         </div>
       </div>
     </AdminRoute>

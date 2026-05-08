@@ -40,33 +40,15 @@ export default function OrderStatusCard({ order }: { order: CustomerOrder }) {
   });
 
   return (
-    <div
-      style={{
-        borderRadius: "16px",
-        background: "#ffffff",
-        border: "1.5px solid #e2e8f0",
-        padding: "20px",
-        boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
-        transition: "box-shadow 0.2s, transform 0.2s",
-      }}
-      onMouseEnter={(e) => {
-        (e.currentTarget as HTMLDivElement).style.boxShadow = "0 6px 24px rgba(0,0,0,0.10)";
-        (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)";
-      }}
-      onMouseLeave={(e) => {
-        (e.currentTarget as HTMLDivElement).style.boxShadow = "0 2px 12px rgba(0,0,0,0.06)";
-        (e.currentTarget as HTMLDivElement).style.transform = "";
-      }}
-    >
+    <div className="agri-card" style={{ padding: "20px" }}>
       {/* Header row */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "8px" }}>
         <div>
-          <div style={{ fontSize: "1.05rem", fontWeight: 700, color: "#0f172a" }}>
-            🌾 {order.produceName}
+          <div style={{ fontSize: "1.05rem", fontWeight: 700, color: "var(--agri-warm-900)" }}>
+            {order.produceName}
           </div>
-          <div style={{ fontSize: "0.8rem", color: "#64748b", marginTop: "2px" }}>
-            {order.farmName ? `${order.farmName}` : ""}
-            {order.district ? ` · ${order.district}` : ""}
+          <div style={{ fontSize: "0.8rem", color: "var(--agri-warm-500)", marginTop: "2px" }}>
+            {[order.farmName, order.district].filter(Boolean).join(", ")}
           </div>
         </div>
 
@@ -96,18 +78,18 @@ export default function OrderStatusCard({ order }: { order: CustomerOrder }) {
           marginTop: "14px",
           padding: "12px",
           borderRadius: "10px",
-          background: "#f8fafc",
+          background: "linear-gradient(135deg,#f0fdf4,#fafaf9)",
         }}
       >
         <div>
-          <div style={{ fontSize: "0.65rem", color: "#94a3b8", fontWeight: 600, textTransform: "uppercase" }}>Quantity</div>
-          <div style={{ fontSize: "0.9rem", fontWeight: 700, color: "#1e293b" }}>
+          <div style={{ fontSize: "0.65rem", color: "var(--agri-warm-500)", fontWeight: 600, textTransform: "uppercase" }}>Quantity</div>
+          <div style={{ fontSize: "0.9rem", fontWeight: 700, color: "var(--agri-warm-900)" }}>
             {order.orderedQty} {order.unit}
           </div>
         </div>
         <div>
-          <div style={{ fontSize: "0.65rem", color: "#94a3b8", fontWeight: 600, textTransform: "uppercase" }}>Price / Unit</div>
-          <div style={{ fontSize: "0.9rem", fontWeight: 700, color: "#1e293b" }}>
+          <div style={{ fontSize: "0.65rem", color: "var(--agri-warm-500)", fontWeight: 600, textTransform: "uppercase" }}>Price / Unit</div>
+          <div style={{ fontSize: "0.9rem", fontWeight: 700, color: "var(--agri-warm-900)" }}>
             ৳{order.priceAtOrder.toLocaleString("en-BD")}
           </div>
         </div>
@@ -118,8 +100,8 @@ export default function OrderStatusCard({ order }: { order: CustomerOrder }) {
           </div>
         </div>
         <div>
-          <div style={{ fontSize: "0.65rem", color: "#94a3b8", fontWeight: 600, textTransform: "uppercase" }}>Order Date</div>
-          <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "#1e293b" }}>
+          <div style={{ fontSize: "0.65rem", color: "var(--agri-warm-500)", fontWeight: 600, textTransform: "uppercase" }}>Order Date</div>
+          <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--agri-warm-900)" }}>
             {orderDate}
           </div>
         </div>
@@ -140,12 +122,12 @@ export default function OrderStatusCard({ order }: { order: CustomerOrder }) {
             marginTop: "14px",
             padding: "12px 16px",
             borderRadius: "10px",
-            background: "linear-gradient(135deg,#fef2f2,#fee2e2)",
+            background: "linear-gradient(135deg,#fff1f2,#fee2e2)",
             border: "1.5px solid #fca5a5",
           }}
         >
           <div style={{ fontSize: "0.73rem", fontWeight: 700, color: "#dc2626", marginBottom: "4px" }}>
-            📝 Farmer&apos;s Note
+            Farmer&apos;s Note
           </div>
           <div style={{ fontSize: "0.82rem", color: "#b91c1c", lineHeight: 1.5 }}>
             {order.farmerNote}

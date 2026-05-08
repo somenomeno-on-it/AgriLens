@@ -29,12 +29,12 @@ export default function ModerationLog() {
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
-      <h1 className="text-2xl font-bold">Moderation Log</h1>
-      <p className="text-muted-foreground text-sm">History of removals and reinstatements.</p>
+      <h1 className="agri-page-title">Moderation Log</h1>
+      <p className="agri-page-subtitle">History of removals and reinstatements.</p>
 
-      <Card className="overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-muted/50 border-b">
+      <Card className="agri-card overflow-hidden">
+        <table className="agri-table text-sm">
+          <thead>
             <tr>
               <th className="p-4 text-left font-medium">Action</th>
               <th className="p-4 text-left font-medium">Admin</th>
@@ -54,7 +54,7 @@ export default function ModerationLog() {
               </tr>
             ) : (
               logs.map((log) => (
-                <tr key={log.id} className="border-b last:border-0 hover:bg-muted/30">
+                <tr key={log.id}>
                   <td className="p-4">
                     <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
                       log.action === "admin_remove_listing" 

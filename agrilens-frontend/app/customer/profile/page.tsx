@@ -1,10 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { getAuthHeaders } from "@/lib/auth";
 import LogoutButton from "@/components/LogoutButton";
 import CustomerRoute from "@/components/CustomerRoute";
@@ -31,8 +27,7 @@ type CustomerProfile = {
   address: CustomerAddress;
 };
 
-const selectClass =
-  "flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm disabled:opacity-50 disabled:cursor-not-allowed";
+const selectClass = "agri-select disabled:opacity-50 disabled:cursor-not-allowed";
 
 function CustomerProfileInner() {
   const [profile, setProfile] = useState<CustomerProfile | null>(null);
@@ -124,30 +119,42 @@ function CustomerProfileInner() {
   };
 
   if (loading) {
-    return <div className="p-6">Loading profile...</div>;
+    return (
+      <div className="agri-customer-shell">
+        <div className="agri-page">
+          <div className="agri-skeleton" style={{ height: "120px", marginBottom: "16px" }} />
+          <div className="agri-skeleton" style={{ height: "360px" }} />
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">My Profile</h1>
+    <div className="agri-customer-shell">
+      <div className="agri-page space-y-6">
+      <div className="agri-hero flex items-center justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="agri-page-title">My Profile</h1>
+          <p className="agri-page-subtitle">Manage your personal details and delivery preferences.</p>
+        </div>
         <LogoutButton />
       </div>
 
       {profile?.email && (
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-[var(--agri-warm-500)]">
           Signed in as <span className="font-medium">{profile.email}</span>
         </p>
       )}
 
-      <Card className="p-6 space-y-4">
-        <h2 className="text-lg font-semibold">Personal Information</h2>
+      <section className="agri-section space-y-4">
+        <h2 className="agri-section-title">Personal Information</h2>
 
         <div className="grid gap-4">
           <div className="grid gap-2">
-            <Label htmlFor="name">Full Name</Label>
-            <Input
+            <label className="agri-label" htmlFor="name">Full Name</label>
+            <input
               id="name"
+              className="agri-input"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               placeholder="Your full name"
@@ -155,26 +162,28 @@ function CustomerProfileInner() {
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="phone">Phone</Label>
-            <Input
+            <label className="agri-label" htmlFor="phone">Phone</label>
+            <input
               id="phone"
+              className="agri-input"
               value={form.phone}
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
               placeholder="Your phone number"
             />
           </div>
         </div>
-      </Card>
+      </section>
 
-      <Card className="p-6 space-y-4">
-        <h2 className="text-lg font-semibold">Address</h2>
+      <section className="agri-section space-y-4">
+        <h2 className="agri-section-title">Address</h2>
 
         <div className="grid gap-4 sm:grid-cols-2">
           {/* Division — free text */}
           <div className="grid gap-2">
-            <Label htmlFor="division">Division</Label>
-            <Input
+            <label className="agri-label" htmlFor="division">Division</label>
+            <input
               id="division"
+              className="agri-input"
               value={form.division}
               onChange={(e) => setForm({ ...form, division: e.target.value })}
               placeholder="e.g. Dhaka"
@@ -183,7 +192,7 @@ function CustomerProfileInner() {
 
           {/* District — dropdown */}
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-zinc-500">District</label>
+            <label className="agri-label">District</label>
             <select
               className={selectClass}
               value={form.district}
@@ -200,7 +209,7 @@ function CustomerProfileInner() {
 
           {/* Upazila — dropdown, disabled until district picked */}
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-zinc-500">Upazila</label>
+            <label className="agri-label">Upazila</label>
             <select
               className={selectClass}
               value={form.upazila}
@@ -218,23 +227,25 @@ function CustomerProfileInner() {
 
           {/* Street / details — free text */}
           <div className="grid gap-2">
-            <Label htmlFor="details">Street / Details</Label>
-            <Input
+            <label className="agri-label" htmlFor="details">Street / Details</label>
+            <input
               id="details"
+              className="agri-input"
               value={form.details}
               onChange={(e) => setForm({ ...form, details: e.target.value })}
               placeholder="Street address, house no., etc."
             />
           </div>
         </div>
-      </Card>
+      </section>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      {success && <p className="text-sm text-green-600">{success}</p>}
+      {error && <p className="agri-alert agri-alert-error">{error}</p>}
+      {success && <p className="agri-alert agri-alert-success">{success}</p>}
 
-      <Button onClick={saveProfile} disabled={saving} className="w-full">
+      <button onClick={saveProfile} disabled={saving} className="agri-btn-primary w-full !py-3">
         {saving ? "Saving..." : "Save Profile"}
-      </Button>
+      </button>
+      </div>
     </div>
   );
 }

@@ -11,7 +11,16 @@ function CustomerMarketplaceInner() {
     router.replace("/marketplace");
   }, [router]);
 
-  return <div className="p-6">Redirecting to marketplace...</div>;
+  return (
+    <div className="agri-customer-shell">
+      <div className="agri-page">
+        <div className="agri-empty">
+          <div className="agri-empty-title">Redirecting to marketplace...</div>
+          <div className="agri-empty-text">Please wait while we prepare fresh listings for you.</div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function CustomerMarketplacePage() {

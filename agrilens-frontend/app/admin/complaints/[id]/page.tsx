@@ -140,8 +140,8 @@ export default function ComplaintDetailPage() {
     <div className="space-y-6 max-w-4xl">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Complaint detail</h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <h1 className="agri-page-title">Complaint detail</h1>
+          <p className="agri-page-subtitle">
             Review evidence and respond to the farmer.
           </p>
         </div>
@@ -150,12 +150,12 @@ export default function ComplaintDetailPage() {
         </Button>
       </div>
 
-      {error && <div className="text-sm text-red-600">{error}</div>}
-      {loading && <div className="text-sm text-muted-foreground">Loading…</div>}
+      {error && <div className="agri-alert agri-alert-error">{error}</div>}
+      {loading && <div className="text-sm text-muted-foreground">Loading...</div>}
 
       {!loading && complaint && (
         <>
-          <Card className="p-5 space-y-2">
+          <Card className="agri-card p-5 space-y-2">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <div className="text-lg font-semibold">{complaint.subject}</div>
@@ -183,12 +183,12 @@ export default function ComplaintDetailPage() {
             </div>
           </Card>
 
-          <Card className="p-5 space-y-3">
+          <Card className="agri-card p-5 space-y-3">
             <div className="text-sm font-semibold">Description</div>
             <p className="text-sm text-muted-foreground whitespace-pre-wrap">{complaint.description}</p>
           </Card>
 
-          <Card className="p-5 space-y-3">
+          <Card className="agri-card p-5 space-y-3">
             <div className="text-sm font-semibold">Evidence</div>
             {evidence.length === 0 && (
               <div className="text-sm text-muted-foreground">No evidence attached.</div>
@@ -214,7 +214,7 @@ export default function ComplaintDetailPage() {
             )}
           </Card>
 
-          <Card className="p-5 space-y-4">
+          <Card className="agri-card p-5 space-y-4">
             <div className="flex items-center justify-between">
               <div className="text-sm font-semibold">Admin response</div>
               {(complaint.status === "pending" || complaint.status === "under_review") && (
@@ -225,7 +225,7 @@ export default function ComplaintDetailPage() {
             </div>
 
             <textarea
-              className="w-full min-h-[140px] rounded-md border p-2 text-sm"
+              className="w-full min-h-[140px] rounded-md border border-[var(--agri-green-200)] p-2 text-sm"
               placeholder="Write your response to the farmer…"
               value={response}
               onChange={(e) => setResponse(e.target.value)}
@@ -236,7 +236,7 @@ export default function ComplaintDetailPage() {
               <div className="flex items-center gap-2">
                 <label className="text-xs font-medium text-muted-foreground">Final status</label>
                 <select
-                  className="flex h-10 rounded-md border border-input bg-background px-3 text-sm"
+                  className="agri-select"
                   value={finalStatus}
                   onChange={(e) => setFinalStatus(e.target.value as "resolved" | "dismissed")}
                   disabled={saving}

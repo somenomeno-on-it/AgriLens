@@ -96,13 +96,13 @@ export default function AdminComplaintsPage() {
   return (
     <div className="space-y-6 max-w-6xl">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Complaints inbox</h1>
-        <p className="text-sm text-muted-foreground mt-1">
+        <h1 className="agri-page-title">Complaints inbox</h1>
+        <p className="agri-page-subtitle">
           Review farmer complaints against agents and respond or update status.
         </p>
       </div>
 
-      <Card className="p-4 flex flex-col gap-3 md:flex-row md:items-end">
+      <Card className="agri-card p-4 flex flex-col gap-3 md:flex-row md:items-end">
         <div className="flex-1">
           <label className="text-xs font-medium text-muted-foreground">Filter by agentId</label>
           <Input
@@ -113,9 +113,9 @@ export default function AdminComplaintsPage() {
           />
         </div>
         <div>
-          <label className="text-xs font-medium text-muted-foreground">Status</label>
+          <label className="agri-label">Status</label>
           <select
-            className="mt-1 flex h-10 rounded-md border border-input bg-background px-3 text-sm"
+            className="agri-select mt-1"
             value={status}
             onChange={(e) => setStatus(e.target.value)}
           >
@@ -127,9 +127,9 @@ export default function AdminComplaintsPage() {
           </select>
         </div>
         <div>
-          <label className="text-xs font-medium text-muted-foreground">Sort</label>
+          <label className="agri-label">Sort</label>
           <select
-            className="mt-1 flex h-10 rounded-md border border-input bg-background px-3 text-sm"
+            className="agri-select mt-1"
             value={sort}
             onChange={(e) => setSort(e.target.value as "newest" | "oldest")}
           >
@@ -139,14 +139,14 @@ export default function AdminComplaintsPage() {
         </div>
       </Card>
 
-      {error && <div className="text-sm text-red-600">{error}</div>}
+      {error && <div className="agri-alert agri-alert-error">{error}</div>}
       {loading && <div className="text-sm text-muted-foreground">Loading…</div>}
 
       {!loading && (
-        <Card className="p-0 overflow-x-auto">
-          <table className="w-full text-sm">
+        <Card className="agri-card p-0 overflow-x-auto">
+          <table className="agri-table text-sm">
             <thead>
-              <tr className="border-b bg-muted/40 text-left">
+              <tr className="text-left">
                 <th className="p-3 font-medium">Farmer</th>
                 <th className="p-3 font-medium">Agent</th>
                 <th className="p-3 font-medium">Subject</th>
@@ -157,7 +157,7 @@ export default function AdminComplaintsPage() {
             </thead>
             <tbody>
               {rows.map((c) => (
-                <tr key={c._id} className="border-b">
+                <tr key={c._id}>
                   <td className="p-3">{c.farmerId}</td>
                   <td className="p-3">
                     {c.agent?.fullName || c.agentId}{" "}

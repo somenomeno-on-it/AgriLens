@@ -41,38 +41,15 @@ function CustomerOrdersInner() {
   const user = getAuthUser();
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "linear-gradient(135deg,#f0fdf4 0%,#f8fafc 50%,#f0f9ff 100%)",
-        padding: "24px 16px 48px",
-      }}
-    >
-      <div style={{ maxWidth: "820px", margin: "0 auto" }}>
+    <div className="agri-customer-shell">
+      <div className="agri-page" style={{ maxWidth: "920px" }}>
         {/* Page header */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: "12px",
-            marginBottom: "28px",
-          }}
-        >
+        <div className="agri-hero" style={{ marginBottom: "24px" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "12px" }}>
           <div>
-            <h1
-              style={{
-                fontSize: "1.7rem",
-                fontWeight: 800,
-                color: "#0f172a",
-                margin: 0,
-              }}
-            >
-              📋 My Orders
-            </h1>
+            <h1 className="agri-page-title">My Orders</h1>
             {user?.fullName && (
-              <div style={{ fontSize: "0.83rem", color: "#64748b", marginTop: "2px" }}>
+              <div style={{ fontSize: "0.83rem", color: "var(--agri-warm-500)", marginTop: "2px" }}>
                 Welcome back, {user.fullName}
               </div>
             )}
@@ -81,39 +58,23 @@ function CustomerOrdersInner() {
           <button
             onClick={fetchOrders}
             disabled={loading}
-            style={{
-              padding: "8px 16px",
-              borderRadius: "10px",
-              background: loading ? "#e2e8f0" : "linear-gradient(135deg,#16a34a,#15803d)",
-              color: loading ? "#94a3b8" : "#fff",
-              border: "none",
-              cursor: loading ? "default" : "pointer",
-              fontSize: "0.82rem",
-              fontWeight: 700,
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-            }}
+            className="agri-btn-primary"
+            style={{ opacity: loading ? 0.7 : 1, display: "inline-flex", alignItems: "center", gap: "6px" }}
           >
-            <span style={{ display: "inline-block", animation: loading ? "spin 1s linear infinite" : "none" }}>
-              🔄
+            <span style={{ display: "inline-flex", animation: loading ? "spin 1s linear infinite" : "none" }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M21 12a9 9 0 1 1-2.64-6.36" />
+                <polyline points="21 3 21 9 15 9" />
+              </svg>
             </span>
-            {loading ? "Refreshing…" : "Refresh"}
+            {loading ? "Refreshing..." : "Refresh"}
           </button>
         </div>
 
         {/* Poll notice */}
-        <div
-          style={{
-            fontSize: "0.72rem",
-            color: "#94a3b8",
-            marginBottom: "20px",
-            display: "flex",
-            alignItems: "center",
-            gap: "4px",
-          }}
-        >
-          <span>⏱</span> Auto-refreshes every 60 seconds
+        <div style={{ fontSize: "0.75rem", color: "var(--agri-warm-500)", marginTop: "10px" }}>
+          Auto-refreshes every 60 seconds
+        </div>
         </div>
 
         {/* Loading skeleton */}
@@ -125,7 +86,7 @@ function CustomerOrdersInner() {
                 style={{
                   height: "180px",
                   borderRadius: "16px",
-                  background: "linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%)",
+                  background: "linear-gradient(90deg,#f0fdf4 25%,#dcfce7 50%,#f0fdf4 75%)",
                   backgroundSize: "200% 100%",
                   animation: "shimmer 1.5s infinite",
                 }}
@@ -140,51 +101,31 @@ function CustomerOrdersInner() {
 
         {/* Error */}
         {!loading && error && (
-          <div
-            style={{
-              padding: "16px 20px",
-              borderRadius: "12px",
-              background: "#fef2f2",
-              border: "1.5px solid #fca5a5",
-              color: "#dc2626",
-              fontSize: "0.88rem",
-            }}
-          >
+          <div className="agri-alert agri-alert-error">
             {error}
           </div>
         )}
 
         {/* Empty state */}
         {!loading && !error && orders.length === 0 && (
-          <div
-            style={{
-              textAlign: "center",
-              padding: "60px 20px",
-              borderRadius: "16px",
-              background: "#ffffff",
-              border: "1.5px dashed #e2e8f0",
-            }}
-          >
-            <div style={{ fontSize: "48px", marginBottom: "12px" }}>🛒</div>
-            <div style={{ fontSize: "1.1rem", fontWeight: 700, color: "#374151", marginBottom: "6px" }}>
+          <div className="agri-empty">
+            <div className="agri-empty-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#15803d" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="8" cy="21" r="1" />
+                <circle cx="19" cy="21" r="1" />
+                <path d="M2.05 2.05h2l2.5 12.5a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.2-6.4H6.2" />
+              </svg>
+            </div>
+            <div style={{ fontSize: "1.1rem", fontWeight: 700, color: "var(--agri-warm-700)", marginBottom: "6px" }}>
               No orders yet
             </div>
-            <div style={{ fontSize: "0.85rem", color: "#94a3b8" }}>
+            <div style={{ fontSize: "0.85rem", color: "var(--agri-warm-500)" }}>
               Browse the marketplace and place your first order!
             </div>
             <a
               href="/marketplace"
-              style={{
-                display: "inline-block",
-                marginTop: "18px",
-                padding: "10px 24px",
-                borderRadius: "10px",
-                background: "linear-gradient(135deg,#16a34a,#15803d)",
-                color: "#fff",
-                fontSize: "0.85rem",
-                fontWeight: 700,
-                textDecoration: "none",
-              }}
+              className="agri-btn-primary"
+              style={{ display: "inline-block", marginTop: "18px", textDecoration: "none" }}
             >
               Go to Marketplace
             </a>
@@ -194,7 +135,7 @@ function CustomerOrdersInner() {
         {/* Order list */}
         {!loading && !error && orders.length > 0 && (
           <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
-            <div style={{ fontSize: "0.8rem", color: "#64748b", fontWeight: 600 }}>
+            <div style={{ fontSize: "0.8rem", color: "var(--agri-warm-500)", fontWeight: 600 }}>
               {orders.length} order{orders.length !== 1 ? "s" : ""} · newest first
             </div>
             {orders.map((order) => (

@@ -13,11 +13,11 @@ type StatusStepperProps = {
 };
 
 const MAIN_STEPS = [
-  { key: "pending", label: "Pending", emoji: "🕐" },
-  { key: "confirmed", label: "Confirmed", emoji: "✅" },
-  { key: "packaging", label: "Packaging", emoji: "📦" },
-  { key: "out_for_delivery", label: "Out for Delivery", emoji: "🚚" },
-  { key: "delivered", label: "Delivered", emoji: "🎉" },
+  { key: "pending", label: "Pending" },
+  { key: "confirmed", label: "Confirmed" },
+  { key: "packaging", label: "Packaging" },
+  { key: "out_for_delivery", label: "Out for Delivery" },
+  { key: "delivered", label: "Delivered" },
 ];
 
 export default function StatusStepper({
@@ -100,7 +100,9 @@ export default function StatusStepper({
                   title={step.label}
                 >
                   {reached && !isRejected ? (
-                    <span style={{ fontSize: "13px" }}>{step.emoji}</span>
+                    <span style={{ fontSize: "13px", color: "#fff", fontWeight: 700 }}>
+                      {isCurrent ? "•" : "✓"}
+                    </span>
                   ) : (
                     <span style={{ fontSize: "11px", color: "#94a3b8" }}>
                       {idx + 1}
@@ -183,7 +185,22 @@ export default function StatusStepper({
             border: "1.5px solid #fca5a5",
           }}
         >
-          <span style={{ fontSize: "18px" }}>❌</span>
+          <span
+            style={{
+              width: "18px",
+              height: "18px",
+              borderRadius: "9999px",
+              background: "#ef4444",
+              color: "#fff",
+              fontSize: "12px",
+              fontWeight: 700,
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            !
+          </span>
           <div>
             <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "#dc2626" }}>
               Order Rejected
