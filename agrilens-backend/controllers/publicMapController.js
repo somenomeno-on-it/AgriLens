@@ -336,19 +336,46 @@ async function getProduceHeatmap(req, res) {
   try {
     const produce = normalizeProduceName(req.query.produce);
     if (!produce) {
-      return res
-        .status(400)
-        .json({ message: "produce query parameter is required" });
+      return res.json([]);
     }
 
-    const points = await Produce.aggregate([
-      {
-        $match: {
-          status: "approved",
-          isRemoved: { $ne: true },
-          cropType: { $regex: new RegExp(`^${produce}$`, "i") },
-        },
-      },
+    const { district, upazila, lat, lng, radius } = req.query;
+
+    let farmIds = null;
+    if (district || upazila || (lat && lng && radius)) {
+      const pipeline = [];
+      if (lat && lng && radius) {
+        pipeline.push({
+          $geoNear: {
+            near: { type: "Point", coordinates: [parseFloat(lng), parseFloat(lat)] },
+            distanceField: "distance",
+            maxDistance: parseFloat(radius) * 1000,
+            spherical: true,
+          },
+        });
+      }
+      const matchStage = {};
+      if (district) matchStage["location.district"] = { $regex: new RegExp(`^${district}$`, "i") };
+      if (upazila) matchStage["location.upazila"] = { $regex: new RegExp(`^${upazila}$`, "i") };
+      if (Object.keys(matchStage).length > 0) {
+        pipeline.push({ $match: matchStage });
+      }
+      pipeline.push({ $project: { _id: 1 } });
+      const matchingFarms = await Farm.aggregate(pipeline);
+      farmIds = matchingFarms.map((f) => f._id);
+    }
+
+    const matchProduce = {
+      status: "approved",
+      isRemoved: { $ne: true },
+      cropType: { $regex: new RegExp(`^${produce}$`, "i") },
+    };
+    if (farmIds) {
+      matchProduce.farmId = { $in: farmIds };
+    }
+
+    const rawPoints = await Produce.aggregate([
+      { $match: matchProduce },
       {
         $lookup: {
           from: "farms",
@@ -375,43 +402,83 @@ async function getProduceHeatmap(req, res) {
       {
         $project: {
           _id: 0,
-          lat: "$farm.location.coordinates.lat",
-          lng: "$farm.location.coordinates.lng",
           quantity: "$quantity",
-        },
-      },
-      {
-        $match: {
-          lat: { $type: "number" },
-          lng: { $type: "number" },
-        },
-      },
-      {
-        $addFields: {
-          gridLat: {
-            $divide: [{ $floor: { $multiply: ["$lat", 10] } }, 10],
+          farm: {
+            id: "$farm._id",
+            farmName: "$farm.name",
+            district: "$farm.location.district",
+            upazila: "$farm.location.upazila",
+            coordinates: {
+              lat: {
+                $ifNull: [
+                  {
+                    $convert: {
+                      input: "$farm.location.coordinates.lat",
+                      to: "double",
+                      onError: null,
+                      onNull: null,
+                    },
+                  },
+                  {
+                    $convert: {
+                      input: { $arrayElemAt: ["$farm.geoPoint.coordinates", 1] },
+                      to: "double",
+                      onError: null,
+                      onNull: null,
+                    },
+                  },
+                ],
+              },
+              lng: {
+                $ifNull: [
+                  {
+                    $convert: {
+                      input: "$farm.location.coordinates.lng",
+                      to: "double",
+                      onError: null,
+                      onNull: null,
+                    },
+                  },
+                  {
+                    $convert: {
+                      input: { $arrayElemAt: ["$farm.geoPoint.coordinates", 0] },
+                      to: "double",
+                      onError: null,
+                      onNull: null,
+                    },
+                  },
+                ],
+              },
+            },
           },
-          gridLng: {
-            $divide: [{ $floor: { $multiply: ["$lng", 10] } }, 10],
-          },
-        },
-      },
-      {
-        $group: {
-          _id: { gridLat: "$gridLat", gridLng: "$gridLng" },
-          intensity: { $sum: "$quantity" },
-        },
-      },
-      {
-        $project: {
-          _id: 0,
-          // center of the 0.1° cell
-          lat: { $add: ["$_id.gridLat", 0.05] },
-          lng: { $add: ["$_id.gridLng", 0.05] },
-          intensity: 1,
         },
       },
     ]);
+
+    const gridMap = new Map();
+
+    for (const point of rawPoints) {
+      const farmWithCoords = addAdminFallbackCoordinates(point.farm);
+      const lat = farmWithCoords.coordinates.lat;
+      const lng = farmWithCoords.coordinates.lng;
+
+      if (typeof lat !== "number" || typeof lng !== "number") continue;
+
+      const gridLat = Math.floor(lat * 10) / 10;
+      const gridLng = Math.floor(lng * 10) / 10;
+      const gridKey = `${gridLat},${gridLng}`;
+
+      if (!gridMap.has(gridKey)) {
+        gridMap.set(gridKey, {
+          lat: gridLat + 0.05,
+          lng: gridLng + 0.05,
+          intensity: 0,
+        });
+      }
+      gridMap.get(gridKey).intensity += point.quantity || 0;
+    }
+
+    const points = Array.from(gridMap.values());
 
     return res.json(points);
   } catch (err) {

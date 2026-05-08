@@ -28,7 +28,9 @@ export default function GuestMapPage() {
           setRadius={setRadius}
           mapCenter={mapCenter}
           setMapCenter={setMapCenter}
-          showFarms
+          showFarms={true}
+          renderFarmMarkers={false}
+          forceHeatmap={true}
         />
       </div>
       <PublicStatsWidgets 

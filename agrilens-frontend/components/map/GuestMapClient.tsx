@@ -120,6 +120,8 @@ export default function GuestMapClient({
   mapCenter,
   setMapCenter,
   showFarms = true,
+  renderFarmMarkers = true,
+  forceHeatmap = false,
   showFarmDetails = false,
   farmsEndpoint = "/api/public/farms",
   requestHeaders,
@@ -133,6 +135,8 @@ export default function GuestMapClient({
   mapCenter: [number, number];
   setMapCenter: (v: [number, number]) => void;
   showFarms?: boolean;
+  renderFarmMarkers?: boolean;
+  forceHeatmap?: boolean;
   showFarmDetails?: boolean;
   farmsEndpoint?: string;
   requestHeaders?: HeadersInit;
@@ -264,15 +268,17 @@ export default function GuestMapClient({
                   ))}
                 </datalist>
                 <div className="mt-2 flex items-center justify-between gap-3">
-                  <label className="flex items-center gap-2 text-sm">
-                    <input
-                      type="checkbox"
-                      checked={showHeatmap}
-                      onChange={(e) => setShowHeatmap(e.target.checked)}
-                      disabled={!produceQuery.trim()}
-                    />
-                    Crop density heatmap
-                  </label>
+                  {!forceHeatmap && (
+                    <label className="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={showHeatmap}
+                        onChange={(e) => setShowHeatmap(e.target.checked)}
+                        disabled={!produceQuery.trim()}
+                      />
+                      Crop density heatmap
+                    </label>
+                  )}
                   <button
                     type="button"
                     className="text-xs underline text-muted-foreground hover:text-foreground"
@@ -322,7 +328,11 @@ export default function GuestMapClient({
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
           
           <ProduceHeatmapLayer
-            selectedProduce={showHeatmap ? produceQuery.trim() : ""}
+            selectedProduce={(forceHeatmap || showHeatmap) ? produceQuery.trim() : ""}
+            district={district}
+            upazila={upazila}
+            radius={radius}
+            mapCenter={mapCenter}
           />
           
           {radius > 0 && (
@@ -333,7 +343,7 @@ export default function GuestMapClient({
             />
           )}
 
-          {showFarms && farms.map((farm) => (
+          {showFarms && renderFarmMarkers && farms.map((farm) => (
             <FarmMarker
               key={farm.id}
               farm={farm}
