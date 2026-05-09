@@ -53,7 +53,7 @@ export function ConditionalHeader() {
     );
   }
 
-  if (isAdmin) return null;
+  if (isAdmin || isAgent) return null;
 
   if (shouldUseSidePanel) {
     const navItems = isFarmer
