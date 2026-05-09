@@ -28,6 +28,14 @@ router.post(
   uploadProducePhotos
 );
 
+// DELETE /api/produce/:id/photos - remove a specific photo
+router.delete(
+  "/:id/photos",
+  requireAuth,
+  requireFarmer,
+  require("../controllers/uploadController").removeProducePhoto
+);
+
 // GET /api/produce/:id - get a specific listing
 // PUT /api/produce/:id - update a listing
 // DELETE /api/produce/:id - delete (soft delete) a listing

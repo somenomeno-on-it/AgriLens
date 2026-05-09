@@ -35,6 +35,15 @@ function getAgentContext() {
   return { id, assignedRegions };
 }
 
+function getPhotoUrl(photoPath: string | null | undefined): string {
+  if (!photoPath) return "";
+  if (photoPath.startsWith("http")) return photoPath;
+  const normalizedPath = photoPath.replace(/\\/g, "/");
+  const cleanPath = normalizedPath.startsWith("/") ? normalizedPath.slice(1) : normalizedPath;
+  const cleanBase = API_BASE.endsWith("/") ? API_BASE.slice(0, -1) : API_BASE;
+  return `${cleanBase}/${cleanPath}`;
+}
+
 export default function AgentQueuePage() {
   const [items, setItems] = useState<QueueListing[]>([]);
   const [loading, setLoading] = useState(true);
@@ -141,9 +150,17 @@ export default function AgentQueuePage() {
           {filteredAndSorted.map((item) => (
             <Card key={item._id} className="agri-card p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <div className="flex items-start gap-4">
-                <div className="h-12 w-12 rounded-lg bg-[var(--agri-green-50)] text-[var(--agri-green-700)] flex items-center justify-center shrink-0">
-                  <PackageOpen className="h-6 w-6" />
-                </div>
+                {item.photos && item.photos.length > 0 && item.photos[0] ? (
+                  <img
+                    src={getPhotoUrl(item.photos[0])}
+                    alt={item.cropType}
+                    className="h-12 w-12 rounded-lg object-cover shrink-0 border border-border"
+                  />
+                ) : (
+                  <div className="h-12 w-12 rounded-lg bg-[var(--agri-green-50)] text-[var(--agri-green-700)] flex items-center justify-center shrink-0">
+                    <PackageOpen className="h-6 w-6" />
+                  </div>
+                )}
                 <div>
                   <h3 className="font-bold text-lg text-[var(--agri-green-900)]">{item.cropType}</h3>
                   <div className="flex flex-wrap items-center gap-3 mt-1 text-sm text-muted-foreground">

@@ -84,7 +84,8 @@ async function getAgentDashboard(req, res) {
 
     return res.json({ data });
   } catch (err) {
-    return res.status(500).json({ message: "Failed to load dashboard listings" });
+    console.error("[getAgentDashboard ERROR]:", err);
+    return res.status(500).json({ message: "Failed to load dashboard listings", error: err.message });
   }
 }
 
@@ -173,7 +174,8 @@ async function getAgentStats(req, res) {
       approvalRate,
     });
   } catch (err) {
-    return res.status(500).json({ message: "Failed to load dashboard stats" });
+    console.error("[getAgentStats ERROR]:", err);
+    return res.status(500).json({ message: "Failed to load dashboard stats", error: err.message });
   }
 }
 

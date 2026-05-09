@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import LogoutButton from "@/components/LogoutButton";
 import { useEffect, useState } from "react";
-import { getAssignedRegions } from "@/lib/auth";
+import { getAssignedRegions, getAuthUser } from "@/lib/auth";
 
 const navItems = [
   { label: "Dashboard", href: "/agent/dashboard", icon: LayoutDashboard },
@@ -24,6 +24,11 @@ export default function AgentLayout({ children }: { children: React.ReactNode })
     try {
       const res = getAssignedRegions();
       if (Array.isArray(res)) setRegions(res);
+      
+      const role = getAuthUser()?.role;
+      if (role !== "agent" && role !== "admin") {
+        window.location.href = "/login";
+      }
     } catch {
       // ignore
     }

@@ -26,6 +26,15 @@ function getAgentContext() {
   return { id, assignedRegions };
 }
 
+function getPhotoUrl(photoPath: string | null | undefined): string {
+  if (!photoPath) return "";
+  if (photoPath.startsWith("http")) return photoPath;
+  const normalizedPath = photoPath.replace(/\\/g, "/");
+  const cleanPath = normalizedPath.startsWith("/") ? normalizedPath.slice(1) : normalizedPath;
+  const cleanBase = API_BASE.endsWith("/") ? API_BASE.slice(0, -1) : API_BASE;
+  return `${cleanBase}/${cleanPath}`;
+}
+
 function Toast({
   message,
   type,
@@ -233,7 +242,7 @@ export default function AgentVerifyPage() {
                 <h3 className="agri-section-title">Listing Photos</h3>
                 <div className="rounded-xl overflow-hidden border border-border bg-muted/30 relative group">
                   <img
-                    src={`${API_BASE}/${activePhoto}`}
+                    src={getPhotoUrl(activePhoto)}
                     alt="Listing preview"
                     className="h-96 w-full object-contain"
                   />
